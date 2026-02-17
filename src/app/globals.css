@@ -1,0 +1,181 @@
+/* Fonts loaded via next/font in layout.tsx */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #FAF9F6;
+  --color-foreground: #1A1A1A;
+
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A1A;
+
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A1A;
+
+  --color-primary: #5C4B3D;
+  --color-primary-foreground: #FAF9F6;
+
+  --color-secondary: #E8E4DE;
+  --color-secondary-foreground: #5C4B3D;
+
+  --color-muted: #F5F2ED;
+  --color-muted-foreground: #757575;
+
+  --color-accent: #D4C8BE;
+  --color-accent-foreground: #1A1A1A;
+
+  --color-destructive: #991B1B;
+  --color-destructive-foreground: #FAF9F6;
+
+  --color-border: #E8E4DE;
+  --color-input: #E8E4DE;
+  --color-ring: #5C4B3D;
+
+  --color-chart-1: #5C4B3D;
+  --color-chart-2: #8B735B;
+  --color-chart-3: #A69076;
+  --color-chart-4: #C4B5A5;
+  --color-chart-5: #E8E4DE;
+
+  --color-sidebar: #F5F2ED;
+  --color-sidebar-foreground: #5C4B3D;
+  --color-sidebar-primary: #5C4B3D;
+  --color-sidebar-primary-foreground: #FAF9F6;
+  --color-sidebar-accent: #E8E4DE;
+  --color-sidebar-accent-foreground: #5C4B3D;
+  --color-sidebar-border: #D4C8BE;
+  --color-sidebar-ring: #5C4B3D;
+
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-display: var(--font-inter), "Inter", sans-serif;
+
+  --radius-lg: 12px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #E8E4DE;
+  }
+
+  :root {
+    --background: #FAF9F6;
+    --foreground: #1A1A1A;
+    --card: #FFFFFF;
+    --card-foreground: #1A1A1A;
+    --popover: #FFFFFF;
+    --popover-foreground: #1A1A1A;
+    --primary: #5C4B3D;
+    --primary-foreground: #FAF9F6;
+    --secondary: #E8E4DE;
+    --secondary-foreground: #5C4B3D;
+    --muted: #F5F2ED;
+    --muted-foreground: #757575;
+    --accent: #D4C8BE;
+    --accent-foreground: #1A1A1A;
+    --destructive: #991B1B;
+    --destructive-foreground: #FAF9F6;
+    --border: #E8E4DE;
+    --input: #E8E4DE;
+    --ring: #5C4B3D;
+    --radius: 12px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+
+  .container {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+    max-width: 1440px;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-right: 2rem;
+      padding-left: 2rem;
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .bg-beige-gradient {
+    background: linear-gradient(to bottom, rgba(250, 249, 246, 0) 0%, rgba(250, 249, 246, 0.8) 100%);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .transition-premium {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+nextjs-portal {
+  display: none !important;
+}

@@ -1,0 +1,123 @@
+2026-02-16T09:43:15.680Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary loading={null}>
+        <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+          <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+                  <SegmentViewNode type="page" pagePath="/user/app/...">
+                    <SegmentTrieNode>
+                    <Home>
+                      ...
+                        <header data-orchids-id="src/compon..." data-orchids-name="header" id="page-header" ...>
+                          <div data-orchids-id="src/compon..." data-orchids-name="div" className="container ...">
+                            <div data-orchids-id="src/compon..." data-orchids-name="div" className="flex items...">
+                              <div data-orchids-id="src/compon..." data-orchids-name="div" className="hidden lg:...">
+                                <div data-orchids-id="src/compon..." data-orchids-name="div" className="relative w...">
+                  ...
+2026-02-16T09:44:58.438Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary loading={null}>
+        <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+          <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+                  <SegmentViewNode type="page" pagePath="/user/app/...">
+                    <SegmentTrieNode>
+                    <Home>
+                      ...
+                        <header data-orchids-id="src/compon..." data-orchids-name="header" id="page-header" ...>
+                          <div data-orchids-id="src/compon..." data-orchids-name="div" className="container ...">
+                            <div data-orchids-id="src/compon..." data-orchids-name="div" className="flex items...">
+                              <div data-orchids-id="src/compon..." data-orchids-name="div" className="hidden lg:...">
+                                <div data-orchids-id="src/compon..." data-orchids-name="div" className="relative w...">
+                  ...
+2026-02-16T09:45:31.252Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary loading={null}>
+        <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+          <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+                  <SegmentViewNode type="page" pagePath="/user/app/...">
+                    <SegmentTrieNode>
+                    <Home>
+                      <Header>
+                      <section>
+                      <section>
+                      ...
+                        <div data-orchids-id="src/compon..." data-orchids-name="div" className="grid grid-...">
+                          ...
+                            <div data-orchids-id="src/compon..." data-orchids-name="div" className="relative w...">
+                              <a>
+                              <div data-orchids-id="src/compon..." data-orchids-name="div" className="absolute i...">
+                                <div data-orchids-id="src/compon..." data-orchids-name="div" c...
+2026-02-16T09:47:30.125Z [console][error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary loading={null}>
+        <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+          <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+                  <SegmentViewNode type="page" pagePath="/user/app/...">
+                    <SegmentTrieNode>
+                    <Home>
+                      ...
+                        <header data-orchids-id="src/compon..." data-orchids-name="header" id="page-header" ...>
+                          <div data-orchids-id="src/compon..." data-orchids-name="div" className="container ...">
+                            <div data-orchids-id="src/compon..." data-orchids-name="div" className="flex items...">
+                              <div data-orchids-id="src/compon..." data-orchids-name="div" className="hidden lg:...">
+                                <div data-orchids-id="src/compon..." data-orchids-name="div" className="relative w...">
+                  ...
