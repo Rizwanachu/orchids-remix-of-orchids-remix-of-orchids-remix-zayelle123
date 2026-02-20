@@ -135,9 +135,14 @@ const Header = () => {
             {/* Logo */}
             <div className="flex-shrink-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
               <a href="/" className="block">
-                <span className="text-[28px] lg:text-[32px] font-serif tracking-[0.15em] text-[#1A1A1A] uppercase">
-                  Zayelle
-                </span>
+                <Image
+                  src="/logo.png"
+                  alt="Zayelle"
+                  width={180}
+                  height={50}
+                  className="h-8 lg:h-10 w-auto object-contain"
+                  priority
+                />
               </a>
             </div>
 
