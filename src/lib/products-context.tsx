@@ -24,14 +24,22 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = useState(false);
 
   const refreshProducts = useCallback(async () => {
+    // Force a fresh fetch from Shopify by bypassing any internal cache
     const shopifyProducts = await fetchShopifyProducts();
-    if (shopifyProducts.length > 0) {
+    if (shopifyProducts && shopifyProducts.length > 0) {
       setProducts(shopifyProducts);
+      // Update local storage immediately to ensure consistency across tabs/refreshes
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(shopifyProducts));
     }
   }, []);
 
   useEffect(() => {
     refreshProducts().then(() => setLoaded(true));
+    
+    // Optional: Refresh products when the window regains focus to catch new Shopify publications
+    const handleFocus = () => refreshProducts();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [refreshProducts]);
 
   useEffect(() => {

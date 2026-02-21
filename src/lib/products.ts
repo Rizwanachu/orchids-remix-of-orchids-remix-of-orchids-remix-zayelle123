@@ -21,12 +21,33 @@ export const allProducts: Product[] = [];
 export async function fetchShopifyProducts(): Promise<Product[]> {
   const query = gql`
     {
-      products(first: 10) {
+      products(first: 50) {
         edges {
           node {
             id
             title
             handle
+            description
+            productType
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            compareAtPriceRange {
+              minVariantPrice {
+                amount
+              }
+            }
+            images(first: 2) {
+              edges {
+                node {
+                  url
+                  altText
+                }
+              }
+            }
           }
         }
       }
@@ -36,11 +57,16 @@ export async function fetchShopifyProducts(): Promise<Product[]> {
   try {
     const response: any = await client.request(query);
     console.log('Raw Shopify Response:', JSON.stringify(response, null, 2));
+    
+    // Support both client.request and raw fetch response formats
+    const productsData = response.data?.products || response.products;
+    
     if (response.errors) {
       console.error('Shopify API errors:', response.errors);
       return [];
     }
-    return (response.products?.edges || []).map(({ node }: any) => ({
+    
+    return (productsData?.edges || []).map(({ node }: any) => ({
       id: node.id,
       handle: node.handle,
       name: node.title,
