@@ -56,6 +56,10 @@ export async function fetchShopifyProducts(): Promise<Product[]> {
 
   try {
     const response: any = await client.request(query);
+    if (response.errors) {
+      console.error('Shopify API errors:', response.errors);
+      return [];
+    }
     return response.products.edges.map(({ node }: any) => ({
       id: node.id,
       handle: node.handle,
