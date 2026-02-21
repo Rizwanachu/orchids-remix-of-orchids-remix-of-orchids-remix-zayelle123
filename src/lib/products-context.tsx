@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { Product, allProducts as defaultProducts } from "./products";
+import { Product, fetchShopifyProducts } from "./products";
 
 interface ProductsContextType {
   products: Product[];
@@ -10,6 +10,7 @@ interface ProductsContextType {
   deleteProduct: (id: string) => void;
   getProductByHandle: (handle: string) => Product | undefined;
   searchProducts: (query: string) => Product[];
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductsContext = createContext<ProductsContextType | null>(null);
@@ -19,29 +20,22 @@ const PRODUCTS_VERSION_KEY = "zayelle-products-version";
 const CURRENT_VERSION = 2; // bump when default product data changes
 
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-      try {
-        const savedVersion = localStorage.getItem(PRODUCTS_VERSION_KEY);
-        const version = savedVersion ? parseInt(savedVersion, 10) : 0;
-        if (version < CURRENT_VERSION) {
-          // Reset to new defaults when product data schema changes
-          localStorage.removeItem(PRODUCTS_KEY);
-          localStorage.setItem(PRODUCTS_VERSION_KEY, CURRENT_VERSION.toString());
-        } else {
-          const saved = localStorage.getItem(PRODUCTS_KEY);
-          if (saved) {
-            setProducts(JSON.parse(saved));
-          }
-        }
-      } catch {}
-      setLoaded(true);
-    }, []);
+  const refreshProducts = useCallback(async () => {
+    const shopifyProducts = await fetchShopifyProducts();
+    if (shopifyProducts.length > 0) {
+      setProducts(shopifyProducts);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!loaded) return;
+    refreshProducts().then(() => setLoaded(true));
+  }, [refreshProducts]);
+
+  useEffect(() => {
+    if (!loaded || products.length === 0) return;
     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
   }, [products, loaded]);
 
@@ -82,7 +76,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProductsContext.Provider
-      value={{ products, addProduct, updateProduct, deleteProduct, getProductByHandle, searchProducts }}
+      value={{ products, addProduct, updateProduct, deleteProduct, getProductByHandle, searchProducts, refreshProducts }}
     >
       {children}
     </ProductsContext.Provider>
