@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const loaderPath = require.resolve('orchids-visual-edits/loader.js');
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*"],
+  allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev", "127.0.0.1"],
   images: {
     remotePatterns: [
       {
