@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 
@@ -20,6 +20,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   if (!product) {
     return (
@@ -55,6 +56,39 @@ export default function ProductDetailPage() {
     }
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const handleBuyItNow = async () => {
+    if (isRedirecting) return;
+    setIsRedirecting(true);
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              id: product.id,
+              quantity: quantity,
+            },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error("Failed to get checkout URL", data);
+        alert("Checkout failed. Please try again.");
+        setIsRedirecting(false);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("An error occurred. Please try again.");
+      setIsRedirecting(false);
+    }
   };
 
   const related = products.filter((p) => p.id !== product.id).slice(0, 4);
@@ -173,13 +207,18 @@ export default function ProductDetailPage() {
               </div>
 
               <button
-                onClick={() => {
-                  handleAddToCart();
-                  router.push("/checkout");
-                }}
-                className="mt-3 w-full border border-[#1A1A1A] text-[#1A1A1A] py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#1A1A1A] hover:text-white transition-colors"
+                onClick={handleBuyItNow}
+                disabled={isRedirecting}
+                className="mt-3 w-full border border-[#1A1A1A] text-[#1A1A1A] py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#1A1A1A] hover:text-white transition-colors disabled:opacity-70"
               >
-                Buy It Now
+                {isRedirecting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Buy It Now"
+                )}
               </button>
 
               {/* Details */}
