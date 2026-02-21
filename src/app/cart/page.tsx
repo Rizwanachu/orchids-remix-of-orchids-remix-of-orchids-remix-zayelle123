@@ -1,14 +1,42 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const handleCheckout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (items.length === 0 || isRedirecting) return;
+
+    setIsRedirecting(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await response.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error("Failed to get checkout URL", data);
+        alert("Checkout failed. Please try again.");
+        setIsRedirecting(false);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("An error occurred. Please try again.");
+      setIsRedirecting(false);
+    }
+  };
 
   return (
     <>
@@ -126,12 +154,20 @@ export default function CartPage() {
                     </span>
                   </div>
 
-                  <a
-                    href="/checkout"
-                    className="mt-6 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors"
+                  <button
+                    onClick={handleCheckout}
+                    disabled={isRedirecting}
+                    className="mt-6 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-70"
                   >
-                    Proceed to Checkout
-                  </a>
+                    {isRedirecting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Redirecting...
+                      </>
+                    ) : (
+                      "Proceed to Checkout"
+                    )}
+                  </button>
 
                   <a
                     href="/products"
