@@ -119,14 +119,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {isLogin && (
-            <div className="mt-4 p-3 bg-[#F5F2ED] border border-[#E8E4DE] rounded-sm">
-              <p className="text-[12px] text-[#757575] text-center">
-                Admin login: <span className="font-medium text-[#1A1A1A]">admin@zayelle.com</span> / <span className="font-medium text-[#1A1A1A]">admin123</span>
-              </p>
-            </div>
-          )}
-
           <div className="mt-6 text-center">
             <p className="text-[14px] text-[#757575]">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
