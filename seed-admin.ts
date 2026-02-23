@@ -3,8 +3,8 @@ import { users } from "./shared/schema";
 import bcrypt from "bcryptjs";
 
 async function seed() {
-  const email = "admin@example.com";
-  const password = "adminpassword123";
+  const email = "rizwanachoo123@gmail.com";
+  const password = "rizU@1212";
   const hashedPassword = await bcrypt.hash(password, 10);
 
   console.log("Seeding admin user...");
