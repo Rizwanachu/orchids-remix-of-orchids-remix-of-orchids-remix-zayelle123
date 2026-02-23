@@ -36,6 +36,8 @@ interface Order {
   paymentStatus: string;
   orderStatus: string;
   paymentMethod: string | null;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
   couponCode: string | null;
   discountAmount: string | null;
   createdAt: string;
@@ -420,6 +422,12 @@ export default function AdminOrdersPage() {
                   <p className="text-xs text-[#757575] mb-1">Payment Method</p>
                   <p className="text-sm">{selectedOrder.paymentMethod || "—"}</p>
                 </div>
+                {selectedOrder.razorpayPaymentId && (
+                  <div>
+                    <p className="text-xs text-[#757575] mb-1">Razorpay Payment ID</p>
+                    <p className="text-sm font-mono text-[#5C4B3D]">{selectedOrder.razorpayPaymentId}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Payment Status</p>
                   <select

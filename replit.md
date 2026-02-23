@@ -15,7 +15,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 
 ## Database Schema
 - `users` - id, name, email, password (bcrypt), phone, address, role (user/admin), createdAt
-- `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, couponCode, discountAmount, timestamps
+- `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, razorpayOrderId, razorpayPaymentId, couponCode, discountAmount, timestamps
 - `order_items` - id, orderId, productName, productHandle, quantity, price, image
 - `coupons` - id, code, discountType, discountValue, minOrderValue, maxUsage, currentUsage, expiryDate, active
 - `products` - id, handle, name, subtitle, price, compareAt, image, hoverImage, badge, description, details, shippingPolicy, returnPolicy, category, stockQuantity, lowStockThreshold, active, createdAt
@@ -86,9 +86,18 @@ The homepage renders sections dynamically based on database configuration:
 - **Start**: `npm start`
 - **DB Push**: `npm run db:push` (drizzle-kit push)
 
+## Payment Integration
+- **Razorpay** integrated for online payments (UPI, cards, net banking, wallets)
+- COD orders: ₹49 surcharge, order created directly with paymentStatus "unpaid"
+- Online orders: Razorpay checkout modal opens, payment verified server-side, order created with paymentStatus "paid"
+- API routes: `/api/razorpay/config` (public key), `/api/razorpay/create-order` (create Razorpay order), `/api/razorpay/verify` (verify payment + create order)
+- Razorpay payment ID stored in orders table and visible in admin order details
+
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for admin JWT tokens
+- `RAZORPAY_KEY_ID` - Razorpay API Key ID
+- `RAZORPAY_KEY_SECRET` - Razorpay API Key Secret
 - `PGDATABASE`, `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` - DB credentials
 
 ## Configuration

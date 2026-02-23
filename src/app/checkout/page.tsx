@@ -1,14 +1,21 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { useCart } from "@/lib/cart-context";
-import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Loader2, CheckCircle, Package } from "lucide-react";
+import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Loader2, CheckCircle, Package, CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useProducts } from "@/lib/products-context";
+import Script from "next/script";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function CheckoutPage() {
   return (
@@ -61,6 +68,15 @@ function CheckoutContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState<{ orderId: string } | null>(null);
+  const [razorpayKeyId, setRazorpayKeyId] = useState("");
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/razorpay/config")
+      .then((res) => res.json())
+      .then((data) => setRazorpayKeyId(data.keyId || ""))
+      .catch(() => {});
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -90,6 +106,125 @@ function CheckoutContent() {
     return errs;
   };
 
+  const getOrderData = () => {
+    const customerName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+    const shippingAddress = `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`;
+    const orderItemsList = items.map((item) => ({
+      productName: item.name,
+      productHandle: item.handle,
+      quantity: item.quantity,
+      price: item.price,
+      image: item.image,
+    }));
+    return { customerName, shippingAddress, orderItems: orderItemsList };
+  };
+
+  const handleCODOrder = async () => {
+    const { customerName, shippingAddress, orderItems } = getOrderData();
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName,
+        customerEmail: formData.email.trim().toLowerCase(),
+        customerPhone: formData.phone.trim(),
+        shippingAddress,
+        items: orderItems,
+        paymentMethod: "Cash on Delivery",
+        totalAmount: totalPrice,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setOrderPlaced({ orderId: data.order.orderId });
+      if (!isDirect) clearCart();
+    } else {
+      const data = await res.json();
+      alert(data.error || "Failed to place order. Please try again.");
+    }
+  };
+
+  const handleRazorpayOrder = async () => {
+    if (!razorpayKeyId || !razorpayLoaded) {
+      alert("Payment system is loading. Please try again in a moment.");
+      return;
+    }
+
+    const createRes = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: totalPrice,
+        receipt: `zay_${Date.now()}`,
+      }),
+    });
+
+    if (!createRes.ok) {
+      alert("Failed to initiate payment. Please try again.");
+      return;
+    }
+
+    const razorpayOrder = await createRes.json();
+    const { customerName, shippingAddress, orderItems } = getOrderData();
+
+    const options = {
+      key: razorpayKeyId,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      name: "Zayelle",
+      description: "Order Payment",
+      order_id: razorpayOrder.id,
+      handler: async (response: any) => {
+        try {
+          const verifyRes = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              customerName,
+              customerEmail: formData.email.trim().toLowerCase(),
+              customerPhone: formData.phone.trim(),
+              shippingAddress,
+              items: orderItems,
+              totalAmount: totalPrice,
+            }),
+          });
+
+          if (verifyRes.ok) {
+            const data = await verifyRes.json();
+            setOrderPlaced({ orderId: data.order.orderId });
+            if (!isDirect) clearCart();
+          } else {
+            alert("Payment was received but order creation failed. Please contact support.");
+          }
+        } catch {
+          alert("Payment was received but order creation failed. Please contact support.");
+        } finally {
+          setSubmitting(false);
+        }
+      },
+      prefill: {
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+        email: formData.email.trim(),
+        contact: formData.phone.trim(),
+      },
+      theme: {
+        color: "#5C4B3D",
+      },
+      modal: {
+        ondismiss: () => {
+          setSubmitting(false);
+        },
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
@@ -101,46 +236,19 @@ function CheckoutContent() {
     setSubmitting(true);
 
     try {
-      const customerName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
-      const shippingAddress = `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`;
-
-      const orderItems = items.map((item) => ({
-        productName: item.name,
-        productHandle: item.handle,
-        quantity: item.quantity,
-        price: item.price,
-        image: item.image,
-      }));
-
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName,
-          customerEmail: formData.email.trim().toLowerCase(),
-          customerPhone: formData.phone.trim(),
-          shippingAddress,
-          items: orderItems,
-          paymentMethod: formData.paymentMethod === "cod" ? "Cash on Delivery" : formData.paymentMethod,
-          totalAmount: totalPrice,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setOrderPlaced({ orderId: data.order.orderId });
-        if (!isDirect) {
-          clearCart();
-        }
+      if (formData.paymentMethod === "cod") {
+        await handleCODOrder();
       } else {
-        const data = await res.json();
-        alert(data.error || "Failed to place order. Please try again.");
+        await handleRazorpayOrder();
+        return;
       }
     } catch (error) {
       console.error("Order error:", error);
       alert("Something went wrong. Please try again.");
     } finally {
-      setSubmitting(false);
+      if (formData.paymentMethod === "cod") {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -217,6 +325,10 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        onLoad={() => setRazorpayLoaded(true)}
+      />
       <Header />
       <main className="flex-grow">
         <div className="bg-[#F5F2ED] py-8 md:py-10">
@@ -369,14 +481,14 @@ function CheckoutContent() {
                       onChange={handleInputChange}
                       className="w-4 h-4 accent-[#5C4B3D]"
                     />
-                    <div>
+                    <div className="flex-1">
                       <span className="text-[14px] font-medium text-[#1A1A1A]">Cash on Delivery (COD)</span>
-                      <p className="text-[12px] text-[#757575] mt-0.5">Pay when you receive your order</p>
+                      <p className="text-[12px] text-[#757575] mt-0.5">Pay when you receive your order (+₹49 COD fee)</p>
                     </div>
                   </label>
                   <label
                     className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.paymentMethod === "upi"
+                      formData.paymentMethod === "online"
                         ? "border-[#5C4B3D] bg-[#5C4B3D]/5"
                         : "border-[#E8E4DE] hover:border-[#D4C8BE]"
                     }`}
@@ -384,14 +496,17 @@ function CheckoutContent() {
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="upi"
-                      checked={formData.paymentMethod === "upi"}
+                      value="online"
+                      checked={formData.paymentMethod === "online"}
                       onChange={handleInputChange}
                       className="w-4 h-4 accent-[#5C4B3D]"
                     />
-                    <div>
-                      <span className="text-[14px] font-medium text-[#1A1A1A]">UPI / Online Payment</span>
-                      <p className="text-[12px] text-[#757575] mt-0.5">GPay, PhonePe, Paytm, or any UPI app</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[14px] font-medium text-[#1A1A1A]">Pay Online</span>
+                        <CreditCard size={16} className="text-[#5C4B3D]" />
+                      </div>
+                      <p className="text-[12px] text-[#757575] mt-0.5">UPI, Cards, Net Banking, Wallets (powered by Razorpay)</p>
                     </div>
                   </label>
                 </div>
@@ -405,11 +520,11 @@ function CheckoutContent() {
                 {submitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Placing Order...
+                    {formData.paymentMethod === "online" ? "Processing Payment..." : "Placing Order..."}
                   </>
                 ) : (
                   <>
-                    Place Order — ₹{totalPrice.toLocaleString("en-IN")}.00
+                    {formData.paymentMethod === "online" ? "Pay" : "Place Order"} — ₹{totalPrice.toLocaleString("en-IN")}.00
                     <ArrowRight size={16} />
                   </>
                 )}
