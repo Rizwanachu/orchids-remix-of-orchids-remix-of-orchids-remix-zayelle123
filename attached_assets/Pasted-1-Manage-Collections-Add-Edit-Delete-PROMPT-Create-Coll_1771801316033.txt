@@ -1,0 +1,383 @@
+1️⃣ Manage Collections (Add / Edit / Delete)
+
+PROMPT – Create Collection Management System
+
+Create a full collection management system for my Next.js ecommerce site.
+
+Create database model:
+
+Collection:
+
+id
+
+title
+
+slug
+
+subtitle
+
+description
+
+imageUrl
+
+isFeatured (boolean)
+
+displayOrder (number)
+
+createdAt
+
+Create admin routes:
+
+/admin/collections
+
+Add new collection
+
+Edit collection
+
+Delete collection
+
+Reorder collections
+
+Create API routes:
+
+GET /api/admin/collections
+
+POST /api/admin/collections
+
+PUT /api/admin/collections/:id
+
+DELETE /api/admin/collections/:id
+
+Only allow admin role access.
+
+On frontend homepage:
+
+Fetch collections dynamically
+
+Display in "Collections" section
+
+Sort by displayOrder
+
+Do not hardcode any collection data.
+
+2️⃣ Manage "New Arrivals" Section
+
+Instead of manually marking products, let admin control it.
+
+PROMPT – Create New Arrivals Management
+
+Create admin feature to manage New Arrivals section.
+
+Option 1:
+Add field to Product model:
+
+isNewArrival (boolean)
+
+OR
+
+Option 2 (better):
+Create separate NewArrival model:
+
+NewArrival:
+
+productId
+
+displayOrder
+
+createdAt
+
+Create:
+
+/admin/new-arrivals page
+
+Add product to New Arrivals
+
+Remove product
+
+Change display order
+
+Homepage should:
+
+Fetch products dynamically marked as New Arrival
+
+Sort by displayOrder
+
+Limit to 4 or 8 products
+
+Only admin can manage.
+
+3️⃣ Manage "The Zayelle Edit" Section (Image Grid)
+
+This is a content-based image grid (not product-based).
+
+PROMPT – Create Zayelle Edit CMS Section
+
+Create a CMS system for managing "The Zayelle Edit" homepage grid.
+
+Create model:
+
+ZayelleEdit:
+
+id
+
+imageUrl
+
+title (optional)
+
+subtitle (optional)
+
+redirectLink (optional)
+
+displayOrder
+
+createdAt
+
+Create admin page:
+
+/admin/zayelle-edit
+
+Upload image
+
+Add title
+
+Add redirect link
+
+Change display order
+
+Delete item
+
+On homepage:
+
+Fetch dynamically
+
+Render grid layout
+
+Sort by displayOrder
+
+Images should be uploaded to cloud storage (Cloudinary or local upload system).
+
+Only admin can access this.
+
+4️⃣ Manage Promo Banners (Hero + Mid Banners)
+
+You need dynamic banner control.
+
+PROMPT – Create Homepage Banner Management
+
+Create CMS feature for homepage banners.
+
+Create model:
+
+Banner:
+
+id
+
+title
+
+subtitle
+
+buttonText
+
+buttonLink
+
+imageUrl
+
+position (hero / mid-left / mid-right)
+
+isActive (boolean)
+
+createdAt
+
+Admin panel:
+
+/admin/banners
+
+Add new banner
+
+Toggle active/inactive
+
+Replace image
+
+Edit text
+
+Choose position
+
+Homepage:
+
+Fetch only isActive banners
+
+Render based on position
+
+Do not hardcode banner text or images.
+
+5️⃣ Manage Gift Hampers (Custom Product Bundles)
+
+Since hampers include multiple items.
+
+PROMPT – Create Gift Hamper Builder System
+
+Create gift hamper management system.
+
+Create model:
+
+GiftHamper:
+
+id
+
+title
+
+description
+
+imageUrl
+
+price
+
+includedProducts (array of productIds)
+
+displayOrder
+
+isActive
+
+Admin page:
+
+/admin/gift-hampers
+
+Create hamper
+
+Select multiple products
+
+Auto-calculate price OR manually set price
+
+Upload custom image
+
+Enable/disable hamper
+
+Frontend:
+
+Show hampers as separate category
+
+Allow adding hamper to cart
+
+Deduct stock from included products when purchased
+
+Only admin access.
+
+6️⃣ Manage Section Titles & Subtitles (Full Homepage CMS Control)
+
+To avoid editing code every time.
+
+PROMPT – Create Homepage Content Settings Panel
+
+Create a dynamic homepage settings system.
+
+Create model:
+
+HomepageSettings:
+
+heroTitle
+
+heroSubtitle
+
+collectionsTitle
+
+collectionsSubtitle
+
+newArrivalsTitle
+
+newArrivalsSubtitle
+
+zayelleEditTitle
+
+zayelleEditSubtitle
+
+footerHeadline
+
+updatedAt
+
+Create admin page:
+
+/admin/homepage-settings
+
+Editable form for all text fields
+
+Save changes dynamically
+
+Homepage:
+
+Fetch settings from API
+
+Render dynamically
+
+Remove all hardcoded section text from frontend.
+
+7️⃣ Drag & Drop Section Ordering (Advanced Feature)
+
+If you want Shopify-level control.
+
+PROMPT – Create Dynamic Homepage Section Order
+
+Create a section management system.
+
+Create model:
+
+HomepageSection:
+
+id
+
+sectionName (collections, new-arrivals, zayelle-edit, banners, etc.)
+
+isVisible (boolean)
+
+displayOrder (number)
+
+Admin page:
+
+/admin/homepage-layout
+
+Toggle visibility
+
+Change section order (drag and drop)
+
+Save layout
+
+Homepage:
+
+Render sections dynamically based on:
+
+isVisible
+
+displayOrder
+
+No section order should be hardcoded.
+
+8️⃣ Media Upload System (Important for All CMS)
+
+PROMPT – Create Admin Media Upload System
+
+Create secure image upload system.
+
+Requirements:
+
+Only admin can upload
+
+Store images in:
+
+Cloudinary (recommended)
+
+Return secure URL
+
+Compress images automatically
+
+Limit file size
+
+Allow image preview before save
+
+Integrate upload system in:
+
+Collections
+
+Banners
+
+Zayelle Edit
+
+Gift Hampers

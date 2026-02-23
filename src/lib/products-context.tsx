@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { Product, fetchShopifyProducts } from "./products";
+import { Product } from "./products";
 
 interface ProductsContextType {
   products: Product[];
@@ -15,51 +15,77 @@ interface ProductsContextType {
 
 const ProductsContext = createContext<ProductsContextType | null>(null);
 
-const PRODUCTS_KEY = "zayelle-products";
-const PRODUCTS_VERSION_KEY = "zayelle-products-version";
-const CURRENT_VERSION = 2; // bump when default product data changes
-
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   const refreshProducts = useCallback(async () => {
-    // Force a fresh fetch from Shopify by bypassing any internal cache
-    const shopifyProducts = await fetchShopifyProducts();
-    if (shopifyProducts && shopifyProducts.length > 0) {
-      setProducts(shopifyProducts);
-      // Update local storage immediately to ensure consistency across tabs/refreshes
-      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(shopifyProducts));
+    try {
+      const res = await fetch("/api/products");
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
     }
   }, []);
 
   useEffect(() => {
     refreshProducts().then(() => setLoaded(true));
-    
-    // Optional: Refresh products when the window regains focus to catch new Shopify publications
-    const handleFocus = () => refreshProducts();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
   }, [refreshProducts]);
 
-  useEffect(() => {
-    if (!loaded || products.length === 0) return;
-    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-  }, [products, loaded]);
-
-  const addProduct = useCallback((product: Omit<Product, "id">) => {
-    const id = Date.now().toString();
-    setProducts((prev) => [...prev, { ...product, id }]);
+  const addProduct = useCallback(async (product: Omit<Product, "id">) => {
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
+      });
+      if (res.ok) {
+        const newProduct = await res.json();
+        setProducts((prev) => [...prev, newProduct]);
+      }
+    } catch (error) {
+      console.error("Failed to add product:", error);
+      const id = Date.now().toString();
+      setProducts((prev) => [...prev, { ...product, id }]);
+    }
   }, []);
 
-  const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
-    );
+  const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      }
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      );
+    }
   }, []);
 
-  const deleteProduct = useCallback((id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+  const deleteProduct = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    }
   }, []);
 
   const getProductByHandle = useCallback(

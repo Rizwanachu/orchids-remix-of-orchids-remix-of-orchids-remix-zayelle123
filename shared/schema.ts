@@ -54,6 +54,25 @@ export const coupons = pgTable("coupons", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  handle: text("handle").notNull().unique(),
+  name: text("name").notNull(),
+  subtitle: text("subtitle").notNull().default(""),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  compareAt: numeric("compare_at", { precision: 10, scale: 2 }),
+  image: text("image").notNull(),
+  hoverImage: text("hover_image").notNull().default(""),
+  badge: text("badge"),
+  description: text("description").notNull().default(""),
+  details: text("details").array(),
+  category: text("category").notNull().default(""),
+  stockQuantity: integer("stock_quantity").notNull().default(100),
+  lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const adminActivityLogs = pgTable("admin_activity_logs", {
   id: serial("id").primaryKey(),
   adminId: integer("admin_id").references(() => users.id),
@@ -73,3 +92,4 @@ export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type Coupon = typeof coupons.$inferSelect;
 export type AdminActivityLog = typeof adminActivityLogs.$inferSelect;
+export type DbProduct = typeof products.$inferSelect;
