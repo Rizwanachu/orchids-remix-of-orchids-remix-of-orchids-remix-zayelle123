@@ -36,6 +36,7 @@ const navItems = [
   { href: "/admin/banners", label: "Banners", icon: Megaphone },
   { href: "/admin/zayelle-edit", label: "Zayelle Edit", icon: Image },
   { href: "/admin/gift-hampers", label: "Gift Hampers", icon: Gift },
+  { href: "/admin/dm-testimonials", label: "DM Testimonials", icon: MessageSquare },
   { href: "/admin/reviews", label: "Reviews", icon: MessageSquare },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },
   { href: "/admin/homepage-settings", label: "Homepage Settings", icon: Settings },

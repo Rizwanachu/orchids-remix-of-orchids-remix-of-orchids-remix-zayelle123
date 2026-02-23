@@ -27,17 +27,18 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `gift_hampers` - id, title, description, imageUrl, price, comparePrice, includedProductIds (int[]), displayOrder, isActive, createdAt
 - `homepage_settings` - id, key (unique), value, updatedAt
 - `homepage_sections` - id, sectionName (unique), label, isVisible, displayOrder
+- `dm_testimonials` - id, imageUrl, alt, displayOrder, isActive, createdAt
 - `reviews` - id, productId (FK), customerName, customerEmail, rating (1-5), comment, imageUrl, status (pending/approved/rejected), createdAt
 
 ## Project Structure
 - `src/app/` - Next.js App Router pages
-  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, coupons, homepage-settings, homepage-layout, activity)
+  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, coupons, homepage-settings, homepage-layout, activity)
   - `account/` - User account pages
   - `cart/`, `checkout/`, `wishlist/` - Shopping flow
   - `collections/`, `products/` - Product browsing
   - `api/` - API routes
-- `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, upload, login, logout)
-- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, homepage-settings, homepage-layout, orders, coupons, products, reviews)
+- `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, dm-testimonials, upload, login, logout)
+- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, homepage-settings, homepage-layout, orders, coupons, products, reviews)
 - `src/components/` - Reusable UI components (sections, ui)
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities, context providers, admin auth helpers

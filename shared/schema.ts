@@ -152,6 +152,15 @@ export const homepageSections = pgTable("homepage_sections", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const dmTestimonials = pgTable("dm_testimonials", {
+  id: serial("id").primaryKey(),
+  imageUrl: text("image_url").notNull(),
+  alt: text("alt").notNull().default(""),
+  displayOrder: integer("display_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id).notNull(),
@@ -182,4 +191,5 @@ export type Banner = typeof banners.$inferSelect;
 export type GiftHamper = typeof giftHampers.$inferSelect;
 export type HomepageSetting = typeof homepageSettings.$inferSelect;
 export type HomepageSection = typeof homepageSections.$inferSelect;
+export type DmTestimonial = typeof dmTestimonials.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
