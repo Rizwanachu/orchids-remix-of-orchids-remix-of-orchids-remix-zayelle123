@@ -19,7 +19,7 @@ export default function AllProductsPage() {
 
 function AllProductsContent() {
   const { addItem, toggleWishlist, isInWishlist } = useCart();
-  const { products, searchProducts } = useProducts();
+  const { products, loaded, searchProducts } = useProducts();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
@@ -46,6 +46,24 @@ function AllProductsContent() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-16">
+          {!loaded ? (
+            <>
+              <p className="text-[14px] text-[#757575] mb-8">Loading products...</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex flex-col">
+                    <div className="w-full aspect-square rounded-[12px] bg-[#E8E4DE] animate-pulse" />
+                    <div className="mt-3 space-y-2">
+                      <div className="h-4 bg-[#E8E4DE] rounded w-3/4 animate-pulse" />
+                      <div className="h-3 bg-[#E8E4DE] rounded w-1/2 animate-pulse" />
+                      <div className="h-4 bg-[#E8E4DE] rounded w-1/4 animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+          <>
           <div className="flex items-center justify-between mb-8">
             <p className="text-[14px] text-[#757575]">{displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}</p>
             {query && (
@@ -120,6 +138,8 @@ function AllProductsContent() {
                 );
               })}
             </div>
+          )}
+          </>
           )}
         </div>
       </main>

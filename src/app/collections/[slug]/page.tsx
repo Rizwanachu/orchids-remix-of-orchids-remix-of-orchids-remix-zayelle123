@@ -22,7 +22,7 @@ export default function CollectionPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const { addItem, toggleWishlist, isInWishlist } = useCart();
-  const { products: allProducts } = useProducts();
+  const { products: allProducts, loaded } = useProducts();
 
   const title = collectionTitles[slug] || slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   const products = allProducts.filter((p) => p.category === slug);
@@ -47,7 +47,23 @@ export default function CollectionPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-16">
-          {products.length > 0 ? (
+          {!loaded ? (
+            <>
+              <p className="text-[14px] text-[#757575] mb-8">Loading products...</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex flex-col">
+                    <div className="w-full aspect-square rounded-[12px] bg-[#E8E4DE] animate-pulse" />
+                    <div className="mt-3 space-y-2">
+                      <div className="h-4 bg-[#E8E4DE] rounded w-3/4 animate-pulse" />
+                      <div className="h-3 bg-[#E8E4DE] rounded w-1/2 animate-pulse" />
+                      <div className="h-4 bg-[#E8E4DE] rounded w-1/4 animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : products.length > 0 ? (
             <>
               <p className="text-[14px] text-[#757575] mb-8">{products.length} {products.length === 1 ? "product" : "products"}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
