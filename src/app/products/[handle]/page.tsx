@@ -70,6 +70,11 @@ export default function ProductDetailPage() {
           items: [
             {
               id: product.id,
+              handle: product.handle,
+              name: product.name,
+              subtitle: product.subtitle,
+              price: product.price,
+              image: product.image,
               quantity: quantity,
             },
           ],
@@ -78,7 +83,15 @@ export default function ProductDetailPage() {
 
       const data = await response.json();
       if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+        if (data.checkoutUrl === "/checkout") {
+          const params = new URLSearchParams();
+          params.set("id", product.id);
+          params.set("quantity", quantity.toString());
+          params.set("direct", "true");
+          window.location.href = `/checkout?${params.toString()}`;
+        } else {
+          window.location.href = data.checkoutUrl;
+        }
       } else {
         console.error("Failed to get checkout URL", data);
         alert("Checkout failed. Please try again.");

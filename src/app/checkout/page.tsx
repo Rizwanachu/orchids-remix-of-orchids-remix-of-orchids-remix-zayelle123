@@ -8,8 +8,29 @@ import { ShoppingBag, ArrowRight, ShieldCheck, Truck, CreditCard } from "lucide-
 import Image from "next/image";
 import Link from "next/link";
 
+import { useSearchParams } from "next/navigation";
+import { useProducts } from "@/lib/products-context";
+
 export default function CheckoutPage() {
-  const { items, totalPrice } = useCart();
+  const { items: cartItems, totalPrice: cartTotalPrice } = useCart();
+  const searchParams = useSearchParams();
+  const { getProductByHandle, products } = useProducts();
+  
+  const isDirect = searchParams.get("direct") === "true";
+  const productId = searchParams.get("id");
+  const productQuantity = parseInt(searchParams.get("quantity") || "1", 10);
+  
+  // Find product if direct checkout
+  const directProduct = productId ? products.find(p => p.id === productId) : null;
+  
+  const items = isDirect && directProduct 
+    ? [{ ...directProduct, quantity: productQuantity }]
+    : cartItems;
+    
+  const totalPrice = isDirect && directProduct
+    ? directProduct.price * productQuantity
+    : cartTotalPrice;
+
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
