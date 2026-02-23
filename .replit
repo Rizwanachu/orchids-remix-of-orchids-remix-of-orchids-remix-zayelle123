@@ -38,3 +38,8 @@ externalPort = 80
 deploymentTarget = "autoscale"
 run = ["npm", "run", "start"]
 build = ["npm", "run", "build"]
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "zayelle_admin_jwt_secret_2024_secure_key_x9k2m"

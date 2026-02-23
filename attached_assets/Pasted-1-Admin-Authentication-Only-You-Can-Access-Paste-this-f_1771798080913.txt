@@ -1,0 +1,396 @@
+1️⃣ Admin Authentication (Only You Can Access)
+
+Paste this first:
+
+PROMPT 1 – Create Secure Admin Panel With Role-Based Access
+
+Create an admin authentication system for my e-commerce website built with Next.js and Node backend.
+
+Requirements:
+
+Create /admin/login page.
+
+Only users with role "admin" can access /admin/* routes.
+
+Use JWT authentication stored in HTTP-only cookies.
+
+Protect admin routes with middleware.
+
+If a non-admin tries to access admin routes, redirect to homepage.
+
+Create database model with:
+
+name
+
+email
+
+password (hashed using bcrypt)
+
+role (user/admin)
+
+Create:
+
+Admin login API
+
+Middleware to protect routes
+
+Sample admin dashboard page
+
+Do not modify existing user login system.
+Make admin panel completely separate from customer side.
+
+2️⃣ Notify Admin When Order Is Successfully Paid
+
+This will trigger when payment succeeds.
+
+PROMPT 2 – Admin Notification on Successful Payment
+
+Enhance my existing order system.
+
+When a customer successfully completes payment:
+
+Save order in database with:
+
+userId
+
+products
+
+totalAmount
+
+paymentStatus (paid)
+
+orderStatus (processing)
+
+createdAt
+
+Send:
+
+Email notification to admin email
+
+Optional: Telegram bot notification
+
+Optional: WhatsApp API notification
+
+Email should include:
+
+Customer name
+
+Phone
+
+Shipping address
+
+Ordered products
+
+Total amount
+
+Use nodemailer for email.
+
+Only trigger notification when paymentStatus === "paid".
+
+Do not send notification for failed payments.
+
+3️⃣ Download Invoice With Your Logo
+
+This is important for professionalism.
+
+PROMPT 3 – Generate Downloadable PDF Invoice With Logo
+
+Create invoice generation system for orders.
+
+Requirements:
+
+Add "Download Invoice" button inside:
+
+Admin Order Details Page
+
+Customer Order History Page
+
+Generate PDF invoice dynamically using:
+
+PDFKit (Node.js)
+
+Invoice must include:
+
+My logo at top (stored in /public/logo.png)
+
+Company name: Zayelle
+
+Order ID
+
+Customer details
+
+Product list
+
+Quantity
+
+Price per item
+
+Total amount
+
+Payment status
+
+Date
+
+Invoice should:
+
+Be properly formatted
+
+Download automatically as PDF
+
+Use professional layout
+
+Ensure invoice route is protected and only accessible by:
+
+Admin
+
+The customer who placed the order
+
+4️⃣ Admin Sales Dashboard (Charts)
+
+We’ll build analytics.
+
+PROMPT 4 – Build Admin Sales Analytics Dashboard
+
+Create an admin dashboard page at /admin/analytics.
+
+Requirements:
+
+Show charts using:
+
+Recharts (React)
+
+Or Chart.js
+
+Dashboard must show:
+
+Daily Sales (last 7 days)
+
+Monthly Sales (last 12 months)
+
+Yearly Sales
+
+Custom Date Range Filter
+
+From date
+
+To date
+
+Calculate total revenue
+
+Total orders
+
+Average order value
+
+Fetch data from orders collection where:
+paymentStatus === "paid"
+
+Create API route:
+/api/admin/analytics
+
+Only allow admin role to access.
+
+Show:
+
+Total revenue
+
+Total orders
+
+Best selling product
+
+Low stock products
+
+Make dashboard clean and modern.
+
+5️⃣ Order Management Panel
+
+Admin should manage orders.
+
+PROMPT 5 – Create Admin Order Management System
+
+Create /admin/orders page.
+
+Features:
+
+View all orders in table
+
+Filters:
+
+Paid / Unpaid
+
+Processing / Shipped / Delivered
+
+Date filter
+
+Click to view full order details
+
+Change order status dropdown:
+
+Processing
+
+Shipped
+
+Delivered
+
+Cancelled
+
+When admin changes order status:
+
+Save to database
+
+Send email update to customer
+
+Add pagination for large order data.
+
+6️⃣ Inventory & Stock Management
+
+Very important for hijab store.
+
+PROMPT 6 – Add Inventory Management System
+
+Update product model to include:
+
+stockQuantity
+
+lowStockThreshold
+
+Features:
+
+Deduct stock automatically after successful payment
+
+Prevent checkout if stock <= 0
+
+Show “Low Stock” badge in admin panel
+
+Show stock number inside /admin/products
+
+Allow admin to manually update stock
+
+Create:
+
+Stock validation before order creation
+
+Automatic stock deduction logic
+
+7️⃣ Customer Management
+
+PROMPT 7 – Create Admin Customer Management Page
+
+Create /admin/customers
+
+Features:
+
+View all registered users
+
+See:
+
+Name
+
+Email
+
+Total Orders
+
+Total Spend
+
+Last Order Date
+
+Add search functionality.
+Add pagination.
+
+Only admin can access.
+
+8️⃣ Coupon / Discount System
+
+PROMPT 8 – Add Coupon Code System
+
+Create discount system.
+
+Admin should be able to:
+
+Create coupon code
+
+Set:
+
+Discount type (percentage/fixed)
+
+Expiry date
+
+Max usage
+
+Min order value
+
+Apply coupon at checkout.
+
+Validate:
+
+Expiry
+
+Usage limit
+
+Min order value
+
+Save coupon usage in database.
+
+9️⃣ Sales Export (Very Important)
+
+PROMPT 9 – Export Orders as CSV
+
+Inside /admin/orders:
+
+Add button:
+"Export Orders"
+
+Features:
+
+Export filtered orders
+
+Export by date range
+
+Download as CSV
+
+Include:
+
+Order ID
+
+Customer name
+
+Phone
+
+Email
+
+Products
+
+Total
+
+Status
+
+Payment method
+
+Date
+
+Use json2csv library.
+
+10️⃣ Basic Security Improvements
+
+PROMPT 10 – Add Admin Security Features
+
+Enhance admin panel security:
+
+Rate limit login attempts
+
+Add password hashing with bcrypt
+
+Add JWT expiry (1h)
+
+Add refresh token system
+
+Log admin activity:
+
+Login
+
+Order status change
+
+Product update
+
+Store logs in database
+
+Only accessible to admin.
