@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Search, Users, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Customer {
-  id: number;
   name: string;
   email: string;
   phone: string | null;
@@ -12,6 +11,7 @@ interface Customer {
   totalOrders: number;
   totalSpend: string;
   lastOrderDate: string | null;
+  hasAccount: boolean;
 }
 
 export default function AdminCustomersPage() {
@@ -98,17 +98,23 @@ export default function AdminCustomersPage() {
           ) : (
             customers.map((customer) => (
               <div
-                key={customer.id}
+                key={customer.email}
                 className="grid grid-cols-1 md:grid-cols-[1fr_1fr_100px_120px_140px] gap-2 md:gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 hover:bg-[#FAFAF8] transition-colors"
               >
                 <div>
-                  <p className="text-[14px] font-medium text-[#1A1A1A]">{customer.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[14px] font-medium text-[#1A1A1A]">{customer.name}</p>
+                    {customer.hasAccount && (
+                      <span className="text-[10px] bg-[#E8F5E9] text-[#2E7D32] px-1.5 py-0.5 rounded-sm font-medium">Account</span>
+                    )}
+                  </div>
                   <p className="md:hidden text-[12px] text-[#757575]">{customer.email}</p>
+                  {customer.phone && <p className="md:hidden text-[12px] text-[#757575]">{customer.phone}</p>}
                 </div>
                 <p className="hidden md:block text-[13px] text-[#757575]">{customer.email}</p>
                 <p className="text-[13px] text-[#1A1A1A]">{customer.totalOrders}</p>
                 <p className="text-[13px] font-semibold text-[#1A1A1A]">
-                  Rs. {parseFloat(customer.totalSpend).toLocaleString("en-IN")}
+                  ₹{parseFloat(customer.totalSpend).toLocaleString("en-IN")}
                 </p>
                 <p className="text-[12px] text-[#757575]">
                   {customer.lastOrderDate

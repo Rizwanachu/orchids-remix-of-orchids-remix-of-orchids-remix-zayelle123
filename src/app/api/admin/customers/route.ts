@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
-import { users, orders } from "@/../shared/schema";
+import { orders, users } from "@/../shared/schema";
 import { verifyAdmin } from "@/lib/admin-auth";
-import { eq, ne, or, like, sql, and, SQL, desc } from "drizzle-orm";
+import { sql, desc, eq, ne } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   const admin = await verifyAdmin();
@@ -15,44 +15,108 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = (page - 1) * limit;
 
-    const conditions: SQL[] = [ne(users.role, "admin")];
-
-    if (search) {
-      conditions.push(
-        or(
-          like(users.name, `%${search}%`),
-          like(users.email, `%${search}%`)
-        )!
-      );
-    }
-
-    const whereClause = and(...conditions);
-
-    const [countResult] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users)
-      .where(whereClause);
-
-    const customersList = await db
+    const allOrders = await db
       .select({
-        id: users.id,
+        customerName: orders.customerName,
+        customerEmail: orders.customerEmail,
+        customerPhone: orders.customerPhone,
+        totalAmount: orders.totalAmount,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .orderBy(desc(orders.createdAt));
+
+    const registeredUsers = await db
+      .select({
         name: users.name,
         email: users.email,
         phone: users.phone,
         createdAt: users.createdAt,
-        totalOrders: sql<number>`COALESCE((SELECT COUNT(*) FROM orders WHERE orders.customer_email = ${users.email})::int, 0)`,
-        totalSpend: sql<string>`COALESCE((SELECT SUM(total_amount::numeric) FROM orders WHERE orders.customer_email = ${users.email}), 0)`,
-        lastOrderDate: sql<string | null>`(SELECT MAX(created_at) FROM orders WHERE orders.customer_email = ${users.email})`,
       })
       .from(users)
-      .where(whereClause)
-      .orderBy(desc(users.createdAt))
-      .limit(limit)
-      .offset(offset);
+      .where(ne(users.role, "admin"));
+
+    const registeredMap = new Map<string, { name: string; phone: string | null; createdAt: Date }>();
+    for (const u of registeredUsers) {
+      registeredMap.set(u.email, { name: u.name, phone: u.phone, createdAt: u.createdAt });
+    }
+
+    const customerMap = new Map<string, {
+      name: string;
+      email: string;
+      phone: string | null;
+      totalOrders: number;
+      totalSpend: number;
+      lastOrderDate: Date | null;
+      firstOrderDate: Date | null;
+      hasAccount: boolean;
+    }>();
+
+    for (const order of allOrders) {
+      const email = order.customerEmail;
+      const existing = customerMap.get(email);
+      if (existing) {
+        existing.totalOrders += 1;
+        existing.totalSpend += parseFloat(order.totalAmount);
+        if (!existing.lastOrderDate || order.createdAt > existing.lastOrderDate) {
+          existing.lastOrderDate = order.createdAt;
+        }
+      } else {
+        const registered = registeredMap.get(email);
+        customerMap.set(email, {
+          name: registered?.name || order.customerName,
+          email,
+          phone: registered?.phone || order.customerPhone,
+          totalOrders: 1,
+          totalSpend: parseFloat(order.totalAmount),
+          lastOrderDate: order.createdAt,
+          firstOrderDate: order.createdAt,
+          hasAccount: !!registered,
+        });
+      }
+    }
+
+    for (const [email, regUser] of registeredMap) {
+      if (!customerMap.has(email)) {
+        customerMap.set(email, {
+          name: regUser.name,
+          email,
+          phone: regUser.phone,
+          totalOrders: 0,
+          totalSpend: 0,
+          lastOrderDate: null,
+          firstOrderDate: null,
+          hasAccount: true,
+        });
+      }
+    }
+
+    let customersList = Array.from(customerMap.values());
+
+    if (search) {
+      const q = search.toLowerCase();
+      customersList = customersList.filter(
+        (c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)
+      );
+    }
+
+    customersList.sort((a, b) => {
+      const dateA = a.lastOrderDate?.getTime() || 0;
+      const dateB = b.lastOrderDate?.getTime() || 0;
+      return dateB - dateA;
+    });
+
+    const total = customersList.length;
+    const paginated = customersList.slice(offset, offset + limit);
 
     return NextResponse.json({
-      customers: customersList,
-      total: countResult?.count || 0,
+      customers: paginated.map((c) => ({
+        ...c,
+        totalSpend: c.totalSpend.toFixed(2),
+        createdAt: c.lastOrderDate || c.firstOrderDate || new Date(),
+        lastOrderDate: c.lastOrderDate?.toISOString() || null,
+      })),
+      total,
       page,
       limit,
     });
