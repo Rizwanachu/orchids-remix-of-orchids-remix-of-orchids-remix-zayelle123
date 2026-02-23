@@ -137,7 +137,7 @@ const GiftHampers: React.FC = () => {
                     )}
                   </div>
                   <a
-                    href={`/gift-hampers`}
+                    href="/gift-hampers"
                     className="inline-block text-center py-2.5 px-6 rounded-[8px] bg-[#5C4B3D] text-white text-[14px] font-medium hover:bg-[#4A3C31] transition-colors"
                   >
                     Shop Now
