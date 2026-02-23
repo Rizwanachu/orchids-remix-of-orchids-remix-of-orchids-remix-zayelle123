@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         paymentMethod: paymentMethod || null,
         couponCode: couponCode || null,
         discountAmount: discountAmount ? String(discountAmount) : null,
-        paymentStatus: "paid",
+        paymentStatus: paymentMethod?.toLowerCase() === "cod" || paymentMethod?.toLowerCase() === "cash on delivery" ? "unpaid" : "paid",
         orderStatus: "processing",
       })
       .returning();
