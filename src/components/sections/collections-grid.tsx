@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 interface CollectionItemProps {
@@ -31,57 +33,64 @@ const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle,
   );
 };
 
+interface CollectionData {
+  id: number;
+  title: string;
+  slug: string;
+  subtitle: string;
+  imageUrl: string;
+}
+
 const CollectionsGrid: React.FC = () => {
-  const collections = [
-    {
-      title: "Chiffon Hijabs",
-      subtitle: "Lightweight. Breathable. Everyday elegance.",
-        image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/Chiffon-Hijabs-1771239778583.png?width=8000&height=8000&resize=contain",
-        href: "/collections/chiffon-hijabs"
-    },
-    {
-      title: "Satin Silk Hijabs",
-      subtitle: "Smooth finish with a luxurious drape.",
-        image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/satin-silk-hijab-1771240160293.jpeg?width=8000&height=8000&resize=contain",
-        href: "/collections/satin-silk-hijabs"
-    },
-    {
-      title: "Premium Jersey Wraps",
-      subtitle: "Comfortable stretch for all-day wear.",
-        image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/premium-jersey-wraps-1771240529554.jpeg?width=8000&height=8000&resize=contain",
-        href: "/collections/premium-jersey-wraps"
-    },
-    {
-      title: "Everyday Essentials",
-      subtitle: "Undercaps, pins, and styling basics.",
-        image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/Everyday-Essentials-Undercaps-Pins-Styling-Basics-1771240935345.jpeg?width=8000&height=8000&resize=contain",
-        href: "/collections/everyday-essentials"
-    },
-    {
-      title: "Occasion Hijabs",
-      subtitle: "Elegant pieces for events and celebrations.",
-      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/IMG_2813web2-16.jpg",
-      href: "/collections/occasion-hijabs"
-    },
-    {
-      title: "Neutral Tones Edit",
-      subtitle: "Beige, taupe, ivory, mocha and soft browns.",
-      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/IMG_2750web2-17.jpg",
-      href: "/collections/neutral-tones"
-    },
-    {
-      title: "Limited Collection",
-      subtitle: "Exclusive drops. Limited stock.",
-      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/BB6FE085-B878-48D5-BE73-1E76A890F71B-26.jpg",
-      href: "/collections/limited"
-    },
-    {
-      title: "Accessories",
-      subtitle: "Premium hijab pins, magnets, and styling sets.",
-      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/3F3F8F7A-903E-417F-9349-2C27005D1B74-27.jpg",
-      href: "/collections/accessories"
+  const [collections, setCollections] = useState<CollectionData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCollections() {
+      try {
+        const res = await fetch("/api/collections");
+        if (res.ok) {
+          const data = await res.json();
+          setCollections(data.collections);
+        }
+      } catch (err) {
+        console.error("Error fetching collections:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchCollections();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 md:py-24 bg-[#FAF9F6]">
+        <div className="container px-4 md:px-8">
+          <div className="relative mb-12 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-[#E8E4DE]"></div>
+            </div>
+            <div className="relative bg-[#FAF9F6] px-10">
+              <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
+                Collections
+              </h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="w-full aspect-square rounded-[12px] bg-[#E8E4DE] animate-pulse" />
+                <div className="mt-3 h-4 w-24 bg-[#E8E4DE] rounded animate-pulse" />
+                <div className="mt-2 h-3 w-32 bg-[#E8E4DE] rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (collections.length === 0) return null;
 
   return (
     <section className="py-16 md:py-24 bg-[#FAF9F6]">
@@ -98,13 +107,13 @@ const CollectionsGrid: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
-          {collections.map((collection, index) => (
+          {collections.map((collection) => (
             <CollectionItem
-              key={index}
+              key={collection.id}
               title={collection.title}
               subtitle={collection.subtitle}
-              image={collection.image}
-              href={collection.href}
+              image={collection.imageUrl}
+              href={`/collections/${collection.slug}`}
             />
           ))}
         </div>

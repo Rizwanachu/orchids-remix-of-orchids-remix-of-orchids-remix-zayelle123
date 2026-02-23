@@ -82,6 +82,75 @@ export const adminActivityLogs = pgTable("admin_activity_logs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const collections = pgTable("collections", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  subtitle: text("subtitle").notNull().default(""),
+  description: text("description").notNull().default(""),
+  imageUrl: text("image_url").notNull().default(""),
+  isFeatured: boolean("is_featured").notNull().default(false),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const newArrivals = pgTable("new_arrivals", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const zayelleEdits = pgTable("zayelle_edits", {
+  id: serial("id").primaryKey(),
+  imageUrl: text("image_url").notNull(),
+  title: text("title").notNull().default(""),
+  subtitle: text("subtitle").notNull().default(""),
+  buttonText: text("button_text").notNull().default("Shop Now"),
+  redirectLink: text("redirect_link").notNull().default(""),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const banners = pgTable("banners", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle").notNull().default(""),
+  buttonText: text("button_text").notNull().default("Shop Now"),
+  buttonLink: text("button_link").notNull().default(""),
+  imageUrl: text("image_url").notNull(),
+  position: text("position", { enum: ["hero", "mid-left", "mid-right"] }).notNull().default("hero"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const giftHampers = pgTable("gift_hampers", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  imageUrl: text("image_url").notNull().default(""),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  includedProductIds: integer("included_product_ids").array(),
+  displayOrder: integer("display_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const homepageSettings = pgTable("homepage_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull().default(""),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const homepageSections = pgTable("homepage_sections", {
+  id: serial("id").primaryKey(),
+  sectionName: text("section_name").notNull().unique(),
+  label: text("label").notNull().default(""),
+  isVisible: boolean("is_visible").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -93,3 +162,10 @@ export type OrderItem = typeof orderItems.$inferSelect;
 export type Coupon = typeof coupons.$inferSelect;
 export type AdminActivityLog = typeof adminActivityLogs.$inferSelect;
 export type DbProduct = typeof products.$inferSelect;
+export type Collection = typeof collections.$inferSelect;
+export type NewArrival = typeof newArrivals.$inferSelect;
+export type ZayelleEdit = typeof zayelleEdits.$inferSelect;
+export type Banner = typeof banners.$inferSelect;
+export type GiftHamper = typeof giftHampers.$inferSelect;
+export type HomepageSetting = typeof homepageSettings.$inferSelect;
+export type HomepageSection = typeof homepageSections.$inferSelect;

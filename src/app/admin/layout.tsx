@@ -11,10 +11,17 @@ import {
   Package,
   Ticket,
   Activity,
+  Star,
   LogOut,
   Menu,
   X,
   ChevronRight,
+  Settings,
+  FolderOpen,
+  Gift,
+  Image,
+  Megaphone,
+  Layers,
 } from "lucide-react";
 
 const navItems = [
@@ -23,7 +30,14 @@ const navItems = [
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/collections", label: "Collections", icon: FolderOpen },
+  { href: "/admin/new-arrivals", label: "New Arrivals", icon: Star },
+  { href: "/admin/banners", label: "Banners", icon: Megaphone },
+  { href: "/admin/zayelle-edit", label: "Zayelle Edit", icon: Image },
+  { href: "/admin/gift-hampers", label: "Gift Hampers", icon: Gift },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },
+  { href: "/admin/homepage-settings", label: "Homepage Settings", icon: Settings },
+  { href: "/admin/homepage-layout", label: "Homepage Layout", icon: Layers },
   { href: "/admin/activity", label: "Activity Log", icon: Activity },
 ];
 

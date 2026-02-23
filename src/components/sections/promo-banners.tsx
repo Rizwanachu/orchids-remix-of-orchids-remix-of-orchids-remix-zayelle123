@@ -1,8 +1,37 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+interface BannerData {
+  id: number;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  imageUrl: string;
+  position: string;
+  isActive: boolean;
+}
+
 const PromoBanners: React.FC = () => {
-  const banners = [
+  const [banners, setBanners] = useState<BannerData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/banners')
+      .then(res => res.json())
+      .then(data => {
+        const promoBanners = (data as BannerData[]).filter(
+          b => b.position === 'mid-left' || b.position === 'mid-right'
+        );
+        setBanners(promoBanners);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fallbackBanners = [
     {
       id: 'limited-offer',
       image: 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/Untitled-1-12.png',
@@ -25,11 +54,41 @@ const PromoBanners: React.FC = () => {
     }
   ];
 
+  if (loading) {
+    return (
+      <section className="py-10 md:py-20 bg-[#FAF9F6]">
+        <div className="container mx-auto px-5 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {[1, 2].map(i => (
+              <div key={i} className="aspect-square md:aspect-auto md:h-[600px] bg-[#E8E4DE] rounded-[12px] animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const displayBanners = banners.length > 0
+    ? banners.map(b => {
+        const titleParts = b.title.split('\n');
+        return {
+          id: b.id.toString(),
+          image: b.imageUrl,
+          titleLine1: titleParts[0] || b.title,
+          titleLine2: titleParts[1] || '',
+          subtitle: b.subtitle,
+          buttonText: b.buttonText,
+          href: b.buttonLink,
+          alt: b.title,
+        };
+      })
+    : fallbackBanners;
+
   return (
     <section className="py-10 md:py-20 bg-[#FAF9F6]">
       <div className="container mx-auto px-5 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {banners.map((banner) => (
+          {displayBanners.map((banner) => (
             <a
               key={banner.id}
               href={banner.href}
@@ -50,7 +109,7 @@ const PromoBanners: React.FC = () => {
                 <div className="flex flex-col">
                   <h2 className="font-serif text-[42px] leading-[1] md:text-[64px] lg:text-[72px] text-primary select-none flex flex-col uppercase tracking-tight">
                     <span className="block">{banner.titleLine1}</span>
-                    <span className="block">{banner.titleLine2}</span>
+                    {banner.titleLine2 && <span className="block">{banner.titleLine2}</span>}
                   </h2>
                   <p className="text-[16px] md:text-[18px] text-[#5C4B3D] mt-4 max-w-[280px]">
                     {banner.subtitle}

@@ -1,6 +1,6 @@
 # Project Overview
 
-A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessories) with product browsing, cart, wishlist, checkout, and a comprehensive admin panel.
+A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessories) with product browsing, cart, wishlist, checkout, and a comprehensive admin panel with full CMS capabilities.
 
 ## Tech Stack
 - **Framework**: Next.js 15 with Turbopack
@@ -18,35 +18,57 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, couponCode, discountAmount, timestamps
 - `order_items` - id, orderId, productName, productHandle, quantity, price, image
 - `coupons` - id, code, discountType, discountValue, minOrderValue, maxUsage, currentUsage, expiryDate, active
+- `products` - id, handle, name, subtitle, price, compareAt, image, hoverImage, badge, description, details, category, stockQuantity, lowStockThreshold, active, createdAt
 - `admin_activity_logs` - id, adminId, adminEmail, action, details, createdAt
+- `collections` - id, title, slug, subtitle, description, imageUrl, isFeatured, displayOrder, createdAt
+- `new_arrivals` - id, productId (FK), displayOrder, createdAt
+- `zayelle_edits` - id, imageUrl, title, subtitle, buttonText, redirectLink, displayOrder, createdAt
+- `banners` - id, title, subtitle, buttonText, buttonLink, imageUrl, position (hero/mid-left/mid-right), isActive, createdAt
+- `gift_hampers` - id, title, description, imageUrl, price, includedProductIds (int[]), displayOrder, isActive, createdAt
+- `homepage_settings` - id, key (unique), value, updatedAt
+- `homepage_sections` - id, sectionName (unique), label, isVisible, displayOrder
 
 ## Project Structure
 - `src/app/` - Next.js App Router pages
-  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, coupons, activity)
+  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, coupons, homepage-settings, homepage-layout, activity)
   - `account/` - User account pages
   - `cart/`, `checkout/`, `wishlist/` - Shopping flow
   - `collections/`, `products/` - Product browsing
   - `api/` - API routes
-- `src/app/api/admin/` - Admin API routes (orders, analytics, customers, coupons, activity, login, logout)
-- `src/app/api/orders/` - Order creation and retrieval
-- `src/app/api/coupons/` - Coupon validation
+- `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, upload, login, logout)
+- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, homepage-settings, homepage-layout, orders, coupons, products)
 - `src/components/` - Reusable UI components (sections, ui)
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities, context providers, admin auth helpers
-- `server/db.ts` - Database connection
+- `server/db.ts` - Database connection (lazy init for Vercel compatibility)
 - `shared/schema.ts` - Drizzle schema definitions
+- `public/uploads/` - User-uploaded images
 - `public/` - Static assets (icons, logos, manifest)
 
-## Admin Panel
+## Admin Panel (CMS)
 - `/admin` - Dashboard with revenue, orders, avg value stats
 - `/admin/login` - Admin login (JWT cookie auth)
 - `/admin/orders` - Order management with filters, status changes, CSV export
 - `/admin/analytics` - Sales charts (daily/monthly) with Recharts
 - `/admin/customers` - Customer list with order stats
 - `/admin/products` - Product CRUD management
+- `/admin/collections` - Collection management (add/edit/delete/reorder)
+- `/admin/new-arrivals` - New arrivals section management (select products, reorder)
+- `/admin/banners` - Banner management (hero, mid-left, mid-right positions, active toggle)
+- `/admin/zayelle-edit` - Curated grid section management (image grid CMS)
+- `/admin/gift-hampers` - Gift hamper builder (product bundles)
 - `/admin/coupons` - Coupon code management
+- `/admin/homepage-settings` - Dynamic section titles/subtitles
+- `/admin/homepage-layout` - Section ordering and visibility toggles
 - `/admin/activity` - Admin activity log viewer
 - Protected by middleware (JWT verification)
+
+## Homepage Dynamic Sections
+The homepage renders sections dynamically based on database configuration:
+- Section order and visibility controlled via `/admin/homepage-layout`
+- Section titles/subtitles editable via `/admin/homepage-settings`
+- Collections, banners, curated grid, new arrivals all fetched from database APIs
+- Fallback to default order if no DB config exists
 
 ## Development
 - **Dev server**: `npm run dev` (runs on port 5000 with Turbopack)
@@ -64,3 +86,4 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - Images allow remote patterns from any host
 - TypeScript and ESLint errors ignored during builds
 - Admin cookie uses sameSite=lax for cross-domain compatibility
+- Path aliases: `@/` maps to `./src/`, use `@/../` for root-level `server/` and `shared/`

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, Search, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
-import { useProducts } from "@/lib/products-context";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -86,8 +85,44 @@ const ProductCard = ({ product }: { product: Product }) => {
 };
 
 export default function NewArrivalsCarousel() {
-  const { products: allProducts } = useProducts();
-  const products = allProducts.slice(0, 4);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/new-arrivals")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-[80px] bg-background">
+        <div className="container">
+          <header className="flex flex-col items-center mb-10 text-center">
+            <h2 className="text-[32px] font-serif italic text-foreground mb-2">New Arrivals</h2>
+            <p className="text-[14px] text-[#757575] mb-4">Designed for comfort. Crafted for elegance.</p>
+            <div className="w-[60px] h-[1px] bg-border mb-8"></div>
+          </header>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square bg-[#F5F2ED] rounded-[12px]" />
+                <div className="mt-4 space-y-2">
+                  <div className="h-4 bg-[#F5F2ED] rounded w-3/4 mx-auto" />
+                  <div className="h-3 bg-[#F5F2ED] rounded w-1/2 mx-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-[80px] bg-background">
       <div className="container">

@@ -1,50 +1,88 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+interface BannerData {
+  id: number;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  imageUrl: string;
+  position: string;
+  isActive: boolean;
+}
+
 const HeroSection = () => {
+  const [heroBanner, setHeroBanner] = useState<BannerData | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/banners')
+      .then(res => res.json())
+      .then(data => {
+        const hero = (data as BannerData[]).find(b => b.position === 'hero');
+        if (hero) setHeroBanner(hero);
+      })
+      .catch(console.error)
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const title = heroBanner?.title || "Styled in\nModesty";
+  const subtitle = heroBanner?.subtitle || "Premium Hijabs & Elegant Accessories";
+  const description = "Gracefully designed for modern women across India.";
+  const buttonText = heroBanner?.buttonText || "Shop New Arrivals";
+  const buttonLink = heroBanner?.buttonLink || "/collections/new-arrivals";
+  const imageUrl = heroBanner?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain";
+
+  const titleParts = title.split('\n');
+
   return (
     <section className="relative w-full overflow-hidden bg-[#FAF9F6]">
       <div className="container mx-auto px-5 sm:px-8">
         <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-0">
           
-          {/* Text Content */}
           <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0 lg:pt-20">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <h1 className="font-sans text-[48px] md:text-[64px] leading-[1.1] font-semibold text-[#1A1A1A] mb-4 tracking-tight uppercase">
-                Styled in
-                <br />
-                <span className="relative inline-block mt-2">
-                  <span className="bg-[#5C4B3D]/10 px-4 py-1 text-[#5C4B3D]">
-                    Modesty
-                  </span>
-                </span>
+                {titleParts[0]}
+                {titleParts[1] && (
+                  <>
+                    <br />
+                    <span className="relative inline-block mt-2">
+                      <span className="bg-[#5C4B3D]/10 px-4 py-1 text-[#5C4B3D]">
+                        {titleParts[1]}
+                      </span>
+                    </span>
+                  </>
+                )}
               </h1>
 
               <p className="font-sans text-[20px] md:text-[22px] text-[#5C4B3D] font-medium max-w-[480px] mb-3">
-                Premium Hijabs &amp; Elegant Accessories
+                {subtitle}
               </p>
               
               <p className="font-sans text-[16px] md:text-[18px] text-[#757575] max-w-[480px] mb-8 leading-relaxed">
-                Gracefully designed for modern women across India.
+                {description}
               </p>
 
               <div className="flex flex-wrap gap-4">
                 <a 
-                  href="/collections/new-arrivals" 
+                  href={buttonLink}
                   className="inline-flex items-center justify-center bg-[#5C4B3D] text-[#FAF9F6] px-10 py-4 rounded-[12px] font-medium text-[14px] transition-premium hover:bg-[#4A3C31] uppercase tracking-wider"
                 >
-                  Shop New Arrivals
+                  {buttonText}
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Imagery */}
           <div className="relative w-full lg:w-3/5 h-[500px] md:h-[600px] lg:h-[800px] flex justify-end">
             <div className="relative w-full h-full lg:translate-x-12 xl:translate-x-24">
               <div className="relative w-full h-full overflow-hidden rounded-bl-[100px] md:rounded-bl-[200px] shadow-soft">
                 <Image
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain"
+                  src={imageUrl}
                   alt="Zayelle Premium Hijab Collection"
                   fill
                   priority
