@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { useCart } from "@/lib/cart-context";
@@ -12,6 +12,18 @@ import { useSearchParams } from "next/navigation";
 import { useProducts } from "@/lib/products-context";
 
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading checkout...</p>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
+
+function CheckoutContent() {
   const { items: cartItems, totalPrice: cartTotalPrice } = useCart();
   const searchParams = useSearchParams();
   const { getProductByHandle, products } = useProducts();
