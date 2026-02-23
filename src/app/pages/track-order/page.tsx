@@ -6,62 +6,104 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Search, Package, Truck, CheckCircle, BoxIcon } from "lucide-react";
-import { useOrders, Order } from "@/lib/orders-context";
+import { Search, Package, Truck, CheckCircle, BoxIcon, Loader2 } from "lucide-react";
 
-const STEPS = ["Confirmed", "Packed", "Shipped", "Delivered"] as const;
+const STEPS = ["processing", "confirmed", "packed", "shipped", "delivered"] as const;
+const STEP_LABELS = ["Confirmed", "Packed", "Shipped", "Delivered"];
 const STEP_ICONS = [CheckCircle, BoxIcon, Truck, CheckCircle];
 
-function getStepIndex(status: Order["status"]): number {
-  return STEPS.indexOf(status);
+interface TrackedOrder {
+  orderId: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  totalAmount: string;
+  createdAt: string;
+  items: { name: string; quantity: number; price: number; image: string }[];
+}
+
+function getStepIndex(status: string): number {
+  switch (status) {
+    case "processing":
+    case "confirmed":
+      return 0;
+    case "packed":
+      return 1;
+    case "shipped":
+      return 2;
+    case "delivered":
+      return 3;
+    default:
+      return -1;
+  }
+}
+
+function getStatusText(status: string): string {
+  switch (status) {
+    case "processing":
+      return "Your order is being processed and will be confirmed shortly.";
+    case "confirmed":
+      return "Your order has been confirmed and is being prepared.";
+    case "packed":
+      return "Your order has been packed and is ready for dispatch.";
+    case "shipped":
+      return "Your order is on its way! It will be delivered soon.";
+    case "delivered":
+      return "Your order has been delivered. Thank you for shopping with us!";
+    case "cancelled":
+      return "This order has been cancelled.";
+    default:
+      return "";
+  }
 }
 
 function TrackOrderContent() {
   const searchParams = useSearchParams();
-  const { getOrderById } = useOrders();
   const [orderId, setOrderId] = useState("");
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [foundOrder, setFoundOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [foundOrder, setFoundOrder] = useState<TrackedOrder | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const orderParam = searchParams.get("order");
-    if (orderParam) {
-      setOrderId(orderParam);
-      const order = getOrderById(orderParam);
-      if (order) {
-        setFoundOrder(order);
+    const emailParam = searchParams.get("email");
+    if (orderParam) setOrderId(orderParam);
+    if (emailParam) setEmail(emailParam);
+  }, [searchParams]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setNotFound(false);
+    setFoundOrder(null);
+
+    try {
+      const res = await fetch("/api/orders/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderId.trim(), email: email.trim() }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setFoundOrder(data);
+        setSubmitted(true);
+      } else {
+        setNotFound(true);
         setSubmitted(true);
       }
-    }
-  }, [searchParams, getOrderById]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const order = getOrderById(orderId);
-    if (order) {
-      setFoundOrder(order);
-      setNotFound(false);
-      setSubmitted(true);
-    } else {
-      setFoundOrder(null);
+    } catch {
       setNotFound(true);
       setSubmitted(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const activeStep = foundOrder ? getStepIndex(foundOrder.status) : -1;
-
-  const statusText = foundOrder
-    ? foundOrder.status === "Confirmed"
-      ? "Your order has been confirmed and is being prepared."
-      : foundOrder.status === "Packed"
-      ? "Your order has been packed and is ready for dispatch."
-      : foundOrder.status === "Shipped"
-      ? "Your order is on its way! It will be delivered soon."
-      : "Your order has been delivered. Thank you for shopping with us!"
-    : "";
+  const isCancelled = foundOrder?.status === "cancelled";
 
   return (
     <>
@@ -110,16 +152,17 @@ function TrackOrderContent() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors"
+                  disabled={loading}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-60"
                 >
-                  <Search size={14} />
-                  Track Order
+                  {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                  {loading ? "Searching..." : "Track Order"}
                 </button>
               </form>
               {notFound && (
                 <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-[8px] text-center">
                   <p className="text-[14px] text-red-600">
-                    No order found with number <strong>{orderId}</strong>. Please check the order number and try again.
+                    No order found with number <strong>{orderId}</strong>. Please check the order number and email, then try again.
                   </p>
                 </div>
               )}
@@ -128,67 +171,79 @@ function TrackOrderContent() {
             <div className="text-center">
               <div className="mb-8">
                 <p className="text-[14px] text-[#757575] mb-1">Order Number</p>
-                <p className="text-[18px] font-semibold text-[#1A1A1A]">{foundOrder.id}</p>
+                <p className="text-[18px] font-semibold text-[#1A1A1A]">{foundOrder.orderId}</p>
+                <p className="text-[12px] text-[#757575] mt-1">
+                  Placed on {new Date(foundOrder.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </p>
               </div>
 
-              <div className="flex items-center justify-center gap-2 md:gap-8 mb-10">
-                {STEPS.map((step, i) => {
-                  const Icon = STEP_ICONS[i];
-                  const isActive = i <= activeStep;
-                  const isConnectorActive = i <= activeStep - 1;
-                  return (
-                    <div key={step} className="flex items-center">
-                      <div className={`flex flex-col items-center ${isActive ? "text-[#5C4B3D]" : "text-[#D4C8BE]"}`}>
-                        <Icon size={24} />
-                        <span className="text-[11px] mt-1 font-medium">{step}</span>
+              {isCancelled ? (
+                <div className="p-6 bg-red-50 border border-red-200 rounded-[12px] mb-8">
+                  <p className="text-[14px] text-red-600 font-medium">This order has been cancelled.</p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2 md:gap-8 mb-10">
+                  {STEP_LABELS.map((step, i) => {
+                    const Icon = STEP_ICONS[i];
+                    const isActive = i <= activeStep;
+                    const isConnectorActive = i <= activeStep - 1;
+                    return (
+                      <div key={step} className="flex items-center">
+                        <div className={`flex flex-col items-center ${isActive ? "text-[#5C4B3D]" : "text-[#D4C8BE]"}`}>
+                          <Icon size={24} />
+                          <span className="text-[11px] mt-1 font-medium">{step}</span>
+                        </div>
+                        {i < 3 && (
+                          <div className={`w-8 md:w-16 h-[2px] mx-1 md:mx-2 ${isConnectorActive ? "bg-[#5C4B3D]" : "bg-[#E8E4DE]"}`} />
+                        )}
                       </div>
-                      {i < 3 && (
-                        <div className={`w-8 md:w-16 h-[2px] mx-1 md:mx-2 ${isConnectorActive ? "bg-[#5C4B3D]" : "bg-[#E8E4DE]"}`} />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="p-6 bg-[#F5F2ED] rounded-[12px] text-left space-y-3">
                 <p className="text-[14px] text-[#5C4B3D]">
-                  <strong>Status:</strong> {statusText}
+                  <strong>Status:</strong> {getStatusText(foundOrder.status)}
                 </p>
-                {foundOrder.status !== "Delivered" && (
+                {foundOrder.status !== "delivered" && foundOrder.status !== "cancelled" && (
                   <p className="text-[14px] text-[#5C4B3D]">
                     <strong>Estimated Delivery:</strong> 5-7 business days from dispatch.
                   </p>
                 )}
-                {foundOrder.status === "Delivered" && (
-                  <p className="text-[14px] text-[#5C4B3D]">
-                    <strong>Delivered on:</strong> Your order was successfully delivered.
-                  </p>
-                )}
-                <p className="text-[13px] text-[#757575]">
-                  You will receive tracking updates via email and SMS.
+                <p className="text-[14px] text-[#5C4B3D]">
+                  <strong>Payment:</strong> {foundOrder.paymentMethod || "N/A"} — {foundOrder.paymentStatus}
+                </p>
+                <p className="text-[14px] text-[#5C4B3D]">
+                  <strong>Total:</strong> ₹{parseFloat(foundOrder.totalAmount).toLocaleString("en-IN")}.00
                 </p>
               </div>
 
-              {/* Order items */}
-              <div className="mt-8 text-left">
-                <h3 className="text-[14px] font-semibold text-[#1A1A1A] mb-3">Order Items</h3>
-                <div className="space-y-3">
-                  {foundOrder.items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 bg-white border border-[#E8E4DE] rounded-[8px]">
-                      <div className="w-12 h-12 rounded-[6px] bg-[#F5F2ED] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        <Package size={16} className="text-[#5C4B3D]" />
+              {foundOrder.items.length > 0 && (
+                <div className="mt-8 text-left">
+                  <h3 className="text-[14px] font-semibold text-[#1A1A1A] mb-3">Order Items</h3>
+                  <div className="space-y-3">
+                    {foundOrder.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 bg-white border border-[#E8E4DE] rounded-[8px]">
+                        <div className="w-12 h-12 rounded-[6px] bg-[#F5F2ED] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Package size={16} className="text-[#5C4B3D]" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-[#1A1A1A] line-clamp-1">{item.name}</p>
+                          <p className="text-[12px] text-[#757575]">Qty: {item.quantity}</p>
+                        </div>
+                        <span className="text-[13px] font-semibold text-[#1A1A1A]">
+                          ₹{(item.price * item.quantity).toLocaleString("en-IN")}.00
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-[#1A1A1A] line-clamp-1">{item.name}</p>
-                        <p className="text-[12px] text-[#757575]">Qty: {item.quantity}</p>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#1A1A1A]">
-                        Rs. {(item.price * item.quantity).toLocaleString("en-IN")}.00
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <button
                 onClick={() => { setSubmitted(false); setFoundOrder(null); setOrderId(""); setEmail(""); setNotFound(false); }}
@@ -207,8 +262,8 @@ function TrackOrderContent() {
         </div>
       </main>
       <Footer />
-      </>
-    );
+    </>
+  );
 }
 
 export default function TrackOrderPage() {
