@@ -37,28 +37,26 @@ const ProductCard = ({ product }: { product: Product }) => {
           />
         </a>
 
-        <div className="absolute inset-0 flex flex-col justify-end p-4 pointer-events-none">
-          <div className="flex flex-col gap-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-auto">
-            <div className="absolute top-4 right-4 flex flex-col gap-2">
-              <button
-                onClick={() => toggleWishlist(product.id)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center shadow-soft transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-primary hover:text-white"}`}
-              >
-                <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
-              </button>
-              <a href={`/products/${product.handle}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
-                <Search size={18} />
-              </a>
-            </div>
-            
-            <button
-              onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
-              className="w-full bg-white/90 backdrop-blur-sm text-foreground py-3 rounded-[8px] font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all duration-300"
-            >
-              <ShoppingCart size={16} />
-              <span>Add to Cart</span>
-            </button>
-          </div>
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
+          <button
+            onClick={() => toggleWishlist(product.id)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-soft transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-primary hover:text-white"}`}
+          >
+            <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
+          </button>
+          <a href={`/products/${product.handle}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
+            <Search size={18} />
+          </a>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
+          <button
+            onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+            className="w-full bg-white/90 backdrop-blur-sm text-foreground py-3 rounded-[8px] font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all duration-300 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
+          >
+            <ShoppingCart size={16} />
+            <span>Add to Cart</span>
+          </button>
         </div>
       </div>
 

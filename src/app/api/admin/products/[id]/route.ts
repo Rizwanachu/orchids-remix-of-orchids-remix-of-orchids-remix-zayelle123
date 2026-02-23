@@ -19,8 +19,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.name !== undefined) updateData.name = body.name;
     if (body.subtitle !== undefined) updateData.subtitle = body.subtitle;
     if (body.handle !== undefined) updateData.handle = body.handle;
-    if (body.price !== undefined) updateData.price = body.price.toString();
-    if (body.compareAt !== undefined) updateData.compareAt = body.compareAt ? body.compareAt.toString() : null;
+    if (body.price !== undefined) updateData.price = String(body.price);
+    if (body.compareAt !== undefined) updateData.compareAt = body.compareAt != null && body.compareAt !== "" ? String(body.compareAt) : null;
     if (body.image !== undefined) updateData.image = body.image;
     if (body.hoverImage !== undefined) updateData.hoverImage = body.hoverImage;
     if (body.badge !== undefined) updateData.badge = body.badge || null;
@@ -44,8 +44,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       handle: updated.handle,
       name: updated.name,
       subtitle: updated.subtitle,
-      price: parseFloat(updated.price),
-      compareAt: updated.compareAt ? parseFloat(updated.compareAt) : undefined,
+      price: Number(updated.price),
+      compareAt: updated.compareAt ? Number(updated.compareAt) : undefined,
       image: updated.image,
       hoverImage: updated.hoverImage,
       badge: updated.badge || undefined,

@@ -151,8 +151,8 @@ export default function AdminProductsPage() {
       handle,
       name: form.name,
       subtitle: form.subtitle,
-      price: parseFloat(form.price),
-      compareAt: form.compareAt ? parseFloat(form.compareAt) : undefined,
+      price: Number(form.price),
+      compareAt: form.compareAt ? Number(form.compareAt) : undefined,
       image: form.image,
       hoverImage: form.hoverImage || form.image,
       badge: form.badge || undefined,
@@ -277,6 +277,7 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     type="number"
+                    step="any"
                     value={form.price}
                     onChange={(e) => updateField("price", e.target.value)}
                     className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
@@ -289,6 +290,7 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     type="number"
+                    step="any"
                     value={form.compareAt}
                     onChange={(e) => updateField("compareAt", e.target.value)}
                     className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
