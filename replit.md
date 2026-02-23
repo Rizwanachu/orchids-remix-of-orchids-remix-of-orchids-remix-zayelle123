@@ -27,6 +27,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `gift_hampers` - id, title, description, imageUrl, price, includedProductIds (int[]), displayOrder, isActive, createdAt
 - `homepage_settings` - id, key (unique), value, updatedAt
 - `homepage_sections` - id, sectionName (unique), label, isVisible, displayOrder
+- `reviews` - id, productId (FK), customerName, customerEmail, rating (1-5), comment, imageUrl, status (pending/approved/rejected), createdAt
 
 ## Project Structure
 - `src/app/` - Next.js App Router pages
@@ -36,7 +37,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
   - `collections/`, `products/` - Product browsing
   - `api/` - API routes
 - `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, upload, login, logout)
-- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, homepage-settings, homepage-layout, orders, coupons, products)
+- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, homepage-settings, homepage-layout, orders, coupons, products, reviews)
 - `src/components/` - Reusable UI components (sections, ui)
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities, context providers, admin auth helpers
@@ -60,6 +61,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `/admin/coupons` - Coupon code management
 - `/admin/homepage-settings` - Dynamic section titles/subtitles
 - `/admin/homepage-layout` - Section ordering and visibility toggles
+- `/admin/reviews` - Review moderation (approve/reject/delete, filter by status)
 - `/admin/activity` - Admin activity log viewer
 - Protected by middleware (JWT verification)
 

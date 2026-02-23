@@ -151,6 +151,18 @@ export const homepageSections = pgTable("homepage_sections", {
   displayOrder: integer("display_order").notNull().default(0),
 });
 
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment").notNull().default(""),
+  imageUrl: text("image_url"),
+  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -169,3 +181,4 @@ export type Banner = typeof banners.$inferSelect;
 export type GiftHamper = typeof giftHampers.$inferSelect;
 export type HomepageSetting = typeof homepageSettings.$inferSelect;
 export type HomepageSection = typeof homepageSections.$inferSelect;
+export type Review = typeof reviews.$inferSelect;

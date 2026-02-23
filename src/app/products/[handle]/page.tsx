@@ -8,6 +8,7 @@ import Footer from "@/components/sections/footer";
 import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
+import ProductReviews, { ProductReviewSummary } from "@/components/product-reviews";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -172,6 +173,7 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
               <p className="text-[14px] text-[#757575] mt-1">{product.subtitle}</p>
+              <ProductReviewSummary productId={product.id} />
 
                   <div className="flex items-center gap-3 mt-4">
                     <span className="text-[24px] font-semibold text-[#1A1A1A]">
@@ -272,6 +274,8 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
+
+          <ProductReviews productId={product.id} productName={product.name} />
 
           {/* Related Products */}
           {related.length > 0 && (
