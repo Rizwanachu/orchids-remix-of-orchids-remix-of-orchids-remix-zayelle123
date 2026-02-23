@@ -24,6 +24,8 @@ export async function GET() {
       badge: r.products.badge || undefined,
       description: r.products.description,
       details: r.products.details || [],
+      shippingPolicy: r.products.shippingPolicy || "",
+      returnPolicy: r.products.returnPolicy || "",
       category: r.products.category,
     }));
 

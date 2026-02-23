@@ -18,6 +18,8 @@ export async function GET() {
       badge: p.badge || undefined,
       description: p.description,
       details: p.details || [],
+      shippingPolicy: p.shippingPolicy || "",
+      returnPolicy: p.returnPolicy || "",
       category: p.category,
       stockQuantity: p.stockQuantity,
       lowStockThreshold: p.lowStockThreshold,

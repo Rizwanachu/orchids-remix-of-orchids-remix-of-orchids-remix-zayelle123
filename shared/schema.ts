@@ -66,6 +66,8 @@ export const products = pgTable("products", {
   badge: text("badge"),
   description: text("description").notNull().default(""),
   details: text("details").array(),
+  shippingPolicy: text("shipping_policy").notNull().default(""),
+  returnPolicy: text("return_policy").notNull().default(""),
   category: text("category").notNull().default(""),
   stockQuantity: integer("stock_quantity").notNull().default(100),
   lowStockThreshold: integer("low_stock_threshold").notNull().default(10),

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2 } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, ChevronDown } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 import ProductReviews, { ProductReviewSummary } from "@/components/product-reviews";
@@ -22,6 +22,7 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>("description");
 
   if (!loaded) {
     return (
@@ -193,10 +194,6 @@ export default function ProductDetailPage() {
 
               <div className="w-full h-px bg-[#E8E4DE] my-6" />
 
-              <p className="text-[14px] text-[#555] leading-relaxed">
-                {product.description}
-              </p>
-
               {/* Quantity + Add to Cart */}
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <div className="flex items-center border border-[#E8E4DE] rounded-sm">
@@ -248,13 +245,60 @@ export default function ProductDetailPage() {
                 )}
               </button>
 
-              {/* Details */}
-              <div className="mt-8 space-y-2">
-                {product.details.map((detail, idx) => (
-                  <p key={idx} className="text-[13px] text-[#555]">
-                    {detail}
-                  </p>
-                ))}
+              {/* Accordion Sections */}
+              <div className="mt-8 border-t border-[#E8E4DE]">
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "description" ? null : "description")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Description</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "description" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "description" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    <p className="text-[14px] text-[#555] leading-relaxed">{product.description}</p>
+                    {product.details.length > 0 && (
+                      <ul className="mt-3 space-y-1.5">
+                        {product.details.map((detail, idx) => (
+                          <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
+                            <span className="text-[#5C4B3D] mt-0.5">•</span>
+                            {detail}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "shipping" ? null : "shipping")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Shipping Policy</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "shipping" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "shipping" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    <p className="text-[14px] text-[#555] leading-relaxed">
+                      {product.shippingPolicy || "Free shipping on orders above Rs. 1,950. Standard delivery within 5-7 business days across India. Express shipping available at checkout."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "returns" ? null : "returns")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Return Policy</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "returns" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "returns" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    <p className="text-[14px] text-[#555] leading-relaxed">
+                      {product.returnPolicy || "Easy returns within 7 days of delivery. Product must be unused, unwashed, and in original packaging with tags attached. Refunds are processed within 5-7 business days."}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Trust badges */}

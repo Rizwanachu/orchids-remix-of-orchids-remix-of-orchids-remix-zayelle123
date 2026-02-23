@@ -26,6 +26,7 @@ const CATEGORIES = [
   { value: "everyday-essentials", label: "Everyday Essentials" },
   { value: "occasion-hijabs", label: "Occasion Hijabs" },
   { value: "accessories", label: "Accessories" },
+  { value: "gift-hampers", label: "Gift Hampers" },
 ];
 
 const BADGES = [
@@ -33,6 +34,7 @@ const BADGES = [
   { value: "New", label: "New" },
   { value: "Sale", label: "Sale" },
   { value: "Bestseller", label: "Bestseller" },
+  { value: "Gift", label: "Gift" },
 ];
 
 interface ProductFormData {
@@ -46,6 +48,8 @@ interface ProductFormData {
   badge: string;
   description: string;
   details: string;
+  shippingPolicy: string;
+  returnPolicy: string;
   category: string;
 }
 
@@ -60,6 +64,8 @@ const emptyForm: ProductFormData = {
   badge: "",
   description: "",
   details: "",
+  shippingPolicy: "",
+  returnPolicy: "",
   category: CATEGORIES[0].value,
 };
 
@@ -75,6 +81,8 @@ function toFormData(product: Product): ProductFormData {
     badge: product.badge || "",
     description: product.description,
     details: product.details.join("\n"),
+    shippingPolicy: product.shippingPolicy || "",
+    returnPolicy: product.returnPolicy || "",
     category: product.category,
   };
 }
@@ -161,6 +169,8 @@ export default function AdminProductsPage() {
         .split("\n")
         .map((d) => d.trim())
         .filter(Boolean),
+      shippingPolicy: form.shippingPolicy,
+      returnPolicy: form.returnPolicy,
       category: form.category,
     };
 
@@ -419,6 +429,30 @@ export default function AdminProductsPage() {
                     rows={5}
                     className="w-full px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-y font-mono"
                     placeholder={"Material: Premium Chiffon\nSize: 180cm x 70cm\nCare: Hand wash cold"}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Shipping Policy
+                  </label>
+                  <textarea
+                    value={form.shippingPolicy}
+                    onChange={(e) => updateField("shippingPolicy", e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-y"
+                    placeholder="e.g. Free shipping on orders above Rs. 1950. Standard delivery within 5-7 business days across India."
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Return Policy
+                  </label>
+                  <textarea
+                    value={form.returnPolicy}
+                    onChange={(e) => updateField("returnPolicy", e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-y"
+                    placeholder="e.g. Easy returns within 7 days of delivery. Product must be unused and in original packaging."
                   />
                 </div>
               </div>

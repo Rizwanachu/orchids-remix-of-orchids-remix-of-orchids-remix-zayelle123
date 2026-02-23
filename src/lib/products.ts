@@ -13,6 +13,8 @@ export interface Product {
   badge?: string;
   description: string;
   details: string[];
+  shippingPolicy: string;
+  returnPolicy: string;
   category: string;
 }
 
@@ -27,6 +29,8 @@ export const allProducts: Product[] = [
     hoverImage: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1000&auto=format&fit=crop',
     description: 'A timeless essential crafted from 100% organic cotton.',
     details: ['100% Organic Cotton', 'Pre-shrunk', 'Made in Portugal'],
+    shippingPolicy: '',
+    returnPolicy: '',
     category: 'essentials'
   },
   {
@@ -39,6 +43,8 @@ export const allProducts: Product[] = [
     hoverImage: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?q=80&w=1000&auto=format&fit=crop',
     description: 'Classic fit denim jacket with a vintage wash.',
     details: ['Heavyweight Denim', 'Metal Buttons', 'Reinforced Stitching'],
+    shippingPolicy: '',
+    returnPolicy: '',
     category: 'outerwear'
   }
 ];

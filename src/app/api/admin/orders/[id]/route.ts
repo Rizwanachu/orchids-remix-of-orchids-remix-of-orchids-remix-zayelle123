@@ -32,22 +32,35 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const { id } = await params;
     const orderId = parseInt(id);
-    const { orderStatus } = await request.json();
+    const body = await request.json();
+    const { orderStatus, paymentStatus } = body;
 
     const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
     if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
+    const updateFields: any = { updatedAt: new Date() };
+    if (orderStatus) updateFields.orderStatus = orderStatus;
+    if (paymentStatus) updateFields.paymentStatus = paymentStatus;
+
     const [updated] = await db
       .update(orders)
-      .set({ orderStatus, updatedAt: new Date() })
+      .set(updateFields)
       .where(eq(orders.id, orderId))
       .returning();
+
+    const changes: string[] = [];
+    if (orderStatus && orderStatus !== existing.orderStatus) {
+      changes.push(`order status: ${existing.orderStatus} → ${orderStatus}`);
+    }
+    if (paymentStatus && paymentStatus !== existing.paymentStatus) {
+      changes.push(`payment status: ${existing.paymentStatus} → ${paymentStatus}`);
+    }
 
     await logAdminActivity(
       admin.id,
       admin.email,
       "order_status_update",
-      `Order ${existing.orderId} status changed from ${existing.orderStatus} to ${orderStatus}`
+      `Order ${existing.orderId}: ${changes.join(", ")}`
     );
 
     return NextResponse.json(updated);

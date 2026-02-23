@@ -113,20 +113,20 @@ export default function AdminOrdersPage() {
     fetchOrders();
   };
 
-  const handleStatusChange = async (orderId: number, newStatus: string) => {
+  const handleStatusChange = async (orderId: number, field: "orderStatus" | "paymentStatus", newValue: string) => {
     setUpdatingStatus(orderId);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderStatus: newStatus }),
+        body: JSON.stringify({ [field]: newValue }),
       });
       if (res.ok) {
         setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, orderStatus: newStatus } : o))
+          prev.map((o) => (o.id === orderId ? { ...o, [field]: newValue } : o))
         );
         if (selectedOrder?.id === orderId) {
-          setSelectedOrder((prev) => prev ? { ...prev, orderStatus: newStatus } : null);
+          setSelectedOrder((prev) => prev ? { ...prev, [field]: newValue } : null);
         }
       }
     } catch {
@@ -301,14 +301,21 @@ export default function AdminOrdersPage() {
                       Rs. {parseFloat(order.totalAmount).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${paymentStatusColors[order.paymentStatus] || "bg-gray-100 text-gray-800"}`}>
-                        {order.paymentStatus}
-                      </span>
+                      <select
+                        value={order.paymentStatus}
+                        onChange={(e) => handleStatusChange(order.id, "paymentStatus", e.target.value)}
+                        disabled={updatingStatus === order.id}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 ${paymentStatusColors[order.paymentStatus] || "bg-gray-100 text-gray-800"}`}
+                      >
+                        {paymentStatuses.map((s) => (
+                          <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <select
                         value={order.orderStatus}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        onChange={(e) => handleStatusChange(order.id, "orderStatus", e.target.value)}
                         disabled={updatingStatus === order.id}
                         className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 ${orderStatusColors[order.orderStatus] || "bg-gray-100 text-gray-800"}`}
                       >
@@ -415,15 +422,22 @@ export default function AdminOrdersPage() {
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Payment Status</p>
-                  <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${paymentStatusColors[selectedOrder.paymentStatus] || "bg-gray-100 text-gray-800"}`}>
-                    {selectedOrder.paymentStatus}
-                  </span>
+                  <select
+                    value={selectedOrder.paymentStatus}
+                    onChange={(e) => handleStatusChange(selectedOrder.id, "paymentStatus", e.target.value)}
+                    disabled={updatingStatus === selectedOrder.id}
+                    className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 ${paymentStatusColors[selectedOrder.paymentStatus] || "bg-gray-100 text-gray-800"}`}
+                  >
+                    {paymentStatuses.map((s) => (
+                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Order Status</p>
                   <select
                     value={selectedOrder.orderStatus}
-                    onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value)}
+                    onChange={(e) => handleStatusChange(selectedOrder.id, "orderStatus", e.target.value)}
                     disabled={updatingStatus === selectedOrder.id}
                     className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 ${orderStatusColors[selectedOrder.orderStatus] || "bg-gray-100 text-gray-800"}`}
                   >

@@ -18,7 +18,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, couponCode, discountAmount, timestamps
 - `order_items` - id, orderId, productName, productHandle, quantity, price, image
 - `coupons` - id, code, discountType, discountValue, minOrderValue, maxUsage, currentUsage, expiryDate, active
-- `products` - id, handle, name, subtitle, price, compareAt, image, hoverImage, badge, description, details, category, stockQuantity, lowStockThreshold, active, createdAt
+- `products` - id, handle, name, subtitle, price, compareAt, image, hoverImage, badge, description, details, shippingPolicy, returnPolicy, category, stockQuantity, lowStockThreshold, active, createdAt
 - `admin_activity_logs` - id, adminId, adminEmail, action, details, createdAt
 - `collections` - id, title, slug, subtitle, description, imageUrl, isFeatured, displayOrder, createdAt
 - `new_arrivals` - id, productId (FK), displayOrder, createdAt
@@ -51,7 +51,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 ## Admin Panel (CMS)
 - `/admin` - Dashboard with revenue, orders, avg value stats
 - `/admin/login` - Admin login (JWT cookie auth)
-- `/admin/orders` - Order management with filters, status changes, CSV export
+- `/admin/orders` - Order management with filters, order status & payment status dropdowns, CSV export
 - `/admin/analytics` - Sales charts (daily/monthly) with Recharts
 - `/admin/customers` - Customer list with order stats
 - `/admin/products` - Product CRUD management
