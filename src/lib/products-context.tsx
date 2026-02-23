@@ -5,6 +5,7 @@ import { Product } from "./products";
 
 interface ProductsContextType {
   products: Product[];
+  loaded: boolean;
   addProduct: (product: Omit<Product, "id">) => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
@@ -110,7 +111,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProductsContext.Provider
-      value={{ products, addProduct, updateProduct, deleteProduct, getProductByHandle, searchProducts, refreshProducts }}
+      value={{ products, loaded, addProduct, updateProduct, deleteProduct, getProductByHandle, searchProducts, refreshProducts }}
     >
       {children}
     </ProductsContext.Provider>

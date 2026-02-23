@@ -14,13 +14,25 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const handle = params?.handle as string;
   const { addItem, toggleWishlist, isInWishlist } = useCart();
-  const { getProductByHandle, products } = useProducts();
+  const { getProductByHandle, products, loaded } = useProducts();
   const product = getProductByHandle(handle);
 
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  if (!loaded) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+          <Loader2 size={28} className="animate-spin text-[#5C4B3D]" />
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   if (!product) {
     return (
