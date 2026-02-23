@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-4 text-muted-foreground">{product.productType || "N/A"}</td>
                       <td className="p-4">
-                        <Badge variant={product.availableForSale ? "success" : "destructive"}>
+                        <Badge variant={product.availableForSale ? "default" : "destructive"}>
                           {product.availableForSale ? "In Stock" : "Out of Stock"}
                         </Badge>
                       </td>
