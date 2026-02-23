@@ -11,31 +11,10 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const handleCheckout = async (e: React.MouseEvent) => {
+  const handleCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (items.length === 0 || isRedirecting) return;
-
-    setIsRedirecting(true);
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
-      });
-
-      const data = await response.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        console.error("Failed to get checkout URL", data);
-        alert("Checkout failed. Please try again.");
-        setIsRedirecting(false);
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("An error occurred. Please try again.");
-      setIsRedirecting(false);
-    }
+    if (items.length === 0) return;
+    window.location.href = "/checkout";
   };
 
   return (
