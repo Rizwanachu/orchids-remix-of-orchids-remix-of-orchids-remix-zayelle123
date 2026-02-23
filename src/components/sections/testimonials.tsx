@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Instagram, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 const testimonials = [
   {
@@ -115,17 +115,6 @@ const Testimonials = () => {
           </div>
         </div>
 
-        <div className="mt-12 text-center">
-          <a
-            href="https://instagram.com/zayelle.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-[#5C4B3D] text-white rounded-full font-sans text-sm font-medium transition-premium hover:bg-[#4A3D31] shadow-soft"
-          >
-            Visit our Instagram
-            <Instagram size={18} />
-          </a>
-        </div>
       </div>
     </section>
   );

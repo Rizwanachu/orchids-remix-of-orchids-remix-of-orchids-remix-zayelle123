@@ -59,9 +59,9 @@ const InstagramFeed = () => {
 
   if (loading) {
     return (
-      <section className="py-[80px] md:py-[100px] bg-[#FAF9F6] overflow-hidden">
+      <section className="py-16 md:py-20 bg-[#FAF9F6] overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="font-serif text-[28px] text-[#1A1A1A]">
               Our DMs Say It All
             </h2>
@@ -82,9 +82,9 @@ const InstagramFeed = () => {
   if (testimonials.length === 0) return null;
 
   return (
-    <section className="py-[80px] md:py-[100px] bg-[#FAF9F6] overflow-hidden">
+    <section className="py-16 md:py-20 bg-[#FAF9F6] overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="font-serif text-[28px] text-[#1A1A1A]">
             Our DMs Say It All
           </h2>
@@ -151,7 +151,7 @@ const InstagramFeed = () => {
           </div>
         )}
 
-        <div className="mt-16 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <a
             href="https://instagram.com/zayelle.in"
             target="_blank"
