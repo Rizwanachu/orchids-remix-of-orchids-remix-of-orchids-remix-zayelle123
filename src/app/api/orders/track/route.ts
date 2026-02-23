@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
       paymentStatus: order.paymentStatus,
       paymentMethod: order.paymentMethod,
       totalAmount: order.totalAmount,
+      trackingNumber: order.trackingNumber,
+      trackingCarrier: order.trackingCarrier,
       createdAt: order.createdAt,
       items: items.map((item) => ({
         name: item.productName,

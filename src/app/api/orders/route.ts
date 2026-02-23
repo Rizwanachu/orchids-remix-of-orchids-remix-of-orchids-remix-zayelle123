@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { orders, orderItems } from "@/../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,6 +59,25 @@ export async function POST(request: NextRequest) {
         sql`UPDATE coupons SET current_usage = current_usage + 1 WHERE code = ${couponCode}`
       );
     }
+
+    sendOrderConfirmationEmail({
+      orderId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      totalAmount: String(totalAmount),
+      paymentMethod,
+      paymentStatus: newOrder.paymentStatus,
+      items: items.map((item: any) => ({
+        productName: item.productName || item.name || item.title,
+        quantity: item.quantity,
+        price: String(item.price),
+        image: item.image || null,
+      })),
+      couponCode,
+      discountAmount: discountAmount ? String(discountAmount) : null,
+    }).catch(() => {});
 
     return NextResponse.json({ order: newOrder }, { status: 201 });
   } catch (error) {

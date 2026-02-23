@@ -12,6 +12,7 @@ import {
   Package,
   RefreshCw,
   FileDown,
+  Truck,
 } from "lucide-react";
 
 interface OrderItem {
@@ -38,6 +39,8 @@ interface Order {
   paymentMethod: string | null;
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
+  trackingNumber: string | null;
+  trackingCarrier: string | null;
   couponCode: string | null;
   discountAmount: string | null;
   createdAt: string;
@@ -79,6 +82,9 @@ export default function AdminOrdersPage() {
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingCarrier, setTrackingCarrier] = useState("");
+  const [savingTracking, setSavingTracking] = useState(false);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -135,6 +141,34 @@ export default function AdminOrdersPage() {
       console.error("Error updating status");
     } finally {
       setUpdatingStatus(null);
+    }
+  };
+
+  const openOrderDetail = (order: Order) => {
+    setSelectedOrder(order);
+    setTrackingNumber(order.trackingNumber || "");
+    setTrackingCarrier(order.trackingCarrier || "");
+  };
+
+  const handleSaveTracking = async () => {
+    if (!selectedOrder) return;
+    setSavingTracking(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackingNumber, trackingCarrier }),
+      });
+      if (res.ok) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === selectedOrder.id ? { ...o, trackingNumber, trackingCarrier } : o))
+        );
+        setSelectedOrder((prev) => prev ? { ...prev, trackingNumber, trackingCarrier } : null);
+      }
+    } catch {
+      console.error("Error saving tracking info");
+    } finally {
+      setSavingTracking(false);
     }
   };
 
@@ -336,7 +370,7 @@ export default function AdminOrdersPage() {
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <button
-                          onClick={() => setSelectedOrder(order)}
+                          onClick={() => openOrderDetail(order)}
                           className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#5C4B3D] hover:bg-[#F5F2ED] rounded transition-colors"
                         >
                           <Eye size={14} />
@@ -477,6 +511,44 @@ export default function AdminOrdersPage() {
                   </div>
                 )}
               </div>
+
+              {(selectedOrder.orderStatus === "shipped" || selectedOrder.orderStatus === "delivered" || selectedOrder.trackingNumber) && (
+                <div className="p-4 bg-[#FAF9F6] border border-[#E8E4DE] rounded-lg space-y-3">
+                  <h3 className="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <Truck size={16} />
+                    Shipping & Tracking
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-[#757575] mb-1">Tracking Number</label>
+                      <input
+                        type="text"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        placeholder="e.g. AWB123456789"
+                        className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#757575] mb-1">Carrier</label>
+                      <input
+                        type="text"
+                        value={trackingCarrier}
+                        onChange={(e) => setTrackingCarrier(e.target.value)}
+                        placeholder="e.g. Delhivery, BlueDart"
+                        className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSaveTracking}
+                    disabled={savingTracking}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-xs font-medium rounded-lg hover:bg-[#4A3D31] transition-colors disabled:opacity-60"
+                  >
+                    {savingTracking ? "Saving..." : "Save Tracking Info"}
+                  </button>
+                </div>
+              )}
 
               <div>
                 <h3 className="text-sm font-semibold text-[#1A1A1A] mb-3">Order Items</h3>

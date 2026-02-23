@@ -27,6 +27,8 @@ export const orders = pgTable("orders", {
   paymentMethod: text("payment_method"),
   razorpayOrderId: text("razorpay_order_id"),
   razorpayPaymentId: text("razorpay_payment_id"),
+  trackingNumber: text("tracking_number"),
+  trackingCarrier: text("tracking_carrier"),
   couponCode: text("coupon_code"),
   discountAmount: numeric("discount_amount", { precision: 10, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -18,6 +18,8 @@ interface TrackedOrder {
   paymentStatus: string;
   paymentMethod: string;
   totalAmount: string;
+  trackingNumber: string | null;
+  trackingCarrier: string | null;
   createdAt: string;
   items: { name: string; quantity: number; price: number; image: string }[];
 }
@@ -206,6 +208,12 @@ function TrackOrderContent() {
                 <p className="text-[14px] text-[#5C4B3D]">
                   <strong>Status:</strong> {getStatusText(foundOrder.status)}
                 </p>
+                {foundOrder.trackingNumber && (
+                  <p className="text-[14px] text-[#5C4B3D]">
+                    <strong>Tracking Number:</strong> {foundOrder.trackingNumber}
+                    {foundOrder.trackingCarrier && ` (${foundOrder.trackingCarrier})`}
+                  </p>
+                )}
                 {foundOrder.status !== "delivered" && foundOrder.status !== "cancelled" && (
                   <p className="text-[14px] text-[#5C4B3D]">
                     <strong>Estimated Delivery:</strong> 5-7 business days from dispatch.

@@ -11,92 +11,69 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => { success: boolean; error?: string };
-  signup: (name: string, email: string, password: string) => { success: boolean; error?: string };
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-interface StoredUser {
-  email: string;
-  name: string;
-  password: string;
-  isAdmin: boolean;
-}
-
-const USERS_KEY = "zayelle-users";
-const SESSION_KEY = "zayelle-session";
-
-// Default admin account
-const DEFAULT_ADMIN: StoredUser = {
-  email: "rizwanachoo123@gmail.com",
-  password: "rizU@1212",
-  name: "Admin",
-  isAdmin: true,
-};
-
-function getStoredUsers(): StoredUser[] {
-  if (typeof window === "undefined") return [DEFAULT_ADMIN];
-  try {
-    const data = localStorage.getItem(USERS_KEY);
-    if (data) return JSON.parse(data);
-  } catch {}
-  return [DEFAULT_ADMIN];
-}
-
-function saveStoredUsers(users: StoredUser[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return { user: null };
+      })
+      .then((data) => {
+        if (data.user) setUser(data.user);
+      })
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      const session = localStorage.getItem(SESSION_KEY);
-      if (session) {
-        setUser(JSON.parse(session));
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Login failed" };
       }
-      // Ensure admin account exists
-      const users = getStoredUsers();
-      if (!users.find((u) => u.email === DEFAULT_ADMIN.email)) {
-        saveStoredUsers([DEFAULT_ADMIN, ...users]);
-      }
-    } catch {}
-    setIsLoading(false);
+      setUser(data.user);
+      return { success: true };
+    } catch {
+      return { success: false, error: "Network error. Please try again." };
+    }
   }, []);
 
-  const login = useCallback((email: string, password: string) => {
-    const users = getStoredUsers();
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-    if (!found) {
-      return { success: false, error: "Invalid email or password" };
+  const signup = useCallback(async (name: string, email: string, password: string, phone?: string) => {
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Signup failed" };
+      }
+      setUser(data.user);
+      return { success: true };
+    } catch {
+      return { success: false, error: "Network error. Please try again." };
     }
-    const sessionUser: User = { email: found.email, name: found.name, isAdmin: found.isAdmin };
-    setUser(sessionUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
-    return { success: true };
-  }, []);
-
-  const signup = useCallback((name: string, email: string, password: string) => {
-    const users = getStoredUsers();
-    if (users.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
-      return { success: false, error: "An account with this email already exists" };
-    }
-    const newUser: StoredUser = { email, name, password, isAdmin: false };
-    saveStoredUsers([...users, newUser]);
-    const sessionUser: User = { email, name, isAdmin: false };
-    setUser(sessionUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
-    return { success: true };
   }, []);
 
   const logout = useCallback(() => {
+    fetch("/api/auth/me", { method: "DELETE" }).catch(() => {});
     setUser(null);
-    localStorage.removeItem(SESSION_KEY);
   }, []);
 
   return (

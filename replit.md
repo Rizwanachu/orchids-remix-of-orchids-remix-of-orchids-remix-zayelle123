@@ -11,11 +11,12 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - **Forms**: React Hook Form + Zod validation
 - **Charts**: Recharts (used in admin analytics)
 - **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: JWT (jsonwebtoken + jose) with HTTP-only cookies
+- **Auth**: JWT (jsonwebtoken + jose) with HTTP-only cookies (both admin and user auth)
+- **Email**: Nodemailer with Gmail SMTP for transactional emails
 
 ## Database Schema
 - `users` - id, name, email, password (bcrypt), phone, address, role (user/admin), createdAt
-- `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, razorpayOrderId, razorpayPaymentId, couponCode, discountAmount, timestamps
+- `orders` - id, orderId (ZAY-XXXXX), userId, customerName, customerEmail, customerPhone, shippingAddress, totalAmount, paymentStatus, orderStatus, paymentMethod, razorpayOrderId, razorpayPaymentId, trackingNumber, trackingCarrier, couponCode, discountAmount, timestamps
 - `order_items` - id, orderId, productName, productHandle, quantity, price, image
 - `coupons` - id, code, discountType, discountValue, minOrderValue, maxUsage, currentUsage, expiryDate, active
 - `products` - id, handle, name, subtitle, price, compareAt, image, hoverImage, badge, description, details, shippingPolicy, returnPolicy, category, stockQuantity, lowStockThreshold, active, createdAt
@@ -35,13 +36,15 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 ## Project Structure
 - `src/app/` - Next.js App Router pages
   - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, coupons, homepage-settings, homepage-layout, site-settings, page-contents, activity)
-  - `account/` - User account pages
+  - `account/` - User account pages (login, signup, forgot-password, orders, profile)
+  - `api/auth/` - User auth routes (login, signup, me, reset-password)
   - `cart/`, `checkout/`, `wishlist/` - Shopping flow
   - `collections/`, `products/` - Product browsing
   - `api/` - API routes
 - `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, dm-testimonials, upload, login, logout)
 - `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, homepage-settings, homepage-layout, orders, orders/[id]/invoice, coupons, products, reviews)
 - `src/lib/generate-invoice-pdf.ts` - PDFKit invoice generator helper
+- `src/lib/email.ts` - Gmail SMTP email utility (order confirmation + shipping notification)
 - `src/components/` - Reusable UI components (sections, ui)
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities, context providers, admin auth helpers
@@ -93,11 +96,32 @@ The homepage renders sections dynamically based on database configuration:
 - API routes: `/api/razorpay/config` (public key), `/api/razorpay/create-order` (create Razorpay order), `/api/razorpay/verify` (verify payment + create order)
 - Razorpay payment ID stored in orders table and visible in admin order details
 
+## User Authentication
+- Login/signup uses database `users` table with bcrypt password hashing
+- JWT token stored in `user_token` httpOnly cookie (7-day expiry)
+- Auth context (`src/lib/auth-context.tsx`) calls API routes, no localStorage
+- Password reset via email + phone verification at `/account/forgot-password`
+- My Orders page fetches from database API, not localStorage
+
+## Email Notifications
+- Gmail SMTP via nodemailer (`src/lib/email.ts`)
+- Order confirmation email sent on order placement (COD + Razorpay)
+- Shipping notification email sent when admin changes status to "shipped"
+- Tracking number included in shipping email if available
+- Gracefully skips if Gmail credentials not configured
+
+## Order Tracking
+- Admin can add tracking number + carrier when order is shipped/delivered
+- Track order page (`/pages/track-order`) shows tracking info
+- Customer "My Orders" page shows tracking details
+
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for admin JWT tokens
 - `RAZORPAY_KEY_ID` - Razorpay API Key ID
 - `RAZORPAY_KEY_SECRET` - Razorpay API Key Secret
+- `GMAIL_USER` - Gmail address for sending emails
+- `GMAIL_APP_PASSWORD` - Gmail App Password for SMTP
 - `PGDATABASE`, `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` - DB credentials
 
 ## Configuration

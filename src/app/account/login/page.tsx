@@ -11,32 +11,41 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const { login, signup } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSubmitting(true);
 
-    if (isLogin) {
-      const result = login(email, password);
-      if (result.success) {
-        router.push("/account");
+    try {
+      if (isLogin) {
+        const result = await login(email, password);
+        if (result.success) {
+          router.push("/account");
+        } else {
+          setError(result.error || "Login failed");
+        }
       } else {
-        setError(result.error || "Login failed");
+        if (password.length < 6) {
+          setError("Password must be at least 6 characters");
+          setSubmitting(false);
+          return;
+        }
+        const result = await signup(name, email, password, phone);
+        if (result.success) {
+          router.push("/account");
+        } else {
+          setError(result.error || "Signup failed");
+        }
       }
-    } else {
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters");
-        return;
-      }
-      const result = signup(name, email, password);
-      if (result.success) {
-        router.push("/account");
-      } else {
-        setError(result.error || "Signup failed");
-      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -62,19 +71,33 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div>
-                <label className="block text-[13px] font-medium text-[#1A1A1A] uppercase tracking-wider mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required={!isLogin}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full h-[44px] px-4 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] transition-colors bg-white"
-                  placeholder="Your full name"
-                />
-              </div>
+              <>
+                <div>
+                  <label className="block text-[13px] font-medium text-[#1A1A1A] uppercase tracking-wider mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required={!isLogin}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full h-[44px] px-4 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] transition-colors bg-white"
+                    placeholder="Your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-medium text-[#1A1A1A] uppercase tracking-wider mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full h-[44px] px-4 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] transition-colors bg-white"
+                    placeholder="10-digit mobile number"
+                  />
+                </div>
+              </>
             )}
             <div>
               <label className="block text-[13px] font-medium text-[#1A1A1A] uppercase tracking-wider mb-2">
@@ -105,7 +128,7 @@ export default function LoginPage() {
 
             {isLogin && (
               <div className="text-right">
-                <a href="#" className="text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
+                <a href="/account/forgot-password" className="text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
                   Forgot password?
                 </a>
               </div>
@@ -113,9 +136,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors"
+              disabled={submitting}
+              className="w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-50"
             >
-              {isLogin ? "Sign In" : "Create Account"}
+              {submitting ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
             </button>
           </form>
 

@@ -3,6 +3,7 @@ import { db } from "@/../server/db";
 import { orders, orderItems } from "@/../shared/schema";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-logger";
+import { sendShippingNotificationEmail } from "@/lib/email";
 import { eq } from "drizzle-orm";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params;
     const orderId = parseInt(id);
     const body = await request.json();
-    const { orderStatus, paymentStatus } = body;
+    const { orderStatus, paymentStatus, trackingNumber, trackingCarrier } = body;
 
     const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
     if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -41,6 +42,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const updateFields: any = { updatedAt: new Date() };
     if (orderStatus) updateFields.orderStatus = orderStatus;
     if (paymentStatus) updateFields.paymentStatus = paymentStatus;
+    if (trackingNumber !== undefined) updateFields.trackingNumber = trackingNumber || null;
+    if (trackingCarrier !== undefined) updateFields.trackingCarrier = trackingCarrier || null;
 
     const [updated] = await db
       .update(orders)
@@ -48,12 +51,28 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .where(eq(orders.id, orderId))
       .returning();
 
+    if (orderStatus === "shipped" && existing.orderStatus !== "shipped") {
+      sendShippingNotificationEmail({
+        orderId: existing.orderId,
+        customerName: existing.customerName,
+        customerEmail: existing.customerEmail,
+        trackingNumber: updated.trackingNumber,
+        trackingCarrier: updated.trackingCarrier,
+      }).catch(() => {});
+    }
+
     const changes: string[] = [];
     if (orderStatus && orderStatus !== existing.orderStatus) {
       changes.push(`order status: ${existing.orderStatus} → ${orderStatus}`);
     }
     if (paymentStatus && paymentStatus !== existing.paymentStatus) {
       changes.push(`payment status: ${existing.paymentStatus} → ${paymentStatus}`);
+    }
+    if (trackingNumber !== undefined && trackingNumber !== existing.trackingNumber) {
+      changes.push(`tracking number: ${trackingNumber || "removed"}`);
+    }
+    if (trackingCarrier !== undefined && trackingCarrier !== existing.trackingCarrier) {
+      changes.push(`tracking carrier: ${trackingCarrier || "removed"}`);
     }
 
     await logAdminActivity(
