@@ -16,73 +16,36 @@ export interface Product {
   category: string;
 }
 
-export const allProducts: Product[] = [];
+export const allProducts: Product[] = [
+  {
+    id: '1',
+    handle: 'classic-white-tee',
+    name: 'Classic White Tee',
+    subtitle: 'Essentials',
+    price: 35,
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1000&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1000&auto=format&fit=crop',
+    description: 'A timeless essential crafted from 100% organic cotton.',
+    details: ['100% Organic Cotton', 'Pre-shrunk', 'Made in Portugal'],
+    category: 'essentials'
+  },
+  {
+    id: '2',
+    handle: 'denim-jacket',
+    name: 'Vintage Denim Jacket',
+    subtitle: 'Outerwear',
+    price: 120,
+    image: 'https://images.unsplash.com/photo-1576871333021-475f4a15ebb9?q=80&w=1000&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?q=80&w=1000&auto=format&fit=crop',
+    description: 'Classic fit denim jacket with a vintage wash.',
+    details: ['Heavyweight Denim', 'Metal Buttons', 'Reinforced Stitching'],
+    category: 'outerwear'
+  }
+];
 
 export async function fetchShopifyProducts(): Promise<Product[]> {
-  const query = gql`
-    {
-      products(first: 50) {
-        edges {
-          node {
-            id
-            title
-            handle
-            description
-            productType
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
-            compareAtPriceRange {
-              minVariantPrice {
-                amount
-              }
-            }
-            images(first: 2) {
-              edges {
-                node {
-                  url
-                  altText
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  try {
-    const response: any = await client.request(query);
-    console.log('Raw Shopify Response:', JSON.stringify(response, null, 2));
-    
-    // Support both client.request and raw fetch response formats
-    const productsData = response.data?.products || response.products;
-    
-    if (response.errors) {
-      console.error('Shopify API errors:', response.errors);
-      return [];
-    }
-    
-    return (productsData?.edges || []).map(({ node }: any) => ({
-      id: node.id,
-      handle: node.handle,
-      name: node.title,
-      subtitle: node.productType || '',
-      price: node.priceRange?.minVariantPrice?.amount ? parseFloat(node.priceRange.minVariantPrice.amount) : 0,
-      compareAt: node.compareAtPriceRange?.minVariantPrice?.amount ? parseFloat(node.compareAtPriceRange.minVariantPrice.amount) : undefined,
-      image: node.images?.edges[0]?.node.url || '',
-      hoverImage: node.images?.edges[1]?.node.url || node.images?.edges[0]?.node.url || '',
-      description: node.description || '',
-      details: [],
-      category: (node.productType || 'general').toLowerCase().replace(/\s+/g, '-'),
-    }));
-  } catch (error) {
-    console.error('Error fetching Shopify products:', error);
-    return [];
-  }
+  // Return mock products when Shopify is not configured
+  return allProducts;
 }
 
 export function getProductByHandle(handle: string): Product | undefined {
