@@ -163,7 +163,8 @@ export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
 
   const totalAmount = parseFloat(order.totalAmount);
   const discount = order.discountAmount ? parseFloat(order.discountAmount) : 0;
-  const subtotal = totalAmount + discount;
+  const codCharge = isCOD ? 49 : 0;
+  const subtotal = totalAmount + discount - codCharge;
 
   const summaryX = col3;
   const summaryValueX = col4;
@@ -185,7 +186,15 @@ export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
 
   doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("Shipping:", summaryX, y, { width: 70, align: "right" });
   doc.font("Helvetica").fillColor(textColor).text("FREE", summaryValueX, y, { width: 85, align: "right" });
-  y += 16;
+  y += 15;
+
+  if (codCharge > 0) {
+    doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("COD Charges:", summaryX, y, { width: 70, align: "right" });
+    doc.font("Helvetica").fillColor(textColor).text(rupees(codCharge), summaryValueX, y, { width: 85, align: "right" });
+    y += 16;
+  } else {
+    y += 1;
+  }
 
   doc.moveTo(summaryX, y).lineTo(pageWidth - 50, y).strokeColor(brandColor).lineWidth(1).stroke();
   y += 6;

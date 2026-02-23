@@ -42,7 +42,6 @@ function CheckoutContent() {
     : cartTotalPrice;
 
   const shippingCost = subtotal >= 1950 ? 0 : 49;
-  const totalPrice = subtotal + shippingCost;
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -55,6 +54,9 @@ function CheckoutContent() {
     pincode: "",
     paymentMethod: "cod",
   });
+
+  const codFee = formData.paymentMethod === "cod" ? 49 : 0;
+  const totalPrice = subtotal + shippingCost + codFee;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -458,6 +460,12 @@ function CheckoutContent() {
                       {shippingCost === 0 ? "Free" : `₹${shippingCost}.00`}
                     </span>
                   </div>
+                  {codFee > 0 && (
+                    <div className="flex justify-between text-[13px]">
+                      <span className="text-[#757575]">COD Charges</span>
+                      <span className="text-[#1A1A1A]">₹{codFee}.00</span>
+                    </div>
+                  )}
                   <div className="border-t border-[#E8E4DE] mt-2 pt-3 flex justify-between">
                     <span className="text-[15px] font-bold text-[#1A1A1A]">Total</span>
                     <span className="text-[17px] font-bold text-[#5C4B3D]">₹{totalPrice.toLocaleString("en-IN")}.00</span>
