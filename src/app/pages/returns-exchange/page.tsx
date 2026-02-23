@@ -1,9 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { RefreshCw, Package, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function ReturnsExchangePage() {
+  const [cmsContent, setCmsContent] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/page-contents/returns-exchange")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && data.content) setCmsContent(data); })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       <Header />
@@ -11,7 +22,7 @@ export default function ReturnsExchangePage() {
         <div className="bg-[#F5F2ED] py-12 md:py-20">
           <div className="container px-4 md:px-8 max-w-[800px] mx-auto text-center">
             <h1 className="text-[36px] md:text-[48px] font-serif text-[#1A1A1A] tracking-tight mb-4">
-              Returns & Exchange
+              {cmsContent?.title || "Returns & Exchange"}
             </h1>
             <p className="text-[16px] text-[#757575]">
               Your satisfaction matters to us. Here&apos;s our hassle-free return policy.
@@ -20,7 +31,13 @@ export default function ReturnsExchangePage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-20 max-w-[800px] mx-auto">
-          {/* Quick Info */}
+          {cmsContent ? (
+            <div
+              className="prose prose-neutral max-w-none prose-headings:font-serif prose-headings:text-[#1A1A1A] prose-p:text-[#5C4B3D] prose-p:leading-relaxed prose-a:text-[#5C4B3D] prose-a:underline prose-a:underline-offset-4 prose-li:text-[#5C4B3D] prose-strong:text-[#1A1A1A]"
+              dangerouslySetInnerHTML={{ __html: cmsContent.content }}
+            />
+          ) : (
+            <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {[
               { icon: RefreshCw, label: "7-Day Returns", sub: "Easy process" },
@@ -72,6 +89,8 @@ export default function ReturnsExchangePage() {
               </ul>
             </section>
           </div>
+            </>
+          )}
         </div>
       </main>
       <Footer />

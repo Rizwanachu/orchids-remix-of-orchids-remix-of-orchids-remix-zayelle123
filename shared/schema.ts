@@ -195,3 +195,24 @@ export type HomepageSetting = typeof homepageSettings.$inferSelect;
 export type HomepageSection = typeof homepageSections.$inferSelect;
 export type DmTestimonial = typeof dmTestimonials.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
+
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull().default(""),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const pageContents = pgTable("page_contents", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  metaTitle: text("meta_title").default(""),
+  metaDescription: text("meta_description").default(""),
+  isPublished: boolean("is_published").notNull().default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type SiteSetting = typeof siteSettings.$inferSelect;
+export type PageContent = typeof pageContents.$inferSelect;

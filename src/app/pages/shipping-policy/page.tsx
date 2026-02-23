@@ -1,9 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Truck, Clock, Package, MapPin } from "lucide-react";
 
 export default function ShippingPolicyPage() {
+  const [cmsContent, setCmsContent] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/page-contents/shipping-policy")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && data.content) setCmsContent(data); })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       <Header />
@@ -11,7 +22,7 @@ export default function ShippingPolicyPage() {
         <div className="bg-[#F5F2ED] py-12 md:py-20">
           <div className="container px-4 md:px-8 max-w-[800px] mx-auto text-center">
             <h1 className="text-[36px] md:text-[48px] font-serif text-[#1A1A1A] tracking-tight mb-4">
-              Shipping Policy
+              {cmsContent?.title || "Shipping Policy"}
             </h1>
             <p className="text-[16px] text-[#757575]">
               Everything you need to know about our shipping and delivery.
@@ -20,7 +31,13 @@ export default function ShippingPolicyPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-20 max-w-[800px] mx-auto">
-          {/* Highlights */}
+          {cmsContent ? (
+            <div
+              className="prose prose-neutral max-w-none prose-headings:font-serif prose-headings:text-[#1A1A1A] prose-p:text-[#5C4B3D] prose-p:leading-relaxed prose-a:text-[#5C4B3D] prose-a:underline prose-a:underline-offset-4 prose-li:text-[#5C4B3D] prose-strong:text-[#1A1A1A]"
+              dangerouslySetInnerHTML={{ __html: cmsContent.content }}
+            />
+          ) : (
+            <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {[
               { icon: Truck, label: "Free Shipping", sub: "Above Rs. 1,950" },
@@ -66,6 +83,8 @@ export default function ShippingPolicyPage() {
               <p>If your order is delayed beyond the estimated delivery time, please contact us at <a href="mailto:support@zayelle.in" className="underline underline-offset-4">support@zayelle.in</a> with your order number. We&apos;ll look into it right away.</p>
             </section>
           </div>
+            </>
+          )}
         </div>
       </main>
       <Footer />

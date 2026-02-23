@@ -29,10 +29,12 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `homepage_sections` - id, sectionName (unique), label, isVisible, displayOrder
 - `dm_testimonials` - id, imageUrl, alt, displayOrder, isActive, createdAt
 - `reviews` - id, productId (FK), customerName, customerEmail, rating (1-5), comment, imageUrl, status (pending/approved/rejected), createdAt
+- `site_settings` - id, key (unique), value, updatedAt — stores header/footer configuration as key-value pairs
+- `page_contents` - id, slug (unique), title, content (HTML), metaTitle, metaDescription, isPublished, updatedAt — CMS for static pages
 
 ## Project Structure
 - `src/app/` - Next.js App Router pages
-  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, coupons, homepage-settings, homepage-layout, activity)
+  - `admin/` - Admin panel (dashboard, orders, analytics, customers, products, collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, coupons, homepage-settings, homepage-layout, site-settings, page-contents, activity)
   - `account/` - User account pages
   - `cart/`, `checkout/`, `wishlist/` - Shopping flow
   - `collections/`, `products/` - Product browsing
@@ -64,6 +66,8 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `/admin/homepage-settings` - Dynamic section titles/subtitles
 - `/admin/homepage-layout` - Section ordering and visibility toggles
 - `/admin/reviews` - Review moderation (approve/reject/delete, filter by status)
+- `/admin/site-settings` - Header & footer CMS (navigation items, logo, announcement bar, footer links, contact info, social links)
+- `/admin/page-contents` - Page content CMS (edit all static pages: About Us, FAQ, Shipping Policy, etc.)
 - `/admin/activity` - Admin activity log viewer
 - Protected by middleware (JWT verification)
 

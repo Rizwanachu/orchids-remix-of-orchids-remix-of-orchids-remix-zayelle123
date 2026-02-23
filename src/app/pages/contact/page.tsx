@@ -1,12 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Mail, Phone, Clock, MapPin, Send } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [cmsContent, setCmsContent] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/page-contents/contact")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && data.content) setCmsContent(data); })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +29,7 @@ export default function ContactPage() {
         <div className="bg-[#F5F2ED] py-12 md:py-20">
           <div className="container px-4 md:px-8 max-w-[800px] mx-auto text-center">
             <h1 className="text-[36px] md:text-[48px] font-serif text-[#1A1A1A] tracking-tight mb-4">
-              Contact Us
+              {cmsContent?.title || "Contact Us"}
             </h1>
             <p className="text-[16px] md:text-[18px] text-[#757575] leading-relaxed">
               We&apos;d love to hear from you. Reach out anytime.
@@ -30,8 +38,13 @@ export default function ContactPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-20 max-w-[1000px] mx-auto">
+          {cmsContent && (
+            <div
+              className="prose prose-neutral max-w-none mb-12 prose-headings:font-serif prose-headings:text-[#1A1A1A] prose-p:text-[#5C4B3D] prose-p:leading-relaxed prose-a:text-[#5C4B3D] prose-a:underline prose-a:underline-offset-4 prose-li:text-[#5C4B3D] prose-strong:text-[#1A1A1A]"
+              dangerouslySetInnerHTML={{ __html: cmsContent.content }}
+            />
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-            {/* Contact Info */}
             <div>
               <h2 className="text-[24px] font-serif text-[#1A1A1A] mb-8">Get in Touch</h2>
               <div className="space-y-6">

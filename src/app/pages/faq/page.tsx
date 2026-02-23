@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { ChevronDown } from "lucide-react";
@@ -66,6 +66,15 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function FAQPage() {
+  const [cmsContent, setCmsContent] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/page-contents/faq")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data && data.content) setCmsContent(data); })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       <Header />
@@ -73,7 +82,7 @@ export default function FAQPage() {
         <div className="bg-[#F5F2ED] py-12 md:py-20">
           <div className="container px-4 md:px-8 max-w-[800px] mx-auto text-center">
             <h1 className="text-[36px] md:text-[48px] font-serif text-[#1A1A1A] tracking-tight mb-4">
-              Frequently Asked Questions
+              {cmsContent?.title || "Frequently Asked Questions"}
             </h1>
             <p className="text-[16px] md:text-[18px] text-[#757575] leading-relaxed">
               Find answers to common questions about our products, orders, and policies.
@@ -82,6 +91,13 @@ export default function FAQPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-20 max-w-[800px] mx-auto">
+          {cmsContent ? (
+            <div
+              className="prose prose-neutral max-w-none mb-12 prose-headings:font-serif prose-headings:text-[#1A1A1A] prose-p:text-[#5C4B3D] prose-p:leading-relaxed prose-a:text-[#5C4B3D] prose-a:underline prose-a:underline-offset-4 prose-li:text-[#5C4B3D] prose-strong:text-[#1A1A1A]"
+              dangerouslySetInnerHTML={{ __html: cmsContent.content }}
+            />
+          ) : (
+            <>
           {faqs.map((section) => (
             <div key={section.category} className="mb-12 last:mb-0">
               <h2 className="text-[20px] md:text-[24px] font-serif text-[#1A1A1A] mb-2">{section.category}</h2>
@@ -105,6 +121,8 @@ export default function FAQPage() {
               Contact Us
             </a>
           </div>
+            </>
+          )}
         </div>
       </main>
       <Footer />

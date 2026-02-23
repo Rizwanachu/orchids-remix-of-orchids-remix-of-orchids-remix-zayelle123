@@ -1,19 +1,38 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Search, User, Heart, ShoppingBag, Menu, ChevronDown, X } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { useProducts } from "@/lib/products-context";
 import Image from "next/image";
 
+const defaultNavigationItems = [
+  { name: "Home", href: "/" },
+  { name: "All Products", href: "/products", hasDropdown: true },
+  { name: "New Arrivals", href: "/new-arrivals" },
+  { name: "Gift Hampers", href: "/gift-hampers" },
+  { name: "Collections", href: "/collections" },
+  { name: "About Us", href: "/pages/about-us" },
+  { name: "Contact", href: "/pages/contact" },
+  { name: "FAQ", href: "/pages/faq" },
+];
+
 const Header = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cmsSettings, setCmsSettings] = useState<Record<string, string>>({});
   const { totalItems, wishlist } = useCart();
   const { user } = useAuth();
   const { searchProducts } = useProducts();
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then((res) => res.ok ? res.json() : Promise.reject())
+      .then((data: Record<string, string>) => setCmsSettings(data))
+      .catch(() => {});
+  }, []);
 
   const searchResults = useMemo(() => {
     if (searchQuery.trim().length < 2) return [];
@@ -28,19 +47,28 @@ const Header = () => {
     }
   };
 
-  const navigationItems = [
-    { name: "Home", href: "/" },
-    { name: "All Products", href: "/products", hasDropdown: true },
-    { name: "New Arrivals", href: "/new-arrivals" },
-    { name: "Gift Hampers", href: "/gift-hampers" },
-    { name: "Collections", href: "/collections" },
-    { name: "About Us", href: "/pages/about-us" },
-    { name: "Contact", href: "/pages/contact" },
-    { name: "FAQ", href: "/pages/faq" },
-  ];
+  const navigationItems = useMemo(() => {
+    if (cmsSettings.header_navigation) {
+      try {
+        const parsed = JSON.parse(cmsSettings.header_navigation);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {}
+    }
+    return defaultNavigationItems;
+  }, [cmsSettings.header_navigation]);
+
+  const logoUrl = cmsSettings.header_logo_url || "/logo.png";
+  const searchPlaceholder = cmsSettings.header_search_placeholder || "Search Hijabs, Satin Scarves, Undercaps...";
+  const announcementEnabled = cmsSettings.header_announcement_enabled === "true";
+  const announcementText = cmsSettings.header_announcement_text || "";
 
   return (
     <div className="w-full bg-white relative z-50">
+      {announcementEnabled && announcementText && (
+        <div className="bg-[#524436] text-white text-center py-2 text-[12px] tracking-wide">
+          {announcementText}
+        </div>
+      )}
       {isSearchFocused && (
         <div 
           className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300" 
@@ -57,7 +85,7 @@ const Header = () => {
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
                   type="text"
-                  placeholder="Search Hijabs, Satin Scarves, Undercaps..."
+                  placeholder={searchPlaceholder}
                   className="w-full h-[40px] pl-4 pr-10 border border-[#E8E4DE] rounded-sm text-[13px] focus:outline-none focus:border-[#524436] transition-colors"
                   onFocus={() => setIsSearchFocused(true)}
                   value={searchQuery}
@@ -137,7 +165,7 @@ const Header = () => {
             <div className="flex-shrink-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
               <a href="/" className="block">
                 <Image
-                  src="/logo.png"
+                  src={logoUrl}
                   alt="Zayelle"
                   width={180}
                   height={50}
