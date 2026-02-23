@@ -10,6 +10,7 @@ import CuratedGrid from "@/components/sections/curated-grid";
 import InstagramFeed from "@/components/sections/instagram-feed";
 import Testimonials from "@/components/sections/testimonials";
 import TrustBar from "@/components/sections/trust-bar";
+import GiftHampers from "@/components/sections/gift-hampers";
 import Footer from "@/components/sections/footer";
 
 interface Section {
@@ -24,6 +25,7 @@ const SECTION_MAP: Record<string, React.ComponentType> = {
   collections: CollectionsGrid,
   "new-arrivals": NewArrivalsCarousel,
   "promo-banners": PromoBanners,
+  "gift-hampers": GiftHampers,
   "zayelle-edit": CuratedGrid,
   "instagram-feed": InstagramFeed,
   testimonials: Testimonials,
@@ -35,6 +37,7 @@ const DEFAULT_ORDER = [
   "collections",
   "new-arrivals",
   "promo-banners",
+  "gift-hampers",
   "zayelle-edit",
   "instagram-feed",
   "testimonials",

@@ -15,6 +15,7 @@ interface GiftHamper {
   description: string;
   imageUrl: string;
   price: string;
+  comparePrice: string | null;
   includedProductIds: number[] | null;
   displayOrder: number;
   isActive: boolean;
@@ -26,6 +27,7 @@ interface HamperFormData {
   description: string;
   imageUrl: string;
   price: string;
+  comparePrice: string;
   includedProductIds: number[];
   displayOrder: string;
   isActive: boolean;
@@ -36,6 +38,7 @@ const emptyForm: HamperFormData = {
   description: "",
   imageUrl: "",
   price: "",
+  comparePrice: "",
   includedProductIds: [],
   displayOrder: "0",
   isActive: true,
@@ -104,6 +107,7 @@ export default function AdminGiftHampersPage() {
       description: hamper.description,
       imageUrl: hamper.imageUrl,
       price: hamper.price,
+      comparePrice: hamper.comparePrice || "",
       includedProductIds: hamper.includedProductIds || [],
       displayOrder: hamper.displayOrder.toString(),
       isActive: hamper.isActive,
@@ -154,6 +158,7 @@ export default function AdminGiftHampersPage() {
         description: form.description,
         imageUrl: form.imageUrl,
         price: parseFloat(form.price),
+        comparePrice: form.comparePrice ? parseFloat(form.comparePrice) : null,
         includedProductIds: form.includedProductIds,
         displayOrder: parseInt(form.displayOrder) || 0,
         isActive: form.isActive,
@@ -275,10 +280,24 @@ export default function AdminGiftHampersPage() {
                 </label>
                 <input
                   type="number"
+                  step="any"
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                   placeholder="2999"
+                />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                  Compare Price (₹)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={form.comparePrice}
+                  onChange={(e) => setForm((f) => ({ ...f, comparePrice: e.target.value }))}
+                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                  placeholder="3999"
                 />
               </div>
               <div className="md:col-span-2">
@@ -306,15 +325,13 @@ export default function AdminGiftHampersPage() {
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 </div>
-                {form.imageUrl && (
-                  <input
-                    type="text"
-                    value={form.imageUrl}
-                    onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white mt-2"
-                    placeholder="Or paste image URL"
-                  />
-                )}
+                <input
+                  type="text"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white mt-2"
+                  placeholder="Or paste image URL"
+                />
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
@@ -426,7 +443,12 @@ export default function AdminGiftHampersPage() {
                 <div className="flex items-center gap-6 flex-shrink-0">
                   <div className="text-center">
                     <p className="text-[11px] text-[#757575] uppercase tracking-wider">Price</p>
-                    <p className="text-[14px] font-semibold text-[#1A1A1A]">Rs. {parseFloat(hamper.price).toLocaleString("en-IN")}</p>
+                    <p className="text-[14px] font-semibold text-[#1A1A1A]">
+                      Rs. {parseFloat(hamper.price).toLocaleString("en-IN")}
+                      {hamper.comparePrice && parseFloat(hamper.comparePrice) > parseFloat(hamper.price) && (
+                        <span className="ml-2 text-[12px] text-[#757575] line-through font-normal">Rs. {parseFloat(hamper.comparePrice).toLocaleString("en-IN")}</span>
+                      )}
+                    </p>
                   </div>
                   <div className="text-center">
                     <p className="text-[11px] text-[#757575] uppercase tracking-wider">Products</p>

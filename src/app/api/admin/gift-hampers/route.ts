@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { title, description, imageUrl, price, includedProductIds, displayOrder, isActive } = body;
+    const { title, description, imageUrl, price, comparePrice, includedProductIds, displayOrder, isActive } = body;
 
     if (!title || price === undefined) {
       return NextResponse.json({ error: "Title and price are required" }, { status: 400 });
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
         description: description || "",
         imageUrl: imageUrl || "",
         price: price.toString(),
+        comparePrice: comparePrice ? comparePrice.toString() : null,
         includedProductIds: includedProductIds || [],
         displayOrder: displayOrder || 0,
         isActive: isActive !== undefined ? isActive : true,

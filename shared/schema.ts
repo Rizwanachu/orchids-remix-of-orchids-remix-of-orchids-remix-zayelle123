@@ -130,6 +130,7 @@ export const giftHampers = pgTable("gift_hampers", {
   description: text("description").notNull().default(""),
   imageUrl: text("image_url").notNull().default(""),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  comparePrice: numeric("compare_price", { precision: 10, scale: 2 }),
   includedProductIds: integer("included_product_ids").array(),
   displayOrder: integer("display_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),

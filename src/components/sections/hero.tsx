@@ -16,21 +16,27 @@ interface BannerData {
 
 const HeroSection = () => {
   const [heroBanner, setHeroBanner] = useState<BannerData | null>(null);
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch('/api/banners')
-      .then(res => res.json())
-      .then(data => {
-        const hero = (data as BannerData[]).find(b => b.position === 'hero');
-        if (hero) setHeroBanner(hero);
-      })
-      .catch(console.error)
-      .finally(() => setLoaded(true));
+    Promise.all([
+      fetch('/api/banners')
+        .then(res => res.json())
+        .then(data => {
+          const hero = (data as BannerData[]).find(b => b.position === 'hero');
+          if (hero) setHeroBanner(hero);
+        })
+        .catch(console.error),
+      fetch('/api/homepage-settings')
+        .then(res => res.json())
+        .then(data => setSettings(data))
+        .catch(console.error),
+    ]).finally(() => setLoaded(true));
   }, []);
 
-  const title = heroBanner?.title || "Styled in\nModesty";
-  const subtitle = heroBanner?.subtitle || "Premium Hijabs & Elegant Accessories";
+  const title = heroBanner?.title || settings.heroTitle || "Styled in\nModesty";
+  const subtitle = heroBanner?.subtitle || settings.heroSubtitle || "Premium Hijabs & Elegant Accessories";
   const description = "Gracefully designed for modern women across India.";
   const buttonText = heroBanner?.buttonText || "Shop New Arrivals";
   const buttonLink = heroBanner?.buttonLink || "/collections/new-arrivals";

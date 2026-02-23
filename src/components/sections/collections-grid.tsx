@@ -44,14 +44,24 @@ interface CollectionData {
 const CollectionsGrid: React.FC = () => {
   const [collections, setCollections] = useState<CollectionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionTitle, setSectionTitle] = useState("Collections");
+  const [sectionSubtitle, setSectionSubtitle] = useState("");
 
   useEffect(() => {
-    async function fetchCollections() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/collections");
-        if (res.ok) {
-          const data = await res.json();
+        const [collectionsRes, settingsRes] = await Promise.all([
+          fetch("/api/collections"),
+          fetch("/api/homepage-settings").catch(() => null),
+        ]);
+        if (collectionsRes.ok) {
+          const data = await collectionsRes.json();
           setCollections(data.collections);
+        }
+        if (settingsRes && settingsRes.ok) {
+          const settings = await settingsRes.json();
+          if (settings.collectionsTitle) setSectionTitle(settings.collectionsTitle);
+          if (settings.collectionsSubtitle) setSectionSubtitle(settings.collectionsSubtitle);
         }
       } catch (err) {
         console.error("Error fetching collections:", err);
@@ -59,7 +69,7 @@ const CollectionsGrid: React.FC = () => {
         setLoading(false);
       }
     }
-    fetchCollections();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -72,10 +82,13 @@ const CollectionsGrid: React.FC = () => {
             </div>
             <div className="relative bg-[#FAF9F6] px-10">
               <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
-                Collections
+                {sectionTitle}
               </h2>
             </div>
           </div>
+          {sectionSubtitle && (
+            <p className="text-center text-[14px] text-[#757575] -mt-8 mb-12">{sectionSubtitle}</p>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex flex-col items-center">
@@ -101,10 +114,13 @@ const CollectionsGrid: React.FC = () => {
           </div>
           <div className="relative bg-[#FAF9F6] px-10">
             <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
-              Collections
+              {sectionTitle}
             </h2>
           </div>
         </div>
+        {sectionSubtitle && (
+          <p className="text-center text-[14px] text-[#757575] -mt-8 mb-12">{sectionSubtitle}</p>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
           {collections.map((collection) => (

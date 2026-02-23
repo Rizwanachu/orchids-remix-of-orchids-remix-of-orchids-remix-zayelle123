@@ -24,7 +24,7 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 - `new_arrivals` - id, productId (FK), displayOrder, createdAt
 - `zayelle_edits` - id, imageUrl, title, subtitle, buttonText, redirectLink, displayOrder, createdAt
 - `banners` - id, title, subtitle, buttonText, buttonLink, imageUrl, position (hero/mid-left/mid-right), isActive, createdAt
-- `gift_hampers` - id, title, description, imageUrl, price, includedProductIds (int[]), displayOrder, isActive, createdAt
+- `gift_hampers` - id, title, description, imageUrl, price, comparePrice, includedProductIds (int[]), displayOrder, isActive, createdAt
 - `homepage_settings` - id, key (unique), value, updatedAt
 - `homepage_sections` - id, sectionName (unique), label, isVisible, displayOrder
 - `reviews` - id, productId (FK), customerName, customerEmail, rating (1-5), comment, imageUrl, status (pending/approved/rejected), createdAt
@@ -68,9 +68,11 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 ## Homepage Dynamic Sections
 The homepage renders sections dynamically based on database configuration:
 - Section order and visibility controlled via `/admin/homepage-layout`
-- Section titles/subtitles editable via `/admin/homepage-settings`
-- Collections, banners, curated grid, new arrivals all fetched from database APIs
+- Section titles/subtitles editable via `/admin/homepage-settings` and consumed by frontend components (hero, collections-grid, new-arrivals-carousel, curated-grid)
+- Collections, banners, curated grid, new arrivals, gift hampers all fetched from database APIs
+- Gift hampers section renders on homepage with compare price support
 - Fallback to default order if no DB config exists
+- Default section order: hero, collections, new-arrivals, promo-banners, gift-hampers, zayelle-edit, instagram-feed, testimonials, trust-bar
 
 ## Development
 - **Dev server**: `npm run dev` (runs on port 5000 with Turbopack)

@@ -85,15 +85,23 @@ const ProductCard = ({ product }: { product: Product }) => {
 export default function NewArrivalsCarousel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionTitle, setSectionTitle] = useState("New Arrivals");
+  const [sectionSubtitle, setSectionSubtitle] = useState("Designed for comfort. Crafted for elegance.");
 
   useEffect(() => {
-    fetch("/api/new-arrivals")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch("/api/new-arrivals")
+        .then((res) => res.json())
+        .then((data) => setProducts(data))
+        .catch(() => {}),
+      fetch("/api/homepage-settings")
+        .then((res) => res.json())
+        .then((settings) => {
+          if (settings.newArrivalsTitle) setSectionTitle(settings.newArrivalsTitle);
+          if (settings.newArrivalsSubtitle) setSectionSubtitle(settings.newArrivalsSubtitle);
+        })
+        .catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, []);
 
   if (loading) {
@@ -101,8 +109,8 @@ export default function NewArrivalsCarousel() {
       <section className="py-[80px] bg-background">
         <div className="container">
           <header className="flex flex-col items-center mb-10 text-center">
-            <h2 className="text-[32px] font-serif italic text-foreground mb-2">New Arrivals</h2>
-            <p className="text-[14px] text-[#757575] mb-4">Designed for comfort. Crafted for elegance.</p>
+            <h2 className="text-[32px] font-serif italic text-foreground mb-2">{sectionTitle}</h2>
+            <p className="text-[14px] text-[#757575] mb-4">{sectionSubtitle}</p>
             <div className="w-[60px] h-[1px] bg-border mb-8"></div>
           </header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -126,9 +134,9 @@ export default function NewArrivalsCarousel() {
       <div className="container">
         <header className="flex flex-col items-center mb-10 text-center">
           <h2 className="text-[32px] font-serif italic text-foreground mb-2">
-            New Arrivals
+            {sectionTitle}
           </h2>
-          <p className="text-[14px] text-[#757575] mb-4">Designed for comfort. Crafted for elegance.</p>
+          <p className="text-[14px] text-[#757575] mb-4">{sectionSubtitle}</p>
           <div className="w-[60px] h-[1px] bg-border mb-8"></div>
         </header>
 

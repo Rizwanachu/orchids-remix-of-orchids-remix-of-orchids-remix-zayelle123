@@ -22,6 +22,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.includedProductIds !== undefined) updateData.includedProductIds = body.includedProductIds;
     if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
+    if (body.comparePrice !== undefined) updateData.comparePrice = body.comparePrice ? body.comparePrice.toString() : null;
 
     const [updated] = await db
       .update(giftHampers)
