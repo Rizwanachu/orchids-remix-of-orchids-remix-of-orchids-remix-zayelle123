@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const loaderPath = require.resolve('orchids-visual-edits/loader.js');
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["pdfkit"],
   allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev", "*.spock.replit.dev", "*.riker.replit.dev", "127.0.0.1"],
   images: {
     remotePatterns: [

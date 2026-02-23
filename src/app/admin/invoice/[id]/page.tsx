@@ -238,6 +238,14 @@ export default function InvoicePage() {
             <ArrowLeft size={14} /> Back to Orders
           </Link>
           <div className="flex gap-3">
+            <a
+              href={`/api/orders/${order?.orderId}/invoice`}
+              download
+              className="flex items-center gap-2 bg-white border border-[#E8E4DE] text-[#1A1A1A] px-5 py-2.5 rounded-sm text-[13px] font-medium hover:border-[#5C4B3D] transition-colors"
+            >
+              <Download size={14} />
+              Download PDF
+            </a>
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-sm text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"

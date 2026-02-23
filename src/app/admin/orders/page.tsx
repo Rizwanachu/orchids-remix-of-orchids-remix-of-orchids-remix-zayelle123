@@ -11,6 +11,7 @@ import {
   X,
   Package,
   RefreshCw,
+  FileDown,
 } from "lucide-react";
 
 interface OrderItem {
@@ -324,13 +325,23 @@ export default function AdminOrdersPage() {
                       })}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#5C4B3D] hover:bg-[#F5F2ED] rounded transition-colors"
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#5C4B3D] hover:bg-[#F5F2ED] rounded transition-colors"
+                        >
+                          <Eye size={14} />
+                          View
+                        </button>
+                        <a
+                          href={`/api/orders/${order.orderId}/invoice`}
+                          download
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded transition-colors"
+                          title="Download Invoice PDF"
+                        >
+                          <FileDown size={14} />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -478,11 +489,28 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex items-end justify-between">
+                <div className="flex gap-2">
+                  <a
+                    href={`/api/orders/${selectedOrder.orderId}/invoice`}
+                    download
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium border border-[#E8E4DE] text-[#1A1A1A] rounded-sm hover:border-[#5C4B3D] transition-colors"
+                  >
+                    <FileDown size={14} />
+                    Download PDF
+                  </a>
+                  <a
+                    href={`/admin/invoice/${selectedOrder.orderId}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-[#5C4B3D] text-white rounded-sm hover:bg-[#4A3C31] transition-colors"
+                  >
+                    <Eye size={14} />
+                    View Invoice
+                  </a>
+                </div>
                 <div className="text-right">
                   <p className="text-sm text-[#757575]">Total</p>
                   <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
-                    Rs. {parseFloat(selectedOrder.totalAmount).toLocaleString()}
+                    ₹{parseFloat(selectedOrder.totalAmount).toLocaleString("en-IN")}
                   </p>
                 </div>
               </div>

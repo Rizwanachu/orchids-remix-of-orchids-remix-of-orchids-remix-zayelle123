@@ -38,7 +38,8 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
   - `collections/`, `products/` - Product browsing
   - `api/` - API routes
 - `src/app/api/admin/` - Admin API routes (all CMS features, orders, analytics, customers, coupons, activity, dm-testimonials, upload, login, logout)
-- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, homepage-settings, homepage-layout, orders, coupons, products, reviews)
+- `src/app/api/` - Public API routes (collections, new-arrivals, banners, zayelle-edit, gift-hampers, dm-testimonials, homepage-settings, homepage-layout, orders, orders/[id]/invoice, coupons, products, reviews)
+- `src/lib/generate-invoice-pdf.ts` - PDFKit invoice generator helper
 - `src/components/` - Reusable UI components (sections, ui)
 - `src/hooks/` - Custom React hooks
 - `src/lib/` - Utilities, context providers, admin auth helpers

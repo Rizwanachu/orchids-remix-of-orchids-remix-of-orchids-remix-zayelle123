@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Package, ChevronRight } from "lucide-react";
+import { Package, ChevronRight, FileDown } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useOrders, Order } from "@/lib/orders-context";
 
@@ -80,9 +80,14 @@ export default function MyOrdersPage() {
                       <span className="mx-1">|</span>
                       <span className="font-medium text-[#1A1A1A]">Rs. {order.total.toLocaleString("en-IN")}</span>
                     </div>
-                    <a href={`/pages/track-order?order=${order.id}`} className="flex items-center gap-1 text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
-                      Track <ChevronRight size={14} />
-                    </a>
+                    <div className="flex items-center gap-3">
+                      <a href={`/api/orders/${order.id}/invoice?email=${encodeURIComponent(user.email)}`} download className="flex items-center gap-1 text-[13px] text-[#757575] hover:text-[#5C4B3D] transition-colors">
+                        <FileDown size={14} /> Invoice
+                      </a>
+                      <a href={`/pages/track-order?order=${order.id}`} className="flex items-center gap-1 text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
+                        Track <ChevronRight size={14} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               ))}
