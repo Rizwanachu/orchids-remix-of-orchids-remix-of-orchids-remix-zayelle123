@@ -17,7 +17,13 @@ import {
     Save,
     ImageIcon,
     Upload,
+    CheckSquare,
+    Square,
+    MinusSquare,
+    ToggleLeft,
+    FolderOpen,
   } from "lucide-react";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 const CATEGORIES = [
   { value: "chiffon-hijabs", label: "Chiffon Hijabs" },
@@ -51,6 +57,8 @@ interface ProductFormData {
   shippingPolicy: string;
   returnPolicy: string;
   category: string;
+  stockQuantity: string;
+  lowStockThreshold: string;
 }
 
 const emptyForm: ProductFormData = {
@@ -67,6 +75,8 @@ const emptyForm: ProductFormData = {
   shippingPolicy: "",
   returnPolicy: "",
   category: CATEGORIES[0].value,
+  stockQuantity: "100",
+  lowStockThreshold: "10",
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -84,6 +94,8 @@ function toFormData(product: Product): ProductFormData {
     shippingPolicy: product.shippingPolicy || "",
     returnPolicy: product.returnPolicy || "",
     category: product.category,
+    stockQuantity: product.stockQuantity?.toString() ?? "100",
+    lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
   };
 }
 
@@ -98,7 +110,7 @@ function generateHandle(name: string): string {
 
 export default function AdminProductsPage() {
   const { user, isLoading } = useAuth();
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct, refreshProducts } = useProducts();
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,6 +119,11 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState<ProductFormData>(emptyForm);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+  const [bulkCategoryOpen, setBulkCategoryOpen] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState<"image" | "hoverImage" | null>(null);
 
   useEffect(() => {
     if (!isLoading && (!user || !user.isAdmin)) {
@@ -172,6 +189,8 @@ export default function AdminProductsPage() {
       shippingPolicy: form.shippingPolicy,
       returnPolicy: form.returnPolicy,
       category: form.category,
+      stockQuantity: form.stockQuantity ? Number(form.stockQuantity) : 100,
+      lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : 10,
     };
 
     if (isAdding) {
@@ -199,6 +218,82 @@ export default function AdminProductsPage() {
       }
       return updated;
     });
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredProducts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProducts.map((p) => p.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", ids: Array.from(selectedIds) }),
+      });
+      if (res.ok) {
+        await refreshProducts();
+        setSelectedIds(new Set());
+        showSuccess(`Deleted ${selectedIds.size} products`);
+      }
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+    }
+    setBulkDeleteConfirm(false);
+    setBulkLoading(false);
+  };
+
+  const handleBulkSetCategory = async (category: string) => {
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_category", ids: Array.from(selectedIds), category }),
+      });
+      if (res.ok) {
+        await refreshProducts();
+        setSelectedIds(new Set());
+        showSuccess(`Updated category for ${selectedIds.size} products`);
+      }
+    } catch (error) {
+      console.error("Bulk set category failed:", error);
+    }
+    setBulkCategoryOpen(false);
+    setBulkLoading(false);
+  };
+
+  const handleBulkToggleActive = async () => {
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle_active", ids: Array.from(selectedIds) }),
+      });
+      if (res.ok) {
+        await refreshProducts();
+        setSelectedIds(new Set());
+        showSuccess(`Toggled active status for ${selectedIds.size} products`);
+      }
+    } catch (error) {
+      console.error("Bulk toggle active failed:", error);
+    }
+    setBulkLoading(false);
   };
 
   if (isAdding || editingProduct) {
@@ -327,6 +422,39 @@ export default function AdminProductsPage() {
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Inventory</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Stock Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.stockQuantity}
+                    onChange={(e) => updateField("stockQuantity", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Low Stock Threshold
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.lowStockThreshold}
+                    onChange={(e) => updateField("lowStockThreshold", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="10"
+                  />
+                  <p className="mt-1 text-[11px] text-[#757575]">You&apos;ll see a warning when stock falls below this number</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
               <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Images</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -358,6 +486,14 @@ export default function AdminProductsPage() {
                         }}
                       />
                     </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaPicker("image")}
+                      className="flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors bg-white flex-shrink-0"
+                    >
+                      <ImageIcon size={14} />
+                      Browse
+                    </button>
                   </div>
                   {form.image && (
                     <div className="mt-2 w-20 h-20 relative rounded-lg overflow-hidden bg-[#F5F2ED]">
@@ -394,6 +530,14 @@ export default function AdminProductsPage() {
                         }}
                       />
                     </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaPicker("hoverImage")}
+                      className="flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors bg-white flex-shrink-0"
+                    >
+                      <ImageIcon size={14} />
+                      Browse
+                    </button>
                   </div>
                   {form.hoverImage && (
                     <div className="mt-2 w-20 h-20 relative rounded-lg overflow-hidden bg-[#F5F2ED]">
@@ -520,6 +664,80 @@ export default function AdminProductsPage() {
           </button>
         </div>
 
+        {selectedIds.size > 0 && (
+          <div className="mb-6 p-4 bg-[#F5F2ED] border border-[#E8E4DE] rounded-[12px] flex flex-wrap items-center gap-3">
+            <span className="text-[13px] font-medium text-[#1A1A1A]">
+              {selectedIds.size} product{selectedIds.size > 1 ? "s" : ""} selected
+            </span>
+            <div className="flex items-center gap-2 ml-auto flex-wrap">
+              {bulkDeleteConfirm ? (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-sm px-3 py-1.5">
+                  <span className="text-[12px] text-red-700">Delete {selectedIds.size} product{selectedIds.size > 1 ? "s" : ""}?</span>
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={bulkLoading}
+                    className="px-3 py-1 text-[11px] bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {bulkLoading ? "Deleting..." : "Confirm"}
+                  </button>
+                  <button
+                    onClick={() => setBulkDeleteConfirm(false)}
+                    className="px-2 py-1 text-[11px] text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setBulkDeleteConfirm(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-red-600 border border-red-200 rounded-sm hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={13} />
+                  Delete Selected
+                </button>
+              )}
+              <div className="relative">
+                <button
+                  onClick={() => setBulkCategoryOpen(!bulkCategoryOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#5C4B3D] border border-[#E8E4DE] rounded-sm hover:bg-white transition-colors"
+                >
+                  <FolderOpen size={13} />
+                  Set Category
+                </button>
+                {bulkCategoryOpen && (
+                  <div className="absolute top-full mt-1 right-0 bg-white border border-[#E8E4DE] rounded-[8px] shadow-lg z-10 min-w-[180px] py-1">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => handleBulkSetCategory(cat.value)}
+                        disabled={bulkLoading}
+                        className="w-full text-left px-3 py-2 text-[12px] text-[#1A1A1A] hover:bg-[#F5F2ED] transition-colors disabled:opacity-50"
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={handleBulkToggleActive}
+                disabled={bulkLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#5C4B3D] border border-[#E8E4DE] rounded-sm hover:bg-white transition-colors disabled:opacity-50"
+              >
+                <ToggleLeft size={13} />
+                Toggle Active
+              </button>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className="flex items-center gap-1 px-2 py-1.5 text-[12px] text-[#757575] hover:text-[#1A1A1A] transition-colors"
+              >
+                <X size={13} />
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-4">
             <p className="text-[24px] font-semibold text-[#1A1A1A]">{products.length}</p>
@@ -539,18 +757,32 @@ export default function AdminProductsPage() {
           </div>
           <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-4">
             <p className="text-[24px] font-semibold text-[#1A1A1A]">
-              {products.filter((p) => p.badge === "Sale").length}
+              {products.filter((p) => {
+                const qty = p.stockQuantity ?? 100;
+                const threshold = p.lowStockThreshold ?? 10;
+                return qty <= threshold;
+              }).length}
             </p>
-            <p className="text-[12px] text-[#757575] uppercase tracking-wider">On Sale</p>
+            <p className="text-[12px] text-[#757575] uppercase tracking-wider">Low / Out of Stock</p>
           </div>
         </div>
 
         <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden">
-          <div className="hidden md:grid grid-cols-[auto_1fr_120px_100px_100px_100px] gap-4 px-6 py-3 border-b border-[#E8E4DE] bg-[#FAFAF8]">
+          <div className="hidden md:grid grid-cols-[32px_auto_1fr_120px_100px_100px_100px_100px] gap-4 px-6 py-3 border-b border-[#E8E4DE] bg-[#FAFAF8] items-center">
+            <button onClick={toggleSelectAll} className="flex items-center justify-center text-[#757575] hover:text-[#5C4B3D] transition-colors">
+              {selectedIds.size === filteredProducts.length && filteredProducts.length > 0 ? (
+                <CheckSquare size={16} />
+              ) : selectedIds.size > 0 ? (
+                <MinusSquare size={16} />
+              ) : (
+                <Square size={16} />
+              )}
+            </button>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider w-14">Image</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Product</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Category</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Price</span>
+            <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Stock</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Badge</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider text-right">Actions</span>
           </div>
@@ -564,8 +796,14 @@ export default function AdminProductsPage() {
             filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_120px_100px_100px_100px] gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 items-center hover:bg-[#FAFAF8] transition-colors"
+                className={`grid grid-cols-[auto_1fr_auto] md:grid-cols-[32px_auto_1fr_120px_100px_100px_100px_100px] gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 items-center hover:bg-[#FAFAF8] transition-colors ${selectedIds.has(product.id) ? "bg-[#F5F2ED]/50" : ""}`}
               >
+                <button
+                  onClick={() => toggleSelect(product.id)}
+                  className="hidden md:flex items-center justify-center text-[#757575] hover:text-[#5C4B3D] transition-colors"
+                >
+                  {selectedIds.has(product.id) ? <CheckSquare size={16} className="text-[#5C4B3D]" /> : <Square size={16} />}
+                </button>
                 <div className="w-14 h-14 relative rounded-lg overflow-hidden bg-[#F5F2ED] flex-shrink-0">
                   {product.image ? (
                     <Image
@@ -591,6 +829,29 @@ export default function AdminProductsPage() {
                 <p className="hidden md:block text-[13px] font-semibold text-[#1A1A1A]">
                   Rs. {product.price.toLocaleString("en-IN")}
                 </p>
+                <div className="hidden md:block">
+                  {(() => {
+                    const qty = product.stockQuantity ?? 100;
+                    const threshold = product.lowStockThreshold ?? 10;
+                    if (qty === 0) {
+                      return (
+                        <span className="inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium rounded-full bg-red-100 text-red-700">
+                          Out of Stock
+                        </span>
+                      );
+                    }
+                    if (qty <= threshold) {
+                      return (
+                        <span className="inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium rounded-full bg-amber-50 text-amber-700">
+                          Low Stock ({qty})
+                        </span>
+                      );
+                    }
+                    return (
+                      <span className="text-[12px] text-[#757575]">{qty}</span>
+                    );
+                  })()}
+                </div>
                 <div className="hidden md:block">
                   {product.badge && (
                     <span
@@ -644,6 +905,13 @@ export default function AdminProductsPage() {
           )}
         </div>
       </div>
+      <MediaPickerModal
+        open={showMediaPicker !== null}
+        onClose={() => setShowMediaPicker(null)}
+        onSelect={(url) => {
+          if (showMediaPicker) updateField(showMediaPicker, url);
+        }}
+      />
     </div>
   );
 }

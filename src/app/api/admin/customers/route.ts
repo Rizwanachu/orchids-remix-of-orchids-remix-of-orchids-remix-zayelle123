@@ -28,23 +28,27 @@ export async function GET(request: NextRequest) {
 
     const registeredUsers = await db
       .select({
+        id: users.id,
         name: users.name,
         email: users.email,
         phone: users.phone,
+        address: users.address,
         createdAt: users.createdAt,
       })
       .from(users)
       .where(ne(users.role, "admin"));
 
-    const registeredMap = new Map<string, { name: string; phone: string | null; createdAt: Date }>();
+    const registeredMap = new Map<string, { id: number; name: string; phone: string | null; address: string | null; createdAt: Date }>();
     for (const u of registeredUsers) {
-      registeredMap.set(u.email, { name: u.name, phone: u.phone, createdAt: u.createdAt });
+      registeredMap.set(u.email, { id: u.id, name: u.name, phone: u.phone, address: u.address, createdAt: u.createdAt });
     }
 
     const customerMap = new Map<string, {
+      userId: number | null;
       name: string;
       email: string;
       phone: string | null;
+      address: string | null;
       totalOrders: number;
       totalSpend: number;
       lastOrderDate: Date | null;
@@ -64,9 +68,11 @@ export async function GET(request: NextRequest) {
       } else {
         const registered = registeredMap.get(email);
         customerMap.set(email, {
+          userId: registered?.id || null,
           name: registered?.name || order.customerName,
           email,
           phone: registered?.phone || order.customerPhone,
+          address: registered?.address || null,
           totalOrders: 1,
           totalSpend: parseFloat(order.totalAmount),
           lastOrderDate: order.createdAt,
@@ -79,9 +85,11 @@ export async function GET(request: NextRequest) {
     for (const [email, regUser] of registeredMap) {
       if (!customerMap.has(email)) {
         customerMap.set(email, {
+          userId: regUser.id,
           name: regUser.name,
           email,
           phone: regUser.phone,
+          address: regUser.address,
           totalOrders: 0,
           totalSpend: 0,
           lastOrderDate: null,

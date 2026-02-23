@@ -34,7 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params;
     const orderId = parseInt(id);
     const body = await request.json();
-    const { orderStatus, paymentStatus, trackingNumber, trackingCarrier } = body;
+    const { orderStatus, paymentStatus, trackingNumber, trackingCarrier, customerName, customerEmail, customerPhone, shippingAddress, items: updatedItems } = body;
 
     const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
     if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -44,6 +44,40 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (paymentStatus) updateFields.paymentStatus = paymentStatus;
     if (trackingNumber !== undefined) updateFields.trackingNumber = trackingNumber || null;
     if (trackingCarrier !== undefined) updateFields.trackingCarrier = trackingCarrier || null;
+    if (customerName !== undefined) updateFields.customerName = customerName;
+    if (customerEmail !== undefined) updateFields.customerEmail = customerEmail;
+    if (customerPhone !== undefined) updateFields.customerPhone = customerPhone || null;
+    if (shippingAddress !== undefined) updateFields.shippingAddress = shippingAddress || null;
+
+    if (updatedItems && Array.isArray(updatedItems)) {
+      const existingItems = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+      const existingItemIds = existingItems.map((i) => i.id);
+      const updatedItemIds = updatedItems.map((i: any) => i.id).filter(Boolean);
+
+      const toDelete = existingItemIds.filter((id) => !updatedItemIds.includes(id));
+      for (const itemId of toDelete) {
+        await db.delete(orderItems).where(eq(orderItems.id, itemId));
+      }
+
+      for (const item of updatedItems) {
+        if (item.id && existingItemIds.includes(item.id)) {
+          await db
+            .update(orderItems)
+            .set({ quantity: item.quantity, price: item.price })
+            .where(eq(orderItems.id, item.id));
+        }
+      }
+
+      let newTotal = 0;
+      const finalItems = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+      for (const fi of finalItems) {
+        newTotal += parseFloat(fi.price) * fi.quantity;
+      }
+      if (existing.discountAmount) {
+        newTotal = Math.max(0, newTotal - parseFloat(existing.discountAmount));
+      }
+      updateFields.totalAmount = newTotal.toFixed(2);
+    }
 
     const [updated] = await db
       .update(orders)
@@ -74,15 +108,31 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (trackingCarrier !== undefined && trackingCarrier !== existing.trackingCarrier) {
       changes.push(`tracking carrier: ${trackingCarrier || "removed"}`);
     }
+    if (customerName !== undefined && customerName !== existing.customerName) {
+      changes.push(`customer name: ${existing.customerName} → ${customerName}`);
+    }
+    if (customerEmail !== undefined && customerEmail !== existing.customerEmail) {
+      changes.push(`customer email: ${existing.customerEmail} → ${customerEmail}`);
+    }
+    if (customerPhone !== undefined && customerPhone !== existing.customerPhone) {
+      changes.push(`customer phone updated`);
+    }
+    if (shippingAddress !== undefined && shippingAddress !== existing.shippingAddress) {
+      changes.push(`shipping address updated`);
+    }
+    if (updatedItems && Array.isArray(updatedItems)) {
+      changes.push(`order items updated`);
+    }
 
     await logAdminActivity(
       admin.id,
       admin.email,
-      "order_status_update",
+      "order_update",
       `Order ${existing.orderId}: ${changes.join(", ")}`
     );
 
-    return NextResponse.json(updated);
+    const finalItemsList = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+    return NextResponse.json({ ...updated, items: finalItemsList });
   } catch (error) {
     console.error("Error updating order:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

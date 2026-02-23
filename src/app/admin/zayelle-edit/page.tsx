@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid, ImageIcon } from "lucide-react";
 import Image from "next/image";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface ZayelleEditItem {
   id: number;
@@ -43,6 +44,7 @@ export default function AdminZayelleEditPage() {
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -210,6 +212,14 @@ export default function AdminZayelleEditPage() {
                   className="text-sm text-[#8B7D6B] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#FAF9F6] file:text-[#5C4B3D] hover:file:bg-[#E8E4DE]"
                 />
                 {uploading && <span className="text-sm text-[#8B7D6B]">Uploading...</span>}
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                >
+                  <ImageIcon size={14} />
+                  Browse Media
+                </button>
               </div>
               {form.imageUrl && (
                 <div className="mt-2 relative w-40 h-24 rounded overflow-hidden">
@@ -363,6 +373,11 @@ export default function AdminZayelleEditPage() {
           ))}
         </div>
       )}
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm({ ...form, imageUrl: url })}
+      />
     </div>
   );
 }

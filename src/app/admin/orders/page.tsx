@@ -13,6 +13,9 @@ import {
   RefreshCw,
   FileDown,
   Truck,
+  Pencil,
+  Save,
+  Trash2,
 } from "lucide-react";
 
 interface OrderItem {
@@ -85,6 +88,13 @@ export default function AdminOrdersPage() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [trackingCarrier, setTrackingCarrier] = useState("");
   const [savingTracking, setSavingTracking] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editItems, setEditItems] = useState<OrderItem[]>([]);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -148,6 +158,63 @@ export default function AdminOrdersPage() {
     setSelectedOrder(order);
     setTrackingNumber(order.trackingNumber || "");
     setTrackingCarrier(order.trackingCarrier || "");
+    setEditMode(false);
+  };
+
+  const enterEditMode = () => {
+    if (!selectedOrder) return;
+    setEditName(selectedOrder.customerName);
+    setEditEmail(selectedOrder.customerEmail);
+    setEditPhone(selectedOrder.customerPhone || "");
+    setEditAddress(selectedOrder.shippingAddress || "");
+    setEditItems(selectedOrder.items.map((i) => ({ ...i })));
+    setEditMode(true);
+  };
+
+  const editItemQuantity = (itemId: number, newQty: number) => {
+    if (newQty < 1) return;
+    setEditItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, quantity: newQty } : i)));
+  };
+
+  const removeEditItem = (itemId: number) => {
+    setEditItems((prev) => prev.filter((i) => i.id !== itemId));
+  };
+
+  const editSubtotal = editItems.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
+  const editDiscount = selectedOrder?.discountAmount ? parseFloat(selectedOrder.discountAmount) : 0;
+  const editTotal = Math.max(0, editSubtotal - editDiscount);
+
+  const handleSaveEdit = async () => {
+    if (!selectedOrder) return;
+    if (editItems.length === 0) {
+      alert("Order must have at least one item.");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: editName,
+          customerEmail: editEmail,
+          customerPhone: editPhone,
+          shippingAddress: editAddress,
+          items: editItems.map((i) => ({ id: i.id, quantity: i.quantity, price: i.price })),
+        }),
+      });
+      if (res.ok) {
+        const updatedOrder = await res.json();
+        const merged = { ...selectedOrder, ...updatedOrder };
+        setSelectedOrder(merged);
+        setOrders((prev) => prev.map((o) => (o.id === selectedOrder.id ? merged : o)));
+        setEditMode(false);
+      }
+    } catch {
+      console.error("Error saving order edits");
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   const handleSaveTracking = async () => {
@@ -430,27 +497,67 @@ export default function AdminOrdersPage() {
               <h2 className="text-lg font-serif font-semibold text-[#1A1A1A]">
                 Order {selectedOrder.orderId}
               </h2>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                {!editMode ? (
+                  <button
+                    onClick={enterEditMode}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#5C4B3D] border border-[#E8E4DE] rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                  >
+                    <Pencil size={14} />
+                    Edit
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={savingEdit}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-[#5C4B3D] rounded-lg hover:bg-[#4A3D31] transition-colors disabled:opacity-60"
+                    >
+                      <Save size={14} />
+                      {savingEdit ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      onClick={() => setEditMode(false)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#757575] border border-[#E8E4DE] rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="px-6 py-4 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Customer</p>
-                  <p className="text-sm font-medium">{selectedOrder.customerName}</p>
+                  {editMode ? (
+                    <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white" />
+                  ) : (
+                    <p className="text-sm font-medium">{selectedOrder.customerName}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Email</p>
-                  <p className="text-sm">{selectedOrder.customerEmail}</p>
+                  {editMode ? (
+                    <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white" />
+                  ) : (
+                    <p className="text-sm">{selectedOrder.customerEmail}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Phone</p>
-                  <p className="text-sm">{selectedOrder.customerPhone || "—"}</p>
+                  {editMode ? (
+                    <input type="text" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white" />
+                  ) : (
+                    <p className="text-sm">{selectedOrder.customerPhone || "—"}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Payment Method</p>
@@ -490,7 +597,11 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-[#757575] mb-1">Shipping Address</p>
-                  <p className="text-sm">{selectedOrder.shippingAddress || "—"}</p>
+                  {editMode ? (
+                    <textarea value={editAddress} onChange={(e) => setEditAddress(e.target.value)} rows={3} className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white resize-none" />
+                  ) : (
+                    <p className="text-sm">{selectedOrder.shippingAddress || "—"}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Date</p>
@@ -560,24 +671,61 @@ export default function AdminOrdersPage() {
                         <th className="text-center px-4 py-2 text-xs font-medium text-[#757575]">Qty</th>
                         <th className="text-right px-4 py-2 text-xs font-medium text-[#757575]">Price</th>
                         <th className="text-right px-4 py-2 text-xs font-medium text-[#757575]">Subtotal</th>
+                        {editMode && <th className="text-center px-4 py-2 text-xs font-medium text-[#757575]">Remove</th>}
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedOrder.items.map((item) => (
-                        <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
-                          <td className="px-4 py-2.5 flex items-center gap-3">
-                            {item.image && (
-                              <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
-                            )}
-                            <span className="text-sm">{item.productName}</span>
-                          </td>
-                          <td className="px-4 py-2.5 text-center">{item.quantity}</td>
-                          <td className="px-4 py-2.5 text-right">Rs. {parseFloat(item.price).toLocaleString()}</td>
-                          <td className="px-4 py-2.5 text-right font-medium">
-                            Rs. {(parseFloat(item.price) * item.quantity).toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
+                      {editMode ? (
+                        editItems.map((item) => (
+                          <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
+                            <td className="px-4 py-2.5 flex items-center gap-3">
+                              {item.image && (
+                                <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
+                              )}
+                              <span className="text-sm">{item.productName}</span>
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <input
+                                type="number"
+                                min={1}
+                                value={item.quantity}
+                                onChange={(e) => editItemQuantity(item.id, parseInt(e.target.value) || 1)}
+                                className="w-16 px-2 py-1 text-sm text-center border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                              />
+                            </td>
+                            <td className="px-4 py-2.5 text-right">Rs. {parseFloat(item.price).toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right font-medium">
+                              Rs. {(parseFloat(item.price) * item.quantity).toLocaleString()}
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <button
+                                onClick={() => removeEditItem(item.id)}
+                                disabled={editItems.length <= 1}
+                                className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Remove item"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        selectedOrder.items.map((item) => (
+                          <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
+                            <td className="px-4 py-2.5 flex items-center gap-3">
+                              {item.image && (
+                                <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
+                              )}
+                              <span className="text-sm">{item.productName}</span>
+                            </td>
+                            <td className="px-4 py-2.5 text-center">{item.quantity}</td>
+                            <td className="px-4 py-2.5 text-right">Rs. {parseFloat(item.price).toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right font-medium">
+                              Rs. {(parseFloat(item.price) * item.quantity).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -603,9 +751,20 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-[#757575]">Total</p>
-                  <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
-                    ₹{parseFloat(selectedOrder.totalAmount).toLocaleString("en-IN")}
-                  </p>
+                  {editMode ? (
+                    <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
+                      ₹{editTotal.toLocaleString("en-IN")}
+                      {editDiscount > 0 && (
+                        <span className="block text-xs text-[#757575] font-normal">
+                          Subtotal: ₹{editSubtotal.toLocaleString("en-IN")} - Discount: ₹{editDiscount.toLocaleString("en-IN")}
+                        </span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
+                      ₹{parseFloat(selectedOrder.totalAmount).toLocaleString("en-IN")}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

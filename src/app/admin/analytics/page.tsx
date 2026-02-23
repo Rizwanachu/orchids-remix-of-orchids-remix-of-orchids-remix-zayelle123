@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DollarSign, ShoppingCart, TrendingUp, Crown } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { DollarSign, ShoppingCart, TrendingUp, Crown, Calendar } from "lucide-react";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -29,12 +27,59 @@ interface AnalyticsData {
   }[];
 }
 
+type PresetKey = "7d" | "30d" | "90d" | "year" | "all";
+
+const presets: { key: PresetKey; label: string }[] = [
+  { key: "7d", label: "7 Days" },
+  { key: "30d", label: "30 Days" },
+  { key: "90d", label: "90 Days" },
+  { key: "year", label: "This Year" },
+  { key: "all", label: "All Time" },
+];
+
+function getPresetDates(key: PresetKey): { dateFrom: string; dateTo: string } {
+  const now = new Date();
+  const dateTo = now.toISOString().split("T")[0];
+
+  switch (key) {
+    case "7d": {
+      const from = new Date();
+      from.setDate(from.getDate() - 7);
+      return { dateFrom: from.toISOString().split("T")[0], dateTo };
+    }
+    case "30d": {
+      const from = new Date();
+      from.setDate(from.getDate() - 30);
+      return { dateFrom: from.toISOString().split("T")[0], dateTo };
+    }
+    case "90d": {
+      const from = new Date();
+      from.setDate(from.getDate() - 90);
+      return { dateFrom: from.toISOString().split("T")[0], dateTo };
+    }
+    case "year": {
+      const from = new Date(now.getFullYear(), 0, 1);
+      return { dateFrom: from.toISOString().split("T")[0], dateTo };
+    }
+    case "all":
+      return { dateFrom: "", dateTo: "" };
+  }
+}
+
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activePreset, setActivePreset] = useState<PresetKey | null>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  useEffect(() => {
-    fetch("/api/admin/analytics")
+  const fetchData = useCallback((from: string, to: string) => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (from) params.set("dateFrom", from);
+    if (to) params.set("dateTo", to);
+    const qs = params.toString();
+    fetch(`/api/admin/analytics${qs ? `?${qs}` : ""}`)
       .then((res) => res.json())
       .then((d) => {
         setData(d);
@@ -43,7 +88,24 @@ export default function AnalyticsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    fetchData("", "");
+  }, [fetchData]);
+
+  const handlePreset = (key: PresetKey) => {
+    setActivePreset(key);
+    const { dateFrom: from, dateTo: to } = getPresetDates(key);
+    setDateFrom(from);
+    setDateTo(to);
+    fetchData(from, to);
+  };
+
+  const handleCustomDateApply = () => {
+    setActivePreset(null);
+    fetchData(dateFrom, dateTo);
+  };
+
+  if (loading && !data) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C4B3D]" />
@@ -99,6 +161,66 @@ export default function AnalyticsPage() {
         <p className="text-sm text-[#757575] mt-1">Sales performance overview</p>
       </div>
 
+      <div className="bg-white rounded-xl border border-[#E8E4DE] p-4 space-y-3">
+        <div className="flex items-center gap-2 text-sm font-medium text-[#1A1A1A]">
+          <Calendar size={16} />
+          Date Range
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {presets.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => handlePreset(p.key)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activePreset === p.key
+                  ? "bg-[#5C4B3D] text-white"
+                  : "bg-[#F5F2ED] text-[#5C4B3D] hover:bg-[#E8E4DE]"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-xs text-[#757575] mb-1">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => {
+                setDateFrom(e.target.value);
+                setActivePreset(null);
+              }}
+              className="border border-[#E8E4DE] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-[#757575] mb-1">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => {
+                setDateTo(e.target.value);
+                setActivePreset(null);
+              }}
+              className="border border-[#E8E4DE] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D]"
+            />
+          </div>
+          <button
+            onClick={handleCustomDateApply}
+            className="px-4 py-1.5 rounded-lg text-sm font-medium bg-[#5C4B3D] text-white hover:bg-[#4A3C30] transition-colors"
+          >
+            Apply
+          </button>
+        </div>
+        {loading && (
+          <div className="flex items-center gap-2 text-xs text-[#757575]">
+            <div className="animate-spin rounded-full h-3 w-3 border-b border-[#5C4B3D]" />
+            Loading...
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map((stat) => (
           <div
@@ -121,7 +243,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-[#E8E4DE] p-5">
           <h2 className="text-base font-serif font-semibold text-[#1A1A1A] mb-4">
-            Daily Sales (Last 7 Days)
+            Daily Sales
           </h2>
           {dailyChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -142,14 +264,14 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[300px] text-[#757575] text-sm">
-              No sales data for the last 7 days
+              No sales data for this period
             </div>
           )}
         </div>
 
         <div className="bg-white rounded-xl border border-[#E8E4DE] p-5">
           <h2 className="text-base font-serif font-semibold text-[#1A1A1A] mb-4">
-            Monthly Sales (Last 12 Months)
+            Monthly Sales
           </h2>
           {monthlyChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>

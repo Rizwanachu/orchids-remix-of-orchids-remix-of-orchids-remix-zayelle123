@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon } from "lucide-react";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Collection {
   id: number;
@@ -55,6 +56,7 @@ export default function AdminCollectionsPage() {
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);
@@ -286,6 +288,14 @@ export default function AdminCollectionsPage() {
                   {uploading ? "Uploading..." : "Upload Image"}
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </label>
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                >
+                  <ImageIcon size={14} />
+                  Browse Media
+                </button>
                 {form.imageUrl && (
                   <div className="relative w-10 h-10 rounded border border-[#E8E4DE] overflow-hidden">
                     <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" />
@@ -419,6 +429,11 @@ export default function AdminCollectionsPage() {
           </div>
         </div>
       )}
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm({ ...form, imageUrl: url })}
+      />
     </div>
   );
 }

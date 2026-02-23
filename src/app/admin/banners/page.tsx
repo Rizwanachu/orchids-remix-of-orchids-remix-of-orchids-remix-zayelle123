@@ -12,6 +12,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Banner {
   id: number;
@@ -44,6 +45,7 @@ export default function BannersPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   const fetchBanners = async () => {
     try {
@@ -346,6 +348,14 @@ export default function BannersPage() {
                     disabled={uploading}
                   />
                 </label>
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                >
+                  <ImageIcon size={14} />
+                  Browse Media
+                </button>
               </div>
               {form.imageUrl && (
                 <div className="mt-3 relative w-40 h-24 rounded-lg overflow-hidden border border-[#E8E4DE]">
@@ -518,6 +528,11 @@ export default function BannersPage() {
           </div>
         </div>
       )}
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm({ ...form, imageUrl: url })}
+      />
     </div>
   );
 }

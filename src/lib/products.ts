@@ -16,6 +16,8 @@ export interface Product {
   shippingPolicy: string;
   returnPolicy: string;
   category: string;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
 }
 
 export const allProducts: Product[] = [

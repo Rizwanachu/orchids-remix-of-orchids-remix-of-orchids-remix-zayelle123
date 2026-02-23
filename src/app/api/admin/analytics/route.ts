@@ -1,14 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { orders, orderItems } from "@/../shared/schema";
 import { verifyAdmin } from "@/lib/admin-auth";
-import { eq, sql, gte } from "drizzle-orm";
+import { eq, sql, gte, lte, and } from "drizzle-orm";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const admin = await verifyAdmin();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    const { searchParams } = new URL(request.url);
+    const dateFrom = searchParams.get("dateFrom");
+    const dateTo = searchParams.get("dateTo");
+
+    const dateConditions = [];
+    dateConditions.push(eq(orders.paymentStatus, "paid"));
+    if (dateFrom) {
+      dateConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      dateConditions.push(lte(orders.createdAt, toDate));
+    }
+
+    const summaryWhere = and(...dateConditions);
+
     const [summaryResult] = await db
       .select({
         totalRevenue: sql<string>`COALESCE(SUM(${orders.totalAmount}::numeric), 0)`,
@@ -16,10 +33,23 @@ export async function GET() {
         averageOrderValue: sql<string>`COALESCE(AVG(${orders.totalAmount}::numeric), 0)`,
       })
       .from(orders)
-      .where(eq(orders.paymentStatus, "paid"));
+      .where(summaryWhere);
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const dateFilterConditions = [];
+    if (dateFrom) {
+      dateFilterConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+    } else {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      dateFilterConditions.push(gte(orders.createdAt, sevenDaysAgo));
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      dateFilterConditions.push(lte(orders.createdAt, toDate));
+    }
+
+    const dailyWhere = dateFilterConditions.length > 0 ? and(...dateFilterConditions) : undefined;
 
     const dailySales = await db
       .select({
@@ -28,12 +58,25 @@ export async function GET() {
         orders: sql<number>`COUNT(*)::int`,
       })
       .from(orders)
-      .where(gte(orders.createdAt, sevenDaysAgo))
+      .where(dailyWhere)
       .groupBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`)
       .orderBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`);
 
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+    const monthlyFilterConditions = [];
+    if (dateFrom) {
+      monthlyFilterConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+    } else {
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+      monthlyFilterConditions.push(gte(orders.createdAt, twelveMonthsAgo));
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      monthlyFilterConditions.push(lte(orders.createdAt, toDate));
+    }
+
+    const monthlyWhere = monthlyFilterConditions.length > 0 ? and(...monthlyFilterConditions) : undefined;
 
     const monthlySales = await db
       .select({
@@ -42,9 +85,39 @@ export async function GET() {
         orders: sql<number>`COUNT(*)::int`,
       })
       .from(orders)
-      .where(gte(orders.createdAt, twelveMonthsAgo))
+      .where(monthlyWhere)
       .groupBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`)
       .orderBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`);
+
+    const orderItemConditions = [];
+    if (dateFrom || dateTo) {
+      const subquery = db
+        .select({ id: orders.id })
+        .from(orders)
+        .where(and(...dateConditions));
+
+      const filteredOrderItems = await db
+        .select({
+          productName: orderItems.productName,
+          totalQuantity: sql<number>`SUM(${orderItems.quantity})::int`,
+          totalRevenue: sql<string>`SUM(${orderItems.price}::numeric * ${orderItems.quantity})`,
+        })
+        .from(orderItems)
+        .where(sql`${orderItems.orderId} IN (${subquery})`)
+        .groupBy(orderItems.productName)
+        .orderBy(sql`SUM(${orderItems.quantity}) DESC`)
+        .limit(5);
+
+      return NextResponse.json({
+        totalRevenue: parseFloat(summaryResult.totalRevenue) || 0,
+        totalOrders: summaryResult.totalOrders || 0,
+        averageOrderValue: parseFloat(summaryResult.averageOrderValue) || 0,
+        dailySales,
+        monthlySales,
+        bestSellingProducts: filteredOrderItems,
+        lowStockAlert: 0,
+      });
+    }
 
     const bestSellingProducts = await db
       .select({

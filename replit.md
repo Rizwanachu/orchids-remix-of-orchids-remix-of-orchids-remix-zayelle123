@@ -56,10 +56,11 @@ A Next.js e-commerce web application (Zayelle - Premium Hijabs & Modest Accessor
 ## Admin Panel (CMS)
 - `/admin` - Dashboard with revenue, orders, avg value stats
 - `/admin/login` - Admin login (JWT cookie auth)
-- `/admin/orders` - Order management with filters, order status & payment status dropdowns, CSV export
-- `/admin/analytics` - Sales charts (daily/monthly) with Recharts
-- `/admin/customers` - Customer list with order stats
-- `/admin/products` - Product CRUD management
+- `/admin/orders` - Order management with filters, order status & payment status dropdowns, CSV export, full order editing (customer details, item quantities, remove items with total recalculation)
+- `/admin/analytics` - Sales charts (daily/monthly) with Recharts, custom date range picker (presets: 7/30/90 days, this year, all time + custom from/to)
+- `/admin/customers` - Customer list with order stats, edit/delete customers, view full order history
+- `/admin/products` - Product CRUD with stock management (stockQuantity/lowStockThreshold fields, low/out of stock badges), bulk actions (select all, bulk delete, set category, toggle active)
+- `/admin/media` - Media library (grid view of uploaded images, upload/delete, reusable MediaPickerModal for image selection across admin)
 - `/admin/collections` - Collection management (add/edit/delete/reorder)
 - `/admin/new-arrivals` - New arrivals section management (select products, reorder)
 - `/admin/banners` - Banner management (hero, mid-left, mid-right positions, active toggle)

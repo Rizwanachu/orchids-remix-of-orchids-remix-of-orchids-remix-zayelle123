@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Gift, Save, Upload, Image as ImageIcon } from "lucide-react";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Product {
   id: number;
@@ -54,6 +55,7 @@ export default function AdminGiftHampersPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   const fetchHampers = useCallback(async () => {
@@ -324,6 +326,14 @@ export default function AdminGiftHampersPage() {
                     {uploading ? "Uploading..." : "Upload Image"}
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaPicker(true)}
+                    className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                  >
+                    <ImageIcon size={14} />
+                    Browse Media
+                  </button>
                 </div>
                 <input
                   type="text"
@@ -530,6 +540,11 @@ export default function AdminGiftHampersPage() {
           </div>
         )}
       </div>
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+      />
     </div>
   );
 }
