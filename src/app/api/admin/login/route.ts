@@ -4,7 +4,6 @@ import { users } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
 import { logAdminActivity } from "@/lib/activity-logger";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret_change_me";
@@ -79,18 +78,16 @@ export async function POST(request: NextRequest) {
       { expiresIn: "1d" }
     );
 
-    const cookie = serialize("admin_token", token, {
+    await logAdminActivity(user.id, user.email, "admin_login", `Admin logged in from IP: ${ip}`);
+
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "lax",
       maxAge: 60 * 60 * 24,
       path: "/",
     });
-
-    await logAdminActivity(user.id, user.email, "admin_login", `Admin logged in from IP: ${ip}`);
-
-    const response = NextResponse.json({ success: true });
-    response.headers.set("Set-Cookie", cookie);
 
     return response;
   } catch (error) {

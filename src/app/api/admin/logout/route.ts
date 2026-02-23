@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { serialize } from "cookie";
 
 export async function POST() {
-  const cookie = serialize("admin_token", "", {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set("admin_token", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "lax",
     maxAge: 0,
     path: "/",
   });
-
-  const response = NextResponse.json({ success: true });
-  response.headers.set("Set-Cookie", cookie);
   return response;
 }
