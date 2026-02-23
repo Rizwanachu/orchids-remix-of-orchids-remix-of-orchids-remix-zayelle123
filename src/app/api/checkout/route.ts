@@ -16,6 +16,13 @@ export async function POST(request: Request) {
       quantity: parseInt(item.quantity, 10) || 1,
     }));
 
+    // If using mock IDs (like '1', '2'), we can't really call Shopify.
+    // For development/demo purposes, we'll return a fake success if SHOPIFY_STOREFRONT_ACCESS_TOKEN is missing
+    if (!SHOPIFY_STOREFRONT_ACCESS_TOKEN || lines.some((l: any) => !l.merchandiseId.includes('ProductVariant/gid'))) {
+      console.log('Development mode: Returning mock checkout URL');
+      return NextResponse.json({ checkoutUrl: '/checkout' });
+    }
+
     const mutation = `
       mutation cartCreate($input: CartInput) {
         cartCreate(input: $input) {
