@@ -45,8 +45,15 @@ function CheckoutContent() {
     : cartItems;
 
   const subtotal = isDirect && directProduct
-    ? directProduct.price * productQuantity
+    ? (directProduct.price || 0) * productQuantity
     : cartTotalPrice;
+
+  useEffect(() => {
+    if (isDirect && !directProduct && products.length > 0) {
+      // If we are in direct mode but product not found yet, it might still be loading
+      // or the ID is invalid. If products are loaded and still not found, we'll show empty.
+    }
+  }, [isDirect, directProduct, products]);
 
   const codFee = 0;
   const shippingCost = subtotal >= 1950 ? 0 : 49;
@@ -323,7 +330,7 @@ function CheckoutContent() {
     );
   }
 
-  if (items.length === 0) {
+  if (!isDirect && items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
         <Header />

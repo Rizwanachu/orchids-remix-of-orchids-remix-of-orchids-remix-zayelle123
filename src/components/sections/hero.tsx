@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useTheme } from '@/lib/theme-context';
 
 interface BannerData {
   id: number;
@@ -15,6 +16,7 @@ interface BannerData {
 }
 
 const HeroSection = () => {
+  const { settings: themeSettings } = useTheme();
   const [heroBanner, setHeroBanner] = useState<BannerData | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loaded, setLoaded] = useState(false);
@@ -74,13 +76,16 @@ const HeroSection = () => {
           
           <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0 lg:pt-20">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              <h1 className="font-sans text-[48px] md:text-[64px] leading-[1.1] font-semibold text-[#1A1A1A] mb-4 tracking-tight uppercase">
+              <h1 
+                className="font-sans text-[48px] md:text-[64px] leading-[1.1] font-semibold mb-4 tracking-tight uppercase"
+                style={{ color: themeSettings.heroTitleColor }}
+              >
                 {titleParts[0]}
                 {titleParts[1] && (
                   <>
                     <br />
                     <span className="relative inline-block mt-2">
-                      <span className="bg-[#5C4B3D]/10 px-4 py-1 text-[#5C4B3D]">
+                      <span className="bg-[#5C4B3D]/10 px-4 py-1" style={{ color: themeSettings.primaryColor }}>
                         {titleParts[1]}
                       </span>
                     </span>
@@ -88,11 +93,17 @@ const HeroSection = () => {
                 )}
               </h1>
 
-              <p className="font-sans text-[20px] md:text-[22px] text-[#5C4B3D] font-medium max-w-[480px] mb-3">
+              <p 
+                className="font-sans text-[20px] md:text-[22px] font-medium max-w-[480px] mb-3"
+                style={{ color: themeSettings.primaryColor }}
+              >
                 {subtitle}
               </p>
               
-              <p className="font-sans text-[16px] md:text-[18px] text-[#757575] max-w-[480px] mb-8 leading-relaxed">
+              <p 
+                className="font-sans text-[16px] md:text-[18px] max-w-[480px] mb-8 leading-relaxed"
+                style={{ color: themeSettings.heroSubtitleColor }}
+              >
                 {description}
               </p>
 

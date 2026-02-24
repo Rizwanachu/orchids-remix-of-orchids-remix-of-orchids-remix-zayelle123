@@ -9,11 +9,15 @@ export default function ThemeSettingsPage() {
   const [message, setMessage] = useState("");
   const [settings, setSettings] = useState({
     fontFamily: "Inter",
+    headingFontFamily: "'Playfair Display', serif",
     fontSize: "16px",
-    primaryColor: "#000000",
+    primaryColor: "#5C4B3D",
     secondaryColor: "#ffffff",
-    backgroundColor: "#ffffff",
-    textColor: "#000000",
+    backgroundColor: "#FAF9F6",
+    textColor: "#1A1A1A",
+    heroTitleColor: "#1A1A1A",
+    heroSubtitleColor: "#757575",
+    sectionTitleColor: "#1A1A1A",
   });
 
   useEffect(() => {
@@ -23,11 +27,15 @@ export default function ThemeSettingsPage() {
         if (data.id) {
           setSettings({
             fontFamily: data.fontFamily || "Inter",
+            headingFontFamily: data.headingFontFamily || "'Playfair Display', serif",
             fontSize: data.fontSize || "16px",
-            primaryColor: data.primaryColor || "#000000",
+            primaryColor: data.primaryColor || "#5C4B3D",
             secondaryColor: data.secondaryColor || "#ffffff",
-            backgroundColor: data.backgroundColor || "#ffffff",
-            textColor: data.textColor || "#000000",
+            backgroundColor: data.backgroundColor || "#FAF9F6",
+            textColor: data.textColor || "#1A1A1A",
+            heroTitleColor: data.heroTitleColor || "#1A1A1A",
+            heroSubtitleColor: data.heroSubtitleColor || "#757575",
+            sectionTitleColor: data.sectionTitleColor || "#1A1A1A",
           });
         }
         setLoading(false);
@@ -83,7 +91,7 @@ export default function ThemeSettingsPage() {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Font Family</label>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Body Font Family</label>
               <select
                 value={settings.fontFamily}
                 onChange={(e) => setSettings({ ...settings, fontFamily: e.target.value })}
@@ -93,6 +101,20 @@ export default function ThemeSettingsPage() {
                 <option value="'Playfair Display', serif">Playfair Display (Serif)</option>
                 <option value="'Montserrat', sans-serif">Montserrat</option>
                 <option value="'Poppins', sans-serif">Poppins</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Heading Font Family</label>
+              <select
+                value={settings.headingFontFamily}
+                onChange={(e) => setSettings({ ...settings, headingFontFamily: e.target.value })}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              >
+                <option value="'Playfair Display', serif">Playfair Display (Serif)</option>
+                <option value="Inter">Inter (Sans-serif)</option>
+                <option value="'Montserrat', sans-serif">Montserrat</option>
+                <option value="'Cinzel', serif">Cinzel</option>
+                <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
               </select>
             </div>
             <div>
@@ -147,6 +169,40 @@ export default function ThemeSettingsPage() {
                   type="text"
                   value={settings.textColor}
                   onChange={(e) => setSettings({ ...settings, textColor: e.target.value })}
+                  className="flex-1 px-3 py-1 border border-[#E8E4DE] rounded-lg text-[13px]"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Hero Title Color</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={settings.heroTitleColor}
+                  onChange={(e) => setSettings({ ...settings, heroTitleColor: e.target.value })}
+                  className="h-9 w-9 p-0 border-0 rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={settings.heroTitleColor}
+                  onChange={(e) => setSettings({ ...settings, heroTitleColor: e.target.value })}
+                  className="flex-1 px-3 py-1 border border-[#E8E4DE] rounded-lg text-[13px]"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Section Title Color</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={settings.sectionTitleColor}
+                  onChange={(e) => setSettings({ ...settings, sectionTitleColor: e.target.value })}
+                  className="h-9 w-9 p-0 border-0 rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={settings.sectionTitleColor}
+                  onChange={(e) => setSettings({ ...settings, sectionTitleColor: e.target.value })}
                   className="flex-1 px-3 py-1 border border-[#E8E4DE] rounded-lg text-[13px]"
                 />
               </div>

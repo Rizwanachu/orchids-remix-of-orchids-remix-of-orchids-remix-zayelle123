@@ -210,11 +210,15 @@ export const siteSettings = pgTable("site_settings", {
 export const themeSettings = pgTable("theme_settings", {
   id: serial("id").primaryKey(),
   fontFamily: text("font_family").notNull().default("Inter"),
+  headingFontFamily: text("heading_font_family").notNull().default("'Playfair Display', serif"),
   fontSize: text("font_size").notNull().default("16px"),
-  primaryColor: text("primary_color").notNull().default("#000000"),
+  primaryColor: text("primary_color").notNull().default("#5C4B3D"),
   secondaryColor: text("secondary_color").notNull().default("#ffffff"),
-  backgroundColor: text("background_color").notNull().default("#ffffff"),
-  textColor: text("text_color").notNull().default("#000000"),
+  backgroundColor: text("background_color").notNull().default("#FAF9F6"),
+  textColor: text("text_color").notNull().default("#1A1A1A"),
+  heroTitleColor: text("hero_title_color").notNull().default("#1A1A1A"),
+  heroSubtitleColor: text("hero_subtitle_color").notNull().default("#757575"),
+  sectionTitleColor: text("section_title_color").notNull().default("#1A1A1A"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useTheme } from '@/lib/theme-context';
 
 interface CollectionItemProps {
   image: string;
@@ -42,6 +43,7 @@ interface CollectionData {
 }
 
 const CollectionsGrid: React.FC = () => {
+  const { settings: themeSettings } = useTheme();
   const [collections, setCollections] = useState<CollectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [sectionTitle, setSectionTitle] = useState("Collections");
@@ -113,13 +115,21 @@ const CollectionsGrid: React.FC = () => {
             <div className="w-full border-t border-[#E8E4DE]"></div>
           </div>
           <div className="relative bg-[#FAF9F6] px-10">
-            <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
+            <h2 
+              className="text-[32px] md:text-[36px] font-sans font-medium tracking-normal"
+              style={{ color: themeSettings.sectionTitleColor }}
+            >
               {sectionTitle}
             </h2>
           </div>
         </div>
         {sectionSubtitle && (
-          <p className="text-center text-[14px] text-[#757575] -mt-8 mb-12">{sectionSubtitle}</p>
+          <p 
+            className="text-center text-[14px] -mt-8 mb-12"
+            style={{ color: themeSettings.heroSubtitleColor }}
+          >
+            {sectionSubtitle}
+          </p>
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
