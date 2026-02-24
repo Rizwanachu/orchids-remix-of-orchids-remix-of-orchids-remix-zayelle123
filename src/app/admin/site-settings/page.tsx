@@ -159,7 +159,9 @@ export default function SiteSettingsPage() {
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
-        setLogoUrl(data.url);
+        // Ensure absolute URL for external domains
+        const url = data.url.startsWith("http") ? data.url : `${window.location.origin}${data.url}`;
+        setLogoUrl(url);
       }
     } catch (err) {
       console.error("Upload error:", err);

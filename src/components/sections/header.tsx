@@ -57,7 +57,14 @@ const Header = () => {
     return defaultNavigationItems;
   }, [cmsSettings.header_navigation]);
 
-  const logoUrl = cmsSettings.header_logo_url || "/logo.png";
+  const logoUrl = useMemo(() => {
+    const url = cmsSettings.header_logo_url || "/logo.png";
+    if (typeof window !== "undefined" && url.startsWith("/uploads/")) {
+      return `${window.location.origin}${url}`;
+    }
+    return url;
+  }, [cmsSettings.header_logo_url]);
+  
   console.log("Header Logo URL:", logoUrl); // Debugging line
   const searchPlaceholder = cmsSettings.header_search_placeholder || "Search Hijabs, Satin Scarves, Undercaps...";
   const announcementEnabled = cmsSettings.header_announcement_enabled === "true";
