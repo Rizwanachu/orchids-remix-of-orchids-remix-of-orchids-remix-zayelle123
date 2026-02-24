@@ -1,6 +1,7 @@
-import { db } from "@/db";
-import { themeSettings } from "@/shared/schema";
+import { db } from "@/../server/db";
+import { themeSettings } from "@/../shared/schema";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
       await db.update(themeSettings).set({
         ...body,
         updatedAt: new Date(),
-      }).where(themeSettings.id.equals(existing[0].id));
+      }).where(eq(themeSettings.id, existing[0].id));
     } else {
       await db.insert(themeSettings).values(body);
     }

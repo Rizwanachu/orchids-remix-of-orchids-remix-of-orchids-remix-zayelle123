@@ -43,3 +43,5 @@ build = ["npm", "run", "build"]
 
 [userenv.shared]
 JWT_SECRET = "zayelle_admin_jwt_secret_2024_secure_key_x9k2m"
+RAZORPAY_KEY_SECRET = "Ut1Fwl4Xn0ouqItwCPkrZp9u"
+RAZORPAY_KEY_ID = "rzp_live_SK09BiITz7FWki"

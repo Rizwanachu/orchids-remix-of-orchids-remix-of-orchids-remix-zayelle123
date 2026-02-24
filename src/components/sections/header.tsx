@@ -59,8 +59,8 @@ const Header = () => {
 
   const logoUrl = useMemo(() => {
     const url = cmsSettings.header_logo_url || "/logo.png";
-    const cacheBuster = `?v=${Date.now()}`;
-    const finalUrl = url.includes("?") ? `${url}&cb=${Date.now()}` : `${url}${cacheBuster}`;
+    const cacheBuster = `v=${Date.now()}`;
+    const finalUrl = url.includes("?") ? `${url}&${cacheBuster}` : `${url}?${cacheBuster}`;
     
     if (typeof window !== "undefined" && url.startsWith("/uploads/")) {
       return `${window.location.origin}${finalUrl}`;

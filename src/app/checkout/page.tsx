@@ -48,6 +48,7 @@ function CheckoutContent() {
     ? directProduct.price * productQuantity
     : cartTotalPrice;
 
+  const codFee = 0;
   const shippingCost = subtotal >= 1950 ? 0 : 49;
 
   const [formData, setFormData] = useState({
