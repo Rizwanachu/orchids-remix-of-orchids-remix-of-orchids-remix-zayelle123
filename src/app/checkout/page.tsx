@@ -59,11 +59,11 @@ function CheckoutContent() {
     city: "",
     state: "",
     pincode: "",
-    paymentMethod: "cod",
+    paymentMethod: "online",
   });
 
-  const codFee = formData.paymentMethod === "cod" ? 49 : 0;
-  const totalPrice = subtotal + shippingCost + codFee;
+  const codFee = 0;
+  const totalPrice = subtotal + shippingCost;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -236,19 +236,12 @@ function CheckoutContent() {
     setSubmitting(true);
 
     try {
-      if (formData.paymentMethod === "cod") {
-        await handleCODOrder();
-      } else {
-        await handleRazorpayOrder();
-        return;
-      }
+      await handleRazorpayOrder();
     } catch (error) {
       console.error("Order error:", error);
       alert("Something went wrong. Please try again.");
     } finally {
-      if (formData.paymentMethod === "cod") {
-        setSubmitting(false);
-      }
+      setSubmitting(false);
     }
   };
 
@@ -467,38 +460,14 @@ function CheckoutContent() {
                 <h2 className="text-[18px] font-serif text-[#1A1A1A] mb-4">Payment Method</h2>
                 <div className="space-y-3">
                   <label
-                    className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.paymentMethod === "cod"
-                        ? "border-[#5C4B3D] bg-[#5C4B3D]/5"
-                        : "border-[#E8E4DE] hover:border-[#D4C8BE]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={formData.paymentMethod === "cod"}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 accent-[#5C4B3D]"
-                    />
-                    <div className="flex-1">
-                      <span className="text-[14px] font-medium text-[#1A1A1A]">Cash on Delivery (COD)</span>
-                      <p className="text-[12px] text-[#757575] mt-0.5">Pay when you receive your order (+₹49 COD fee)</p>
-                    </div>
-                  </label>
-                  <label
-                    className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.paymentMethod === "online"
-                        ? "border-[#5C4B3D] bg-[#5C4B3D]/5"
-                        : "border-[#E8E4DE] hover:border-[#D4C8BE]"
-                    }`}
+                    className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors border-[#5C4B3D] bg-[#5C4B3D]/5`}
                   >
                     <input
                       type="radio"
                       name="paymentMethod"
                       value="online"
-                      checked={formData.paymentMethod === "online"}
-                      onChange={handleInputChange}
+                      checked={true}
+                      readOnly
                       className="w-4 h-4 accent-[#5C4B3D]"
                     />
                     <div className="flex-1">

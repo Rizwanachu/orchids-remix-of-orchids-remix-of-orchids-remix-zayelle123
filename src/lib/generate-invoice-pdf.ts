@@ -79,8 +79,8 @@ export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
 
   y += 10;
 
-  const isPrepaid = order.paymentMethod?.toLowerCase() === "prepaid";
-  const isCOD = order.paymentMethod?.toLowerCase() === "cod" || order.paymentMethod?.toLowerCase() === "cash on delivery";
+  const isPrepaid = true;
+  const isCOD = false;
 
   doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text("Payment Details", 50, y);
   y += 14;
