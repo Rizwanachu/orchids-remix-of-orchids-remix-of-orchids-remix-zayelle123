@@ -233,7 +233,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleBuyItNow}
                 disabled={isRedirecting}
-                className="mt-3 w-full border border-[#1A1A1A] text-[#1A1A1A] py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#1A1A1A] hover:text-white transition-colors disabled:opacity-70"
+                className="mt-3 w-full bg-[#1A1A1A] text-white py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#333] transition-colors disabled:opacity-70 shadow-sm"
               >
                 {isRedirecting ? (
                   <>
