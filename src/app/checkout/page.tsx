@@ -74,11 +74,11 @@ function CheckoutContent() {
       const res = await fetch("/api/coupons/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode, amount: subtotal }),
+        body: JSON.stringify({ code: couponCode, orderTotal: subtotal }),
       });
       const data = await res.json();
       if (res.ok) {
-        setAppliedCoupon({ code: data.code, discount: data.discount });
+        setAppliedCoupon({ code: data.coupon.code, discount: data.coupon.discountAmount });
         alert("Coupon applied successfully!");
       } else {
         alert(data.error || "Invalid coupon");
