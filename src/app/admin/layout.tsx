@@ -25,6 +25,7 @@ import {
   Layers,
   FileText,
   Settings2,
+  Palette,
 } from "lucide-react";
 
 const navItems = [
@@ -45,6 +46,7 @@ const navItems = [
   { href: "/admin/homepage-settings", label: "Homepage Settings", icon: Settings },
   { href: "/admin/homepage-layout", label: "Homepage Layout", icon: Layers },
   { href: "/admin/site-settings", label: "Site Settings", icon: Settings2 },
+  { href: "/admin/theme", label: "Theme & Styling", icon: Palette },
   { href: "/admin/page-contents", label: "Pages", icon: FileText },
   { href: "/admin/activity", label: "Activity Log", icon: Activity },
 ];

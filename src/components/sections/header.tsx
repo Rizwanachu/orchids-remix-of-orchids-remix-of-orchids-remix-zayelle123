@@ -59,10 +59,13 @@ const Header = () => {
 
   const logoUrl = useMemo(() => {
     const url = cmsSettings.header_logo_url || "/logo.png";
+    const cacheBuster = `?v=${Date.now()}`;
+    const finalUrl = url.includes("?") ? `${url}&cb=${Date.now()}` : `${url}${cacheBuster}`;
+    
     if (typeof window !== "undefined" && url.startsWith("/uploads/")) {
-      return `${window.location.origin}${url}`;
+      return `${window.location.origin}${finalUrl}`;
     }
-    return url;
+    return finalUrl;
   }, [cmsSettings.header_logo_url]);
   
   console.log("Header Logo URL:", logoUrl); // Debugging line

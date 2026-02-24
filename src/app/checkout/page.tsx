@@ -62,8 +62,35 @@ function CheckoutContent() {
     paymentMethod: "online",
   });
 
-  const codFee = 0;
-  const totalPrice = subtotal + shippingCost;
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, amount: subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedCoupon({ code: data.code, discount: data.discount });
+        alert("Coupon applied successfully!");
+      } else {
+        alert(data.error || "Invalid coupon");
+      }
+    } catch (err) {
+      alert("Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
+  const totalPrice = subtotal + shippingCost - discountAmount;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -132,6 +159,8 @@ function CheckoutContent() {
         items: orderItems,
         paymentMethod: "Cash on Delivery",
         totalAmount: totalPrice,
+        couponCode: appliedCoupon?.code,
+        discountAmount: discountAmount,
       }),
     });
 
@@ -190,6 +219,8 @@ function CheckoutContent() {
               shippingAddress,
               items: orderItems,
               totalAmount: totalPrice,
+              couponCode: appliedCoupon?.code,
+              discountAmount: discountAmount,
             }),
           });
 
@@ -538,6 +569,12 @@ function CheckoutContent() {
                     <span className="text-[#757575]">Subtotal</span>
                     <span className="text-[#1A1A1A]">₹{subtotal.toLocaleString("en-IN")}.00</span>
                   </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-[13px] text-green-600">
+                      <span>Discount ({appliedCoupon.code})</span>
+                      <span>-₹{appliedCoupon.discount.toLocaleString("en-IN")}.00</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-[13px]">
                     <span className="text-[#757575]">Shipping</span>
                     <span className={shippingCost === 0 ? "text-green-600 font-medium" : "text-[#1A1A1A]"}>
@@ -553,6 +590,26 @@ function CheckoutContent() {
                   <div className="border-t border-[#E8E4DE] mt-2 pt-3 flex justify-between">
                     <span className="text-[15px] font-bold text-[#1A1A1A]">Total</span>
                     <span className="text-[17px] font-bold text-[#5C4B3D]">₹{totalPrice.toLocaleString("en-IN")}.00</span>
+                  </div>
+                </div>
+
+                <div className="mt-6 border-t border-[#E8E4DE] pt-6">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Discount code"
+                      className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-4 py-2 bg-[#5C4B3D] text-white rounded text-[12px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] disabled:opacity-50"
+                    >
+                      {couponLoading ? "..." : "Apply"}
+                    </button>
                   </div>
                 </div>
 

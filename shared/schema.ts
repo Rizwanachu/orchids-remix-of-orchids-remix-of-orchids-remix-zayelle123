@@ -207,6 +207,17 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const themeSettings = pgTable("theme_settings", {
+  id: serial("id").primaryKey(),
+  fontFamily: text("font_family").notNull().default("Inter"),
+  fontSize: text("font_size").notNull().default("16px"),
+  primaryColor: text("primary_color").notNull().default("#000000"),
+  secondaryColor: text("secondary_color").notNull().default("#ffffff"),
+  backgroundColor: text("background_color").notNull().default("#ffffff"),
+  textColor: text("text_color").notNull().default("#000000"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const pageContents = pgTable("page_contents", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
@@ -219,4 +230,5 @@ export const pageContents = pgTable("page_contents", {
 });
 
 export type SiteSetting = typeof siteSettings.$inferSelect;
+export type ThemeSetting = typeof themeSettings.$inferSelect;
 export type PageContent = typeof pageContents.$inferSelect;
