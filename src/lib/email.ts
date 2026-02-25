@@ -131,13 +131,14 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
   `;
 
   try {
+    const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
     await transporter.sendMail({
       from: `"Zayelle" <${process.env.GMAIL_USER}>`,
-      to: data.customerEmail,
+      to: recipients.join(", "),
       subject: `Order Confirmed - ${data.orderId} | Zayelle`,
       html: baseTemplate(content),
     });
-    console.log(`Order confirmation email sent to ${data.customerEmail} for ${data.orderId}`);
+    console.log(`Order confirmation email sent to ${data.customerEmail} and admin for ${data.orderId}`);
   } catch (error) {
     console.error("Failed to send order confirmation email:", error);
   }
@@ -177,13 +178,14 @@ export async function sendShippingNotificationEmail(data: ShippingEmailData) {
   `;
 
   try {
+    const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
     await transporter.sendMail({
       from: `"Zayelle" <${process.env.GMAIL_USER}>`,
-      to: data.customerEmail,
+      to: recipients.join(", "),
       subject: `Your Order ${data.orderId} Has Been Shipped! | Zayelle`,
       html: baseTemplate(content),
     });
-    console.log(`Shipping notification email sent to ${data.customerEmail} for ${data.orderId}`);
+    console.log(`Shipping notification email sent to ${data.customerEmail} and admin for ${data.orderId}`);
   } catch (error) {
     console.error("Failed to send shipping notification email:", error);
   }

@@ -97,6 +97,11 @@ function CheckoutContent() {
     }
   };
 
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
+
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
   const totalPrice = subtotal + shippingCost - discountAmount;
 
@@ -603,17 +608,29 @@ function CheckoutContent() {
 
                 <div className="mt-6 border-t border-[#E8E4DE] pt-6">
                   <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Discount code"
-                      className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded text-[13px] focus:outline-none focus:border-[#5C4B3D]"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    />
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        placeholder="Discount code"
+                        className="w-full px-3 py-2 border border-[#E8E4DE] rounded text-[13px] focus:outline-none focus:border-[#5C4B3D] disabled:bg-gray-50"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        disabled={!!appliedCoupon}
+                      />
+                      {appliedCoupon && (
+                        <button
+                          type="button"
+                          onClick={removeCoupon}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-red-600 hover:text-red-700 underline"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={applyCoupon}
-                      disabled={couponLoading || !couponCode.trim()}
+                      disabled={couponLoading || !couponCode.trim() || !!appliedCoupon}
                       className="px-4 py-2 bg-[#5C4B3D] text-white rounded text-[12px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] disabled:opacity-50"
                     >
                       {couponLoading ? "..." : "Apply"}
