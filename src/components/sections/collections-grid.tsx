@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useTheme } from '@/lib/theme-context';
 
 interface CollectionItemProps {
@@ -14,7 +15,7 @@ interface CollectionItemProps {
 const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle, href }) => {
   return (
     <div className="flex flex-col items-center group cursor-pointer">
-      <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-[#FFFFFF]">
+      <Link href={href} className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-[#FFFFFF]">
         <Image
           src={image}
           alt={title}
@@ -22,13 +23,13 @@ const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle,
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
         />
-      </div>
-      <a 
+      </Link>
+      <Link 
         href={href}
         className="mt-[10px] text-[15px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors inline-block relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#5C4B3D] hover:after:w-full after:transition-all uppercase tracking-tight"
       >
         {title}
-      </a>
+      </Link>
       <p className="text-[12px] text-[#757575] mt-1 text-center">{subtitle}</p>
     </div>
   );

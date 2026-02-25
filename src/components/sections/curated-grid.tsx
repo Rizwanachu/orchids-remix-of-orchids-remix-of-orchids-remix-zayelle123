@@ -83,15 +83,17 @@ const CuratedGrid = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-8">
           {gridItems.map((item) => (
             <div key={item.id} className="relative group overflow-hidden rounded-[12px] min-h-[400px] md:min-h-[500px]">
-              <Image
-                src={item.imageUrl}
-                alt={item.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+              <a href={item.redirectLink} className="block w-full h-full">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </a>
               
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300" />
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
 
               <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-center w-full px-4">
                 <div className="inline-block bg-[#E8E4DE]/90 backdrop-blur-sm px-6 py-4 rounded-sm shadow-sm">

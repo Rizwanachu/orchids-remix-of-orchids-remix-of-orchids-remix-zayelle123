@@ -96,13 +96,13 @@ const GiftHampers: React.FC = () => {
                 key={hamper.id}
                 className="flex flex-col rounded-[12px] overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="relative w-full aspect-square overflow-hidden bg-[#F5F2ED]">
+                <a href="/gift-hampers" className="relative w-full aspect-square overflow-hidden bg-[#F5F2ED]">
                   {hamper.imageUrl ? (
                     <Image
                       src={hamper.imageUrl}
                       alt={hamper.title}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-500 hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   ) : (
@@ -116,7 +116,7 @@ const GiftHampers: React.FC = () => {
                       </svg>
                     </div>
                   )}
-                </div>
+                </a>
                 <div className="p-5 flex flex-col flex-1">
                   <h3 className="font-serif text-[18px] font-medium text-[#1A1A1A] mb-2">
                     {hamper.title}
