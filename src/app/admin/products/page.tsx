@@ -382,8 +382,8 @@ export default function AdminProductsPage() {
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
-              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Pricing</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Pricing & Shipping</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
                     Price (Rs.) *
@@ -425,6 +425,41 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-[#F5F2ED]">
+                <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Shipping Options</h3>
+                <div className="flex flex-col gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <div 
+                      onClick={() => setForm(prev => ({ ...prev, isFreeShipping: !prev.isFreeShipping }))}
+                      className="transition-colors"
+                    >
+                      {form.isFreeShipping ? (
+                        <CheckSquare size={20} className="text-[#5C4B3D]" />
+                      ) : (
+                        <Square size={20} className="text-[#E8E4DE] group-hover:border-[#5C4B3D]" />
+                      )}
+                    </div>
+                    <span className="text-[14px] text-[#1A1A1A]">Offer Free Shipping for this product</span>
+                  </label>
+
+                  {!form.isFreeShipping && (
+                    <div className="max-w-[200px]">
+                      <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                        Delivery Charge (Rs.)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.shippingCost}
+                        onChange={(e) => updateField("shippingCost", e.target.value)}
+                        className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                        placeholder="49"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
