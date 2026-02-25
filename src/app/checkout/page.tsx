@@ -100,8 +100,9 @@ function CheckoutContent() {
     setCouponCode("");
   };
 
+  const codFee = formData.paymentMethod === "cod" ? 50 : 0;
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
-  const totalPrice = subtotal + shippingCost - discountAmount;
+  const totalPrice = subtotal + shippingCost + codFee - discountAmount;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -649,7 +650,7 @@ function CheckoutContent() {
                   </div>
                   <div className="flex items-center gap-3 text-[12px] text-[#757575]">
                     <Truck size={16} className="text-[#5C4B3D] flex-shrink-0" />
-                    <span>Free shipping on orders above ₹1,950</span>
+                    <span>Fast delivery across India</span>
                   </div>
                 </div>
               </div>
