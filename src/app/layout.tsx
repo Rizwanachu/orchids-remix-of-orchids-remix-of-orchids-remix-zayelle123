@@ -28,11 +28,10 @@ export const metadata: Metadata = {
     "premium hijabs India, buy hijabs online India, satin hijabs India, chiffon hijabs online, modest fashion India, hijab accessories India, luxury hijabs India",
   icons: {
     icon: [
-      { url: "/icon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.png", sizes: "any", type: "image/png" },
     ],
     apple: [
-      { url: "/icon-180.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   manifest: "/manifest.json",
