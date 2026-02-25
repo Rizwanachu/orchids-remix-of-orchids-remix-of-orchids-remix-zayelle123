@@ -31,6 +31,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.category !== undefined) updateData.category = body.category;
     if (body.stockQuantity !== undefined) updateData.stockQuantity = body.stockQuantity;
     if (body.lowStockThreshold !== undefined) updateData.lowStockThreshold = body.lowStockThreshold;
+    if (body.shippingCost !== undefined) updateData.shippingCost = String(body.shippingCost);
+    if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping;
     if (body.active !== undefined) updateData.active = body.active;
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
@@ -58,6 +60,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       category: updated.category,
       stockQuantity: updated.stockQuantity,
       lowStockThreshold: updated.lowStockThreshold,
+      shippingCost: Number(updated.shippingCost),
+      isFreeShipping: updated.isFreeShipping,
     });
   } catch (error: any) {
     console.error("Error updating product:", error);

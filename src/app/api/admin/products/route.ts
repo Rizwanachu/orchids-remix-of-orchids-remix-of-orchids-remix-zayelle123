@@ -29,6 +29,8 @@ export async function GET() {
     category: p.category,
     stockQuantity: p.stockQuantity,
     lowStockThreshold: p.lowStockThreshold,
+    shippingCost: Number(p.shippingCost),
+    isFreeShipping: p.isFreeShipping,
     active: p.active,
   }));
   return NextResponse.json(formatted);
@@ -58,6 +60,8 @@ export async function POST(request: NextRequest) {
       category: body.category || "",
       stockQuantity: body.stockQuantity ?? 100,
       lowStockThreshold: body.lowStockThreshold ?? 10,
+      shippingCost: body.shippingCost != null ? String(body.shippingCost) : "49",
+      isFreeShipping: body.isFreeShipping ?? false,
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "product_added", `Added product: ${body.name}`);
@@ -79,6 +83,8 @@ export async function POST(request: NextRequest) {
       category: newProduct.category,
       stockQuantity: newProduct.stockQuantity,
       lowStockThreshold: newProduct.lowStockThreshold,
+      shippingCost: Number(newProduct.shippingCost),
+      isFreeShipping: newProduct.isFreeShipping,
     });
   } catch (error: any) {
     console.error("Error adding product:", error);

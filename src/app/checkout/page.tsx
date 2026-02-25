@@ -48,15 +48,13 @@ function CheckoutContent() {
     ? (directProduct.price || 0) * productQuantity
     : cartTotalPrice;
 
-  useEffect(() => {
-    if (isDirect && !directProduct && products.length > 0) {
-      // If we are in direct mode but product not found yet, it might still be loading
-      // or the ID is invalid. If products are loaded and still not found, we'll show empty.
-    }
-  }, [isDirect, directProduct, products]);
+  const maxShipping = items.reduce((max, item: any) => {
+    if (item.isFreeShipping) return 0;
+    const itemShipping = item.shippingCost != null ? Number(item.shippingCost) : 49;
+    return Math.max(max, itemShipping);
+  }, 0);
 
-  const codFee = 0;
-  const shippingCost = subtotal >= 1950 ? 0 : 49;
+  const shippingCost = subtotal >= 1950 ? 0 : maxShipping;
 
   const [formData, setFormData] = useState({
     firstName: "",

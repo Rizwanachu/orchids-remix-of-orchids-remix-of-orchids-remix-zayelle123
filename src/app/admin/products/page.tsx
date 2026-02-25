@@ -59,6 +59,8 @@ interface ProductFormData {
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
+  shippingCost: string;
+  isFreeShipping: boolean;
 }
 
 const emptyForm: ProductFormData = {
@@ -77,6 +79,8 @@ const emptyForm: ProductFormData = {
   category: CATEGORIES[0].value,
   stockQuantity: "100",
   lowStockThreshold: "10",
+  shippingCost: "49",
+  isFreeShipping: false,
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -96,6 +100,8 @@ function toFormData(product: Product): ProductFormData {
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
+    shippingCost: (product as any).shippingCost?.toString() ?? "49",
+    isFreeShipping: (product as any).isFreeShipping ?? false,
   };
 }
 
@@ -191,6 +197,8 @@ export default function AdminProductsPage() {
       category: form.category,
       stockQuantity: form.stockQuantity ? Number(form.stockQuantity) : 100,
       lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : 10,
+      shippingCost: Number(form.shippingCost),
+      isFreeShipping: form.isFreeShipping,
     };
 
     if (isAdding) {
