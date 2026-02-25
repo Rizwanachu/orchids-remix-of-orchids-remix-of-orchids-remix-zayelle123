@@ -133,7 +133,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
   try {
     const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
     await transporter.sendMail({
-      from: `"Zayelle" <${process.env.GMAIL_USER}>`,
+      from: `"Zayelle" <zayelle.in@gmail.com>`,
       to: recipients.join(", "),
       subject: `Order Confirmed - ${data.orderId} | Zayelle`,
       html: baseTemplate(content),
@@ -180,7 +180,7 @@ export async function sendShippingNotificationEmail(data: ShippingEmailData) {
   try {
     const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
     await transporter.sendMail({
-      from: `"Zayelle" <${process.env.GMAIL_USER}>`,
+      from: `"Zayelle" <zayelle.in@gmail.com>`,
       to: recipients.join(", "),
       subject: `Your Order ${data.orderId} Has Been Shipped! | Zayelle`,
       html: baseTemplate(content),
