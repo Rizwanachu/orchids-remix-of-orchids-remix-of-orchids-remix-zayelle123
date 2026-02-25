@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #FAF9F6;
+  --color-background: #FDFCF8;
   --color-foreground: #1A1A1A;
 
   --color-card: #FFFFFF;
@@ -14,16 +14,16 @@
   --color-popover: #FFFFFF;
   --color-popover-foreground: #1A1A1A;
 
-  --color-primary: #5C4B3D;
-  --color-primary-foreground: #FAF9F6;
+  --color-primary: #524436;
+  --color-primary-foreground: #FDFCF8;
 
-  --color-secondary: #E8E4DE;
-  --color-secondary-foreground: #5C4B3D;
+  --color-secondary: #F5F2ED;
+  --color-secondary-foreground: #524436;
 
-  --color-muted: #F5F2ED;
+  --color-muted: #F8F5F0;
   --color-muted-foreground: #757575;
 
-  --color-accent: #D4C8BE;
+  --color-accent: #E8E4DE;
   --color-accent-foreground: #1A1A1A;
 
   --color-destructive: #991B1B;

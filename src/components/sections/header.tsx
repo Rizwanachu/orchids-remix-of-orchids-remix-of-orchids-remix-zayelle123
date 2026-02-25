@@ -178,9 +178,9 @@ const Header = () => {
                 <Image
                   src={logoUrl}
                   alt="Zayelle"
-                  width={180}
-                  height={50}
-                  className="h-8 lg:h-10 w-auto object-contain"
+                  width={140}
+                  height={40}
+                  className="h-8 lg:h-9 w-auto object-contain"
                   priority
                 />
               </a>

@@ -108,13 +108,13 @@ const CollectionsGrid: React.FC = () => {
   if (collections.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 bg-[#FAF9F6]">
+    <section className="py-16 md:py-24 bg-[#FDFCF8]">
       <div className="container px-4 md:px-8">
         <div className="relative mb-12 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
             <div className="w-full border-t border-[#E8E4DE]"></div>
           </div>
-          <div className="relative bg-[#FAF9F6] px-10">
+          <div className="relative bg-[#FDFCF8] px-10">
             <h2 
               className="text-[32px] md:text-[36px] font-sans font-medium tracking-normal"
               style={{ color: themeSettings.sectionTitleColor }}

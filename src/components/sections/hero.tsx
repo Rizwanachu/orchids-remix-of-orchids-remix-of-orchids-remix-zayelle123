@@ -37,28 +37,28 @@ const HeroSection = () => {
     ]).finally(() => setLoaded(true));
   }, []);
 
-  const title = heroBanner?.title || settings.heroTitle || "Styled in\nModesty";
-  const subtitle = heroBanner?.subtitle || settings.heroSubtitle || "Premium Hijabs & Elegant Accessories";
+  const title = heroBanner?.title || settings.heroTitle || "GRACE IN\nEVERY LAYER";
+  const subtitle = heroBanner?.subtitle || settings.heroSubtitle || "Timeless Hijabs & Refined Accessories for Everyday Elegance";
   const description = "Gracefully designed for modern women across India.";
-  const buttonText = heroBanner?.buttonText || "Shop New Arrivals";
+  const buttonText = heroBanner?.buttonText || "SHOP NEW ARRIVALS";
   const buttonLink = heroBanner?.buttonLink || "/collections/new-arrivals";
   const imageUrl = heroBanner?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain";
 
   if (!loaded) {
     return (
-      <section className="relative w-full overflow-hidden bg-[#FAF9F6]">
+      <section className="relative w-full overflow-hidden bg-[#FDFCF8]">
         <div className="container mx-auto px-5 sm:px-8">
           <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-0">
             <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0 lg:pt-20">
-              <div className="h-[64px] md:h-[80px] w-[300px] bg-[#E8E4DE] rounded-lg animate-pulse mb-4" />
-              <div className="h-[64px] md:h-[80px] w-[260px] bg-[#E8E4DE]/60 rounded-lg animate-pulse mb-6" />
-              <div className="h-[22px] w-[380px] max-w-full bg-[#E8E4DE]/50 rounded animate-pulse mb-3" />
-              <div className="h-[18px] w-[340px] max-w-full bg-[#E8E4DE]/40 rounded animate-pulse mb-8" />
-              <div className="h-[52px] w-[200px] bg-[#E8E4DE] rounded-[12px] animate-pulse" />
+              <div className="h-[64px] md:h-[80px] w-[300px] bg-[#F5F2ED] rounded-lg animate-pulse mb-4" />
+              <div className="h-[64px] md:h-[80px] w-[260px] bg-[#F5F2ED]/60 rounded-lg animate-pulse mb-6" />
+              <div className="h-[22px] w-[380px] max-w-full bg-[#F5F2ED]/50 rounded animate-pulse mb-3" />
+              <div className="h-[18px] w-[340px] max-w-full bg-[#F5F2ED]/40 rounded animate-pulse mb-8" />
+              <div className="h-[52px] w-[200px] bg-[#F5F2ED] rounded-[12px] animate-pulse" />
             </div>
             <div className="relative w-full lg:w-3/5 h-[500px] md:h-[600px] lg:h-[800px] flex justify-end">
               <div className="relative w-full h-full lg:translate-x-12 xl:translate-x-24">
-                <div className="w-full h-full bg-[#E8E4DE] rounded-bl-[100px] md:rounded-bl-[200px] animate-pulse" />
+                <div className="w-full h-full bg-[#F5F2ED] rounded-bl-[100px] md:rounded-bl-[200px] animate-pulse" />
               </div>
             </div>
           </div>
@@ -70,39 +70,34 @@ const HeroSection = () => {
   const titleParts = title.split('\n');
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#FAF9F6]">
+    <section className="relative w-full overflow-hidden bg-[#FDFCF8]">
       <div className="container mx-auto px-5 sm:px-8">
-        <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-0">
+        <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-20">
           
-          <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0 lg:pt-20">
+          <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <h1 
-                className="font-sans text-[48px] md:text-[64px] leading-[1.1] font-semibold mb-4 tracking-tight uppercase"
+                className="font-sans text-[48px] md:text-[60px] leading-[1.05] font-semibold mb-6 tracking-tight uppercase"
                 style={{ color: themeSettings.heroTitleColor }}
               >
                 {titleParts[0]}
                 {titleParts[1] && (
                   <>
                     <br />
-                    <span className="relative inline-block mt-2">
-                      <span className="bg-[#5C4B3D]/10 px-4 py-1" style={{ color: themeSettings.primaryColor }}>
-                        {titleParts[1]}
-                      </span>
-                    </span>
+                    <span>{titleParts[1]}</span>
                   </>
                 )}
               </h1>
 
               <p 
-                className="font-sans text-[20px] md:text-[22px] font-medium max-w-[480px] mb-3"
+                className="font-sans text-[18px] md:text-[20px] font-medium max-w-[480px] mb-3"
                 style={{ color: themeSettings.primaryColor }}
               >
                 {subtitle}
               </p>
               
               <p 
-                className="font-sans text-[16px] md:text-[18px] max-w-[480px] mb-8 leading-relaxed"
-                style={{ color: themeSettings.heroSubtitleColor }}
+                className="font-sans text-[15px] md:text-[16px] max-w-[480px] mb-10 leading-relaxed text-[#757575]"
               >
                 {description}
               </p>
@@ -110,7 +105,7 @@ const HeroSection = () => {
               <div className="flex flex-wrap gap-4">
                 <a 
                   href={buttonLink}
-                  className="inline-flex items-center justify-center bg-[#5C4B3D] text-[#FAF9F6] px-10 py-4 rounded-[12px] font-medium text-[14px] transition-premium hover:bg-[#4A3C31] uppercase tracking-wider"
+                  className="inline-flex items-center justify-center bg-[#524436] text-[#FDFCF8] px-10 py-4 font-medium text-[13px] transition-premium hover:opacity-90 uppercase tracking-widest"
                 >
                   {buttonText}
                 </a>
@@ -118,39 +113,27 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <div className="relative w-full lg:w-3/5 h-[500px] md:h-[600px] lg:h-[800px] flex justify-end">
-            <div className="relative w-full h-full lg:translate-x-12 xl:translate-x-24">
-              <div className="relative w-full h-full overflow-hidden rounded-bl-[100px] md:rounded-bl-[200px] shadow-soft">
+          <div className="relative w-full lg:w-1/2 h-[500px] md:h-[600px] lg:h-[700px] flex justify-end">
+            <div className="relative w-full h-full">
+              <div className="relative w-full h-full overflow-hidden rounded-[40px] md:rounded-[80px] shadow-soft">
                 <Image
                   src={imageUrl}
                   alt="Zayelle Premium Hijab Collection"
                   fill
                   priority
-                  className="object-cover object-center scale-105"
+                  className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FAF9F6]/40 via-transparent to-transparent hidden lg:block" />
               </div>
 
-              <div className="absolute bottom-10 right-10 lg:right-20 bg-white/90 backdrop-blur-md p-6 rounded-[12px] shadow-lg max-w-[200px] hidden md:block animate-in fade-in zoom-in duration-1000 delay-300">
-                <p className="font-serif-italic text-[18px] text-[#5C4B3D] mb-1">Ultra-soft Fabrics</p>
-                <div className="w-12 h-[1px] bg-[#5C4B3D] mb-2" />
-                <p className="font-sans text-[12px] text-[#757575] leading-snug">Experience unparalleled comfort and drape.</p>
+              <div className="absolute bottom-10 left-10 lg:left-[-40px] bg-white/95 backdrop-blur-md p-6 rounded-[12px] shadow-xl max-w-[240px] hidden md:block animate-in fade-in zoom-in duration-1000 delay-300 border border-[#F5F2ED]">
+                <p className="font-serif-italic text-[20px] text-[#524436] mb-1">Ultra-soft Fabrics</p>
+                <div className="w-12 h-[1px] bg-[#524436] mb-3" />
+                <p className="font-sans text-[13px] text-[#757575] leading-relaxed">Experience unparalleled comfort and drape with our curated collections.</p>
               </div>
             </div>
           </div>
 
         </div>
-      </div>
-
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] z-0">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-              <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="#5C4B3D" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#pattern)" />
-        </svg>
       </div>
     </section>
   );

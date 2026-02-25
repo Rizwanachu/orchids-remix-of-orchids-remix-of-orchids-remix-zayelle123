@@ -61,7 +61,7 @@ const CuratedGrid = () => {
   if (gridItems.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-[100px] bg-[#FAF9F6]">
+    <section className="py-20 md:py-[100px] bg-[#FDFCF8]">
       <div className="container mx-auto px-5 lg:px-8">
         {sectionTitle && (
           <>
@@ -69,7 +69,7 @@ const CuratedGrid = () => {
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
                 <div className="w-full border-t border-[#E8E4DE]"></div>
               </div>
-              <div className="relative bg-[#FAF9F6] px-10">
+              <div className="relative bg-[#FDFCF8] px-10">
                 <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
                   {sectionTitle}
                 </h2>
