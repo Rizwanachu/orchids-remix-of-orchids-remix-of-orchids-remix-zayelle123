@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
       imageUrl: body.imageUrl,
       position: body.position || "hero",
       isActive: body.isActive ?? true,
+      titleFont: body.titleFont || "serif",
+      titleColor: body.titleColor || "#5C4B3D",
+      subtitleColor: body.subtitleColor || "#5C4B3D",
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "banner_created", `Created banner: ${body.title}`);

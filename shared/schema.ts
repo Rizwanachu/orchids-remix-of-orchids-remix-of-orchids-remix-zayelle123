@@ -129,6 +129,9 @@ export const banners = pgTable("banners", {
   imageUrl: text("image_url").notNull(),
   position: text("position", { enum: ["hero", "mid-left", "mid-right"] }).notNull().default("hero"),
   isActive: boolean("is_active").notNull().default(true),
+  titleFont: text("title_font").notNull().default("serif"),
+  titleColor: text("title_color").notNull().default("#5C4B3D"),
+  subtitleColor: text("subtitle_color").notNull().default("#5C4B3D"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

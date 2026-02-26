@@ -12,6 +12,9 @@ interface BannerData {
   imageUrl: string;
   position: string;
   isActive: boolean;
+  titleFont?: string;
+  titleColor?: string;
+  subtitleColor?: string;
 }
 
 const PromoBanners: React.FC = () => {
@@ -80,6 +83,9 @@ const PromoBanners: React.FC = () => {
           buttonText: b.buttonText,
           href: b.buttonLink,
           alt: b.title,
+          titleFont: b.titleFont || 'serif',
+          titleColor: b.titleColor || '#5C4B3D',
+          subtitleColor: b.subtitleColor || '#5C4B3D',
         };
       })
     : fallbackBanners;
@@ -107,11 +113,17 @@ const PromoBanners: React.FC = () => {
 
               <div className="absolute inset-0 p-10 md:p-14 pointer-events-none flex flex-col justify-between">
                 <div className="flex flex-col">
-                  <h2 className="font-serif text-[42px] leading-[1] md:text-[64px] lg:text-[72px] text-primary select-none flex flex-col uppercase tracking-tight">
+                  <h2 
+                    className={`${banner.titleFont === 'sans' ? 'font-sans' : 'font-serif'} text-[42px] leading-[1] md:text-[64px] lg:text-[72px] select-none flex flex-col uppercase tracking-tight`}
+                    style={{ color: banner.titleColor }}
+                  >
                     <span className="block">{banner.titleLine1}</span>
                     {banner.titleLine2 && <span className="block">{banner.titleLine2}</span>}
                   </h2>
-                  <p className="text-[16px] md:text-[18px] text-[#5C4B3D] mt-4 max-w-[280px]">
+                  <p 
+                    className="text-[16px] md:text-[18px] mt-4 max-w-[280px]"
+                    style={{ color: banner.subtitleColor }}
+                  >
                     {banner.subtitle}
                   </p>
                 </div>

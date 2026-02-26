@@ -23,6 +23,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.position !== undefined) updateData.position = body.position;
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
+    if (body.titleFont !== undefined) updateData.titleFont = body.titleFont;
+    if (body.titleColor !== undefined) updateData.titleColor = body.titleColor;
+    if (body.subtitleColor !== undefined) updateData.subtitleColor = body.subtitleColor;
 
     const [updated] = await db.update(banners).set(updateData).where(eq(banners.id, parseInt(id))).returning();
 

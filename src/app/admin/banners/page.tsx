@@ -23,6 +23,9 @@ interface Banner {
   imageUrl: string;
   position: "hero" | "mid-left" | "mid-right";
   isActive: boolean;
+  titleFont: string;
+  titleColor: string;
+  subtitleColor: string;
   createdAt: string;
 }
 
@@ -34,6 +37,9 @@ const emptyForm = {
   imageUrl: "",
   position: "hero" as "hero" | "mid-left" | "mid-right",
   isActive: true,
+  titleFont: "serif",
+  titleColor: "#5C4B3D",
+  subtitleColor: "#5C4B3D",
 };
 
 export default function BannersPage() {
@@ -103,6 +109,9 @@ export default function BannersPage() {
       imageUrl: banner.imageUrl,
       position: banner.position,
       isActive: banner.isActive,
+      titleFont: banner.titleFont || "serif",
+      titleColor: banner.titleColor || "#5C4B3D",
+      subtitleColor: banner.subtitleColor || "#5C4B3D",
     });
     setEditingId(banner.id);
     setShowForm(true);
@@ -300,6 +309,67 @@ export default function BannersPage() {
                   <option value="mid-left">Mid Left</option>
                   <option value="mid-right">Mid Right</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Title Font
+                </label>
+                <select
+                  value={form.titleFont}
+                  onChange={(e) =>
+                    setForm({ ...form, titleFont: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                >
+                  <option value="serif">Serif (Playfair)</option>
+                  <option value="sans">Sans (Inter)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Title Color
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={form.titleColor}
+                    onChange={(e) =>
+                      setForm({ ...form, titleColor: e.target.value })
+                    }
+                    className="h-9 w-12 border border-[#E8E4DE] rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={form.titleColor}
+                    onChange={(e) =>
+                      setForm({ ...form, titleColor: e.target.value })
+                    }
+                    className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Subtitle Color
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={form.subtitleColor}
+                    onChange={(e) =>
+                      setForm({ ...form, subtitleColor: e.target.value })
+                    }
+                    className="h-9 w-12 border border-[#E8E4DE] rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={form.subtitleColor}
+                    onChange={(e) =>
+                      setForm({ ...form, subtitleColor: e.target.value })
+                    }
+                    className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  />
+                </div>
               </div>
               <div className="flex items-center gap-3 pt-6">
                 <label className="text-[13px] font-medium text-[#1A1A1A]">
