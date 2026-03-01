@@ -49,8 +49,8 @@ export default function ContactPage() {
               <h2 className="text-[24px] font-serif text-[#1A1A1A] mb-8">Get in Touch</h2>
               <div className="space-y-6">
                 {[
-                  { icon: Mail, label: "Email", value: "support@zayelle.in", href: "mailto:support@zayelle.in" },
-                  { icon: Phone, label: "WhatsApp", value: "+91 XXXXX XXXXX", href: "https://wa.me/" },
+                  { icon: Mail, label: "Email", value: "zayelle.in@gmail.com", href: "mailto:zayelle.in@gmail.com" },
+                  { icon: Phone, label: "WhatsApp", value: "+91 8891485648", href: "https://wa.me/918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648" },
                   { icon: Clock, label: "Working Hours", value: "Mon - Sat | 10 AM - 6 PM", href: null },
                   { icon: MapPin, label: "Location", value: "India", href: null },
                 ].map((item) => (

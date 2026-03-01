@@ -80,7 +80,7 @@ export default function ShippingPolicyPage() {
 
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Delivery Issues</h2>
-              <p>If your order is delayed beyond the estimated delivery time, please contact us at <a href="mailto:support@zayelle.in" className="underline underline-offset-4">support@zayelle.in</a> with your order number. We&apos;ll look into it right away.</p>
+              <p>If your order is delayed beyond the estimated delivery time, please contact us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a> with your order number. We&apos;ll look into it right away.</p>
             </section>
           </div>
             </>

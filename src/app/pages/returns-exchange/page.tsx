@@ -62,7 +62,7 @@ export default function ReturnsExchangePage() {
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">How to Initiate a Return</h2>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Email us at <a href="mailto:support@zayelle.in" className="underline underline-offset-4">support@zayelle.in</a> with your order number and reason for return.</li>
+                <li>Email us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a> with your order number and reason for return.</li>
                 <li>Our team will review your request and provide return instructions within 24 hours.</li>
                 <li>Ship the item back to us using a prepaid label (provided for eligible returns).</li>
                 <li>Once we receive and inspect the item, your refund will be processed.</li>

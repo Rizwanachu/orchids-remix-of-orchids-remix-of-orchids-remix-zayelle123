@@ -40,12 +40,12 @@ const Footer = () => {
   const [mainMenuLinks, setMainMenuLinks] = useState<FooterLink[]>(defaultMainMenuLinks);
   const [supportLinks, setSupportLinks] = useState<FooterLink[]>(defaultSupportLinks);
   const [accountLinks, setAccountLinks] = useState<FooterLink[]>(defaultAccountLinks);
-  const [contactEmail, setContactEmail] = useState("support@zayelle.in");
-  const [contactWhatsapp, setContactWhatsapp] = useState("+91 XXXXX XXXXX");
+  const [contactEmail, setContactEmail] = useState("zayelle.in@gmail.com");
+  const [contactWhatsapp, setContactWhatsapp] = useState("+91 8891485648");
   const [contactHours, setContactHours] = useState("Mon - Sat | 10 AM - 6 PM");
   const [instagramUrl, setInstagramUrl] = useState("https://instagram.com/zayelle.in");
   const [copyrightText, setCopyrightText] = useState("Copyright © Zayelle.in all rights reserved.");
-  const [whatsappFloatUrl, setWhatsappFloatUrl] = useState("https://wa.me/");
+  const [whatsappFloatUrl, setWhatsappFloatUrl] = useState("https://wa.me/918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648");
   const [whatsappFloatText, setWhatsappFloatText] = useState("Need Help? Chat with us");
 
   useEffect(() => {

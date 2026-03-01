@@ -535,7 +535,7 @@ export default function SiteSettingsPage() {
                   type="text"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="support@zayelle.in"
+                  placeholder="zayelle.in@gmail.com"
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
               </div>
@@ -545,7 +545,7 @@ export default function SiteSettingsPage() {
                   type="text"
                   value={contactWhatsapp}
                   onChange={(e) => setContactWhatsapp(e.target.value)}
-                  placeholder="+91 XXXXX XXXXX"
+                  placeholder="+91 8891485648"
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
               </div>
@@ -592,7 +592,7 @@ export default function SiteSettingsPage() {
                     type="text"
                     value={whatsappFloatUrl}
                     onChange={(e) => setWhatsappFloatUrl(e.target.value)}
-                    placeholder="https://wa.me/91XXXXXXXXXX"
+                    placeholder="https://wa.me/91889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891889148564891XXXXXXXXXX"
                     className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                   />
                 </div>

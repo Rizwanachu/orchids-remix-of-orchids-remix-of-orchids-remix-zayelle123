@@ -180,7 +180,7 @@ export default function InvoiceDemoPage() {
                     <h3 className="text-[11px] font-semibold text-[#757575] uppercase tracking-widest mb-2">Notes</h3>
                     <p className="text-[12px] text-[#757575] leading-relaxed">
                       Thank you for shopping with Zayelle. We hope you love your purchase!
-                      For any queries, please contact us at support@zayelle.in
+                      For any queries, please contact us at zayelle.in@gmail.com
                     </p>
                   </div>
                   <div className="text-right">

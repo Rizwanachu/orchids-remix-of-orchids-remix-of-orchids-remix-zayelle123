@@ -81,12 +81,12 @@ export default function PrivacyPolicyPage() {
 
           <section>
             <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Your Rights</h2>
-            <p>You have the right to access, correct, or delete your personal information. To exercise these rights, please contact us at <a href="mailto:support@zayelle.in" className="underline underline-offset-4">support@zayelle.in</a>.</p>
+            <p>You have the right to access, correct, or delete your personal information. To exercise these rights, please contact us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a>.</p>
           </section>
 
           <section>
             <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Contact Us</h2>
-            <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:support@zayelle.in" className="underline underline-offset-4">support@zayelle.in</a>.</p>
+            <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a>.</p>
           </section>
         </div>
           )}

@@ -19,7 +19,7 @@ const faqs = [
     category: "Returns & Exchange",
     items: [
       { q: "What is your return policy?", a: "We accept returns within 7 days of delivery. Items must be unused, unwashed, and in their original packaging with tags attached." },
-      { q: "How do I initiate a return?", a: "Simply email us at support@zayelle.in with your order number and reason for return. Our team will guide you through the process." },
+      { q: "How do I initiate a return?", a: "Simply email us at zayelle.in@gmail.com with your order number and reason for return. Our team will guide you through the process." },
       { q: "Can I exchange for a different color?", a: "Yes, exchanges are available for a different color or style of equal value, subject to stock availability." },
       { q: "How long do refunds take?", a: "Refunds are processed within 5-7 business days after we receive and inspect the returned item." },
     ],
