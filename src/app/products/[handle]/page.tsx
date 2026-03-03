@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
                           ₹{product.compareAt.toLocaleString("en-IN")}.00
                         </span>
                         <span className="text-[13px] font-medium text-[#991B1B] bg-red-50 px-2 py-0.5 rounded">
-                          {Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}% OFF
+                          {Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}% OFF (SAVE ₹{(product.compareAt - product.price).toLocaleString("en-IN")})
                         </span>
                       </>
                     )}
