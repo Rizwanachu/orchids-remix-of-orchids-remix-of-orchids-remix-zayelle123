@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
   tls: {
+    // Required for some SMTP servers
     rejectUnauthorized: false,
-    ciphers: 'SSLv3'
   },
 });
 
@@ -18,11 +18,16 @@ const FROM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || "zayelle.in
 
 export async function verifyConnection() {
   try {
+    console.log("Verifying SMTP connection...");
+    console.log("SMTP Host:", process.env.SMTP_HOST);
+    console.log("SMTP Port:", process.env.SMTP_PORT);
+    console.log("SMTP User:", process.env.SMTP_USER ? "Present" : "Missing");
+    
     await transporter.verify();
     return { success: true };
-  } catch (error) {
-    console.error("SMTP Connection Verification Failed:", error);
-    return { success: false, error };
+  } catch (error: any) {
+    console.error("SMTP Connection Verification Failed:", error.message);
+    return { success: false, error: error.message };
   }
 }
 
@@ -47,9 +52,6 @@ function baseTemplate(content: string): string {
     .info-box { background: #f9f9f9; border-left: 3px solid #000; padding: 16px; margin: 16px 0; }
     .info-box p { margin: 4px 0; font-size: 14px; }
     .footer { background: #f5f5f5; padding: 24px; text-align: center; font-size: 12px; color: #999; }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-    .badge-paid { background: #d1fae5; color: #065f46; }
-    .badge-cod { background: #fef3c7; color: #92400e; }
   </style>
 </head>
 <body>
@@ -92,14 +94,11 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
   const smtpPass = process.env.SMTP_PASS;
 
   if (!smtpUser || !smtpPass) {
-    console.log("Email not configured - skipping order confirmation email");
+    console.log("Email credentials missing - skipping order confirmation email");
     return;
   }
 
   try {
-    // Verify connection
-    await transporter.verify();
-
     const isCOD = data.paymentMethod?.toLowerCase() === "cod" || data.paymentMethod?.toLowerCase() === "cash on delivery";
     const itemsList = data.items.map(item => `${item.productName} (x${item.quantity})`).join(", ");
 
@@ -147,18 +146,18 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
       subject: `Your Order Confirmation – Thank You for Your Purchase`,
       html: baseTemplate(content),
     });
-    console.log(`Order confirmation email sent to ${data.customerEmail} for ${data.orderId}`);
-  } catch (error) {
-    console.error(`Failed to send order confirmation email (Attempt ${retryCount + 1}):`, error);
+    console.log(`Order confirmation email successfully sent to ${data.customerEmail} for ${data.orderId}`);
+  } catch (error: any) {
+    console.error(`Failed to send order confirmation email (Attempt ${retryCount + 1}):`, error.message);
     if (retryCount === 0) {
-      console.log("Retrying email sending once...");
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("Waiting 2 seconds before retrying...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await sendOrderConfirmationEmail(data, 1);
     }
   }
 }
 
 export async function sendShippingNotificationEmail(data: any) {
-  // Placeholder to maintain compatibility if needed, though focus is on confirmation
-  console.log("Shipping notification triggered but not fully implemented in this update.");
+  // Placeholder to maintain compatibility
+  console.log("Shipping notification triggered.");
 }
