@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
-import { VisualEditsMessenger } from "orchids-visual-edits";
 import { CartProvider } from "@/lib/cart-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProductsProvider } from "@/lib/products-context";
@@ -63,7 +62,6 @@ export default function RootLayout({
                 </OrdersProvider>
               </ProductsProvider>
             </AuthProvider>
-          <VisualEditsMessenger />
         </body>
     </html>
   );
