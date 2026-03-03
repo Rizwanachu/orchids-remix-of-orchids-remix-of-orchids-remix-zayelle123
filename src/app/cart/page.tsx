@@ -17,6 +17,9 @@ export default function CartPage() {
     window.location.href = "/checkout";
   };
 
+  const hasFreeShippingProduct = items.some(item => (item as any).isFreeShipping);
+  const effectiveTotalPrice = (totalPrice + (totalPrice >= 1950 || hasFreeShippingProduct ? 0 : 49));
+
   return (
     <>
       <Header />
@@ -65,6 +68,9 @@ export default function CartPage() {
                         <span className="text-[13px] text-[#1A1A1A] font-medium md:hidden mt-1 block">
                           Rs. {item.price.toLocaleString("en-IN")}.00
                         </span>
+                        {(item as any).isFreeShipping && (
+                          <span className="text-[11px] text-green-600 font-medium mt-1 block">Free Shipping</span>
+                        )}
                       </div>
                     </div>
 
@@ -118,7 +124,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-[#555]">
                       <span>Shipping</span>
-                      <span>{totalPrice >= 1950 ? "Free" : "Rs. 49.00"}</span>
+                      <span>{totalPrice >= 1950 || hasFreeShippingProduct ? "Free" : "Rs. 49.00"}</span>
                     </div>
                   </div>
 
@@ -126,7 +132,7 @@ export default function CartPage() {
                     <span>Total</span>
                     <span>
                       Rs.{" "}
-                        {(totalPrice + (totalPrice >= 1950 ? 0 : 49)).toLocaleString(
+                        {effectiveTotalPrice.toLocaleString(
                         "en-IN"
                       )}
                       .00

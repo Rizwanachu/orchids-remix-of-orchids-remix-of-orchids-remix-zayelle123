@@ -16,6 +16,8 @@ export interface Product {
   shippingPolicy: string;
   returnPolicy: string;
   category: string;
+  shippingCost?: number;
+  isFreeShipping?: boolean;
   stockQuantity?: number;
   lowStockThreshold?: number;
 }

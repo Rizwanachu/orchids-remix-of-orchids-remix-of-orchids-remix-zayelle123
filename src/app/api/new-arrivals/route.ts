@@ -27,6 +27,8 @@ export async function GET() {
       shippingPolicy: r.products.shippingPolicy || "",
       returnPolicy: r.products.returnPolicy || "",
       category: r.products.category,
+      shippingCost: Number(r.products.shippingCost),
+      isFreeShipping: r.products.isFreeShipping,
     }));
 
     return NextResponse.json(formatted);

@@ -23,6 +23,8 @@ export async function GET() {
       category: p.category,
       stockQuantity: p.stockQuantity,
       lowStockThreshold: p.lowStockThreshold,
+      shippingCost: Number(p.shippingCost),
+      isFreeShipping: p.isFreeShipping,
     }));
     return NextResponse.json(formatted);
   } catch (error) {

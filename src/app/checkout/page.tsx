@@ -49,12 +49,17 @@ function CheckoutContent() {
     : cartTotalPrice;
 
   const maxShipping = items.reduce((max, item: any) => {
-    if (item.isFreeShipping) return 0;
+    if (item.isFreeShipping) return max; // Don't let free shipping items reset max
     const itemShipping = item.shippingCost != null ? Number(item.shippingCost) : 49;
     return Math.max(max, itemShipping);
   }, 0);
 
-  const shippingCost = subtotal >= 1950 ? 0 : maxShipping;
+  // If any single item has free shipping explicitly, we should probably check if that's meant for the whole order
+  // But usually it's better to just ensure if it's 0, it stays 0 if it's the only item
+  const hasGlobalFreeShipping = items.some((item: any) => item.isFreeShipping);
+  const finalMaxShipping = hasGlobalFreeShipping && items.length === 1 ? 0 : maxShipping;
+
+  const shippingCost = subtotal >= 1950 || hasGlobalFreeShipping ? 0 : finalMaxShipping;
 
   const [formData, setFormData] = useState({
     firstName: "",
