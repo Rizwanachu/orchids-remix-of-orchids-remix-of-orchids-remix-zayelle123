@@ -1,0 +1,149 @@
+Improve the order confirmation email template design and formatting to match the Zayelle brand.
+
+Brand theme:
+Beige luxury aesthetic with soft neutral colors.
+
+------------------------------------------------
+1. HEADER DESIGN
+------------------------------------------------
+
+The current logo is hard to see on the black header.
+
+Change the header background to beige so the logo becomes clearly visible.
+
+Header style:
+background: #f6f1eb
+padding: 20px
+text-align: center
+
+Logo:
+centered
+height: 40px
+display block
+
+------------------------------------------------
+2. FIX TEXT SPACING
+------------------------------------------------
+
+Fix formatting issues like:
+
+Subtotal₹1
+ShippingFREE
+
+Change them to:
+
+Subtotal: ₹1
+Shipping: FREE
+Total: ₹1
+
+Use proper spacing and alignment.
+
+------------------------------------------------
+3. PRODUCT LAYOUT
+------------------------------------------------
+
+Improve the product layout so it looks clean and aligned.
+
+Layout example:
+
+[Product Image]  Classic White
+                 Quantity: 1
+                 Price: ₹1
+
+Product image style:
+width: 80px
+height: auto
+border-radius: 8px
+
+Use a table layout so the image and text align perfectly.
+
+------------------------------------------------
+4. ORDER DETAILS BOX
+------------------------------------------------
+
+Improve the order summary section.
+
+Example:
+
+Order ID: ZAY-10012
+Order Date: 3 March 2026
+Payment Status: Paid
+
+Style:
+
+background: #f6f1eb
+border-radius: 8px
+padding: 15px
+border: 1px solid #e5e0da
+
+------------------------------------------------
+5. BUTTON STYLE
+------------------------------------------------
+
+Improve the "Track Your Order" button.
+
+Style:
+
+background: #8c6f5a
+color: #ffffff
+padding: 14px 28px
+border-radius: 8px
+font-weight: 600
+text-decoration: none
+display: inline-block
+margin-top: 20px
+
+Center the button.
+
+------------------------------------------------
+6. FOOTER
+------------------------------------------------
+
+Footer text:
+
+© 2026 Zayelle. All rights reserved.
+
+Style:
+color: #888888
+font-size: 12px
+text-align: center
+margin-top: 30px
+
+------------------------------------------------
+7. MOBILE RESPONSIVENESS
+------------------------------------------------
+
+Ensure the email works well on Gmail mobile apps.
+
+Requirements:
+
+• Inline CSS only
+• Maximum width: 600px
+• Images responsive
+• Buttons full width on small screens
+
+------------------------------------------------
+8. CLEAN EMAIL STRUCTURE
+------------------------------------------------
+
+Structure the email exactly like this:
+
+HEADER
+Logo
+
+TITLE
+Your Order Confirmation
+
+GREETING
+Hello {customer_name}
+
+ORDER DETAILS BOX
+
+PRODUCT TABLE
+(product image + name + quantity + price)
+
+ORDER TOTAL
+
+TRACK ORDER BUTTON
+
+FOOTER

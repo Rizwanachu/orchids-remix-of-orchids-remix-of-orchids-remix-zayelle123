@@ -35,29 +35,33 @@ function baseTemplate(content: string, title: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin: 0; padding: 0; background-color: #f4f1ea; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    body { margin: 0; padding: 0; background-color: #f6f1eb; font-family: 'Helvetica Neue', Arial, sans-serif; }
     .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
-    .header { background: #000000; padding: 30px; text-align: center; }
-    .header img { height: 40px; width: auto; }
+    .header { background: #f6f1eb; padding: 20px; text-align: center; }
+    .header img { height: 40px; width: auto; display: block; margin: 0 auto; }
     .content { padding: 40px 30px; color: #333333; line-height: 1.6; }
     .title { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #1a1a1a; }
     .message { font-size: 16px; margin-bottom: 30px; color: #4a4a4a; }
-    .order-box { background: #fdfcf9; border: 1px solid #e8e2d5; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
-    .order-box p { margin: 5px 0; font-size: 14px; color: #666; }
+    .order-box { background: #f6f1eb; border: 1px solid #e5e0da; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
+    .order-box p { margin: 5px 0; font-size: 14px; color: #4a4a4a; }
     .product-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
     .product-row td { padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top; }
-    .product-image { width: 100px; height: 120px; border-radius: 8px; object-fit: cover; background: #f5f5f5; }
+    .product-image { width: 80px; height: auto; border-radius: 8px; object-fit: cover; background: #f5f5f5; }
     .product-info { padding-left: 20px; }
     .product-name { font-weight: 600; font-size: 16px; color: #1a1a1a; margin-bottom: 5px; }
     .product-meta { font-size: 14px; color: #666; }
     .product-price { font-weight: 600; color: #1a1a1a; margin-top: 5px; }
     .total-section { border-top: 2px solid #1a1a1a; padding-top: 20px; }
-    .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+    .total-row { display: table; width: 100%; margin-bottom: 10px; font-size: 14px; }
+    .total-label { display: table-cell; text-align: left; }
+    .total-value { display: table-cell; text-align: right; font-weight: 600; }
     .total-row.grand-total { font-weight: bold; font-size: 18px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
     .cta-container { text-align: center; margin-top: 40px; }
-    .btn { background: #7c6e62; color: #ffffff !important; padding: 15px 40px; text-decoration: none; border-radius: 4px; font-weight: 600; display: inline-block; }
-    .btn-secondary { background: transparent; color: #7c6e62 !important; border: 1px solid #7c6e62; margin-top: 10px; }
-    .footer { padding: 30px; text-align: center; font-size: 12px; color: #999; background: #fdfcf9; }
+    .btn { background: #8c6f5a; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; }
+    .footer { padding: 30px; text-align: center; font-size: 12px; color: #888888; background: #ffffff; margin-top: 30px; }
+    @media only screen and (max-width: 480px) {
+      .btn { display: block; width: 100%; box-sizing: border-box; }
+    }
   </style>
 </head>
 <body>
@@ -110,7 +114,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
     
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
-        <td style="width: 100px;">
+        <td style="width: 80px;">
           <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
         </td>
         <td class="product-info">
@@ -131,7 +135,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
       <div class="order-box">
         <p><strong>Order ID:</strong> ${data.orderId}</p>
         <p><strong>Order Date:</strong> ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-        <p><strong>Payment Status:</strong> ${data.paymentStatus?.toUpperCase()}</p>
+        <p><strong>Payment Status:</strong> ${data.paymentStatus ? data.paymentStatus.charAt(0).toUpperCase() + data.paymentStatus.slice(1) : 'Processing'}</p>
       </div>
 
       <table class="product-table">
@@ -142,21 +146,21 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
 
       <div class="total-section">
         <div class="total-row">
-          <span>Subtotal</span>
-          <span>₹${subtotal.toLocaleString("en-IN")}</span>
+          <span class="total-label">Subtotal:</span>
+          <span class="total-value">₹${subtotal.toLocaleString("en-IN")}</span>
         </div>
         ${discount > 0 ? `
         <div class="total-row">
-          <span>Discount</span>
-          <span>-₹${discount.toLocaleString("en-IN")}</span>
+          <span class="total-label">Discount:</span>
+          <span class="total-value">-₹${discount.toLocaleString("en-IN")}</span>
         </div>` : ''}
         <div class="total-row">
-          <span>Shipping</span>
-          <span>${shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString("en-IN")}`}</span>
+          <span class="total-label">Shipping:</span>
+          <span class="total-value">${shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString("en-IN")}`}</span>
         </div>
         <div class="total-row grand-total">
-          <span>Total</span>
-          <span>₹${parseFloat(data.totalAmount).toLocaleString("en-IN")}</span>
+          <span class="total-label">Total:</span>
+          <span class="total-value">₹${parseFloat(data.totalAmount).toLocaleString("en-IN")}</span>
         </div>
       </div>
 
