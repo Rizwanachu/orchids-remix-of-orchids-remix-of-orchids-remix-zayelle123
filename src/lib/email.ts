@@ -53,8 +53,8 @@ function baseTemplate(content: string, title: string): string {
     .product-image { width: 80px; height: auto; border-radius: 8px; object-fit: cover; background: #f5f5f5; }
     .product-info { padding-left: 20px; }
     .product-name { font-weight: 600; font-size: 16px; color: #1a1a1a; margin-bottom: 5px; }
-    .product-meta { font-size: 14px; color: #666; }
-    .product-price { font-weight: 600; color: #1a1a1a; margin-top: 5px; }
+    .product-meta { font-size: 14px; color: #666; margin-bottom: 4px; }
+    .product-price { font-weight: 600; color: #1a1a1a; margin-top: 8px; }
     .total-section { border-top: 2px solid #1a1a1a; padding-top: 20px; }
     .total-row { display: table; width: 100%; margin-bottom: 10px; font-size: 14px; }
     .total-label { display: table-cell; text-align: left; }
@@ -180,6 +180,12 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
 
       <div class="cta-container">
         <a href="https://www.zayelle.in/account/orders" class="btn">Track Your Order</a>
+      </div>
+
+      <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #e5e0da; text-align: center; color: #757575; font-size: 14px;">
+        <p style="margin-bottom: 10px; font-weight: 600; color: #1a1a1a;">Need help with your order?</p>
+        <p style="margin: 5px 0;"><a href="mailto:zayelle.in@gmail.com" style="color: #8c6f5a; text-decoration: none;">zayelle.in@gmail.com</a></p>
+        <p style="margin: 5px 0;"><a href="https://www.zayelle.in" style="color: #8c6f5a; text-decoration: none;">www.zayelle.in</a></p>
       </div>
     `;
 
