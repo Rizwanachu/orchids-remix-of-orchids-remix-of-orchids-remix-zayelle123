@@ -19,19 +19,34 @@ interface BannerData {
 
 const PromoBanners: React.FC = () => {
   const [banners, setBanners] = useState<BannerData[]>([]);
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/banners')
-      .then(res => res.json())
-      .then(data => {
-        const promoBanners = (data as BannerData[]).filter(
+    const fetchData = async () => {
+      try {
+        const [bannersRes, settingsRes] = await Promise.all([
+          fetch('/api/banners'),
+          fetch('/api/homepage-settings')
+        ]);
+        
+        const bannersData = await bannersRes.json();
+        const settingsData = await settingsRes.json();
+        
+        const promoBanners = (bannersData as BannerData[]).filter(
           b => b.position === 'mid-left' || b.position === 'mid-right'
         );
+        
         setBanners(promoBanners);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        setSettings(settingsData);
+      } catch (error) {
+        console.error("Error fetching promo banners data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const fallbackBanners = [
@@ -93,6 +108,20 @@ const PromoBanners: React.FC = () => {
   return (
     <section className="py-10 md:py-20 bg-[#FAF9F6]">
       <div className="container mx-auto px-5 lg:px-8">
+        {(settings.promoBannersTitle || settings.promoBannersSubtitle) && (
+          <div className="text-center mb-10 md:mb-16">
+            {settings.promoBannersTitle && (
+              <h2 className="text-[32px] md:text-[48px] font-serif text-[#5C4B3D] uppercase tracking-tight">
+                {settings.promoBannersTitle}
+              </h2>
+            )}
+            {settings.promoBannersSubtitle && (
+              <p className="text-[16px] md:text-[18px] text-[#5C4B3D]/70 mt-4 max-w-2xl mx-auto">
+                {settings.promoBannersSubtitle}
+              </p>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {displayBanners.map((banner) => (
             <a
