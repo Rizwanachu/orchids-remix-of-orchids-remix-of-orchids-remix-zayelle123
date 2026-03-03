@@ -88,7 +88,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
     return;
   }
 
-  const isCOD = false;
+  const isCOD = data.paymentMethod?.toLowerCase() === "cod" || data.paymentMethod?.toLowerCase() === "cash on delivery";
 
   const itemsHtml = data.items.map(item => `
     <tr>

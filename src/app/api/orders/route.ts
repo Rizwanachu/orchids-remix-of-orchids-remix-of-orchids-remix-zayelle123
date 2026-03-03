@@ -77,7 +77,9 @@ export async function POST(request: NextRequest) {
       })),
       couponCode,
       discountAmount: discountAmount ? String(discountAmount) : null,
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Order confirmation email failed for", orderId, err);
+    });
 
     return NextResponse.json({ order: newOrder }, { status: 201 });
   } catch (error) {
