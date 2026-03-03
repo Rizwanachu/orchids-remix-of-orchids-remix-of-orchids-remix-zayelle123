@@ -55,7 +55,7 @@
     "drizzle-orm": "^0.45.1",
     "drizzle-zod": "^0.8.3",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.34.4",
+    "framer-motion": "^12.34.5",
     "graphql": "^16.13.0",
     "graphql-request": "^7.4.0",
     "input-otp": "^1.4.2",
