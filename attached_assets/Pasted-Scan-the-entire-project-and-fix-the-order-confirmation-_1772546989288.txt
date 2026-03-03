@@ -1,0 +1,167 @@
+Scan the entire project and fix the order confirmation email system.
+
+Current problem:
+Orders are created successfully but confirmation emails are unreliable.
+
+Example:
+10 orders placed
+Only 2 emails received
+Emails sometimes arrive after 2–20 minutes.
+
+Goal:
+Order confirmation email must send immediately and reliably every time an order is placed.
+
+----------------------------------
+STEP 1 — FIND ALL EMAIL LOGIC
+----------------------------------
+
+Search the entire project for:
+sendEmail
+sendMail
+nodemailer
+smtp
+order confirmation
+checkout
+order creation
+
+Identify where confirmation emails are triggered.
+
+----------------------------------
+STEP 2 — CENTRALIZE EMAIL SYSTEM
+----------------------------------
+
+Create a single email service file:
+
+/services/emailService.js
+
+Use Nodemailer with SMTP configuration from environment variables:
+
+SMTP_HOST
+SMTP_PORT
+SMTP_USER
+SMTP_PASS
+SMTP_FROM
+
+Example configuration:
+
+host: smtp.gmail.com
+port: 587
+secure: false
+tls: { rejectUnauthorized: false }
+
+----------------------------------
+STEP 3 — RELIABLE EMAIL FUNCTION
+----------------------------------
+
+Create a function:
+
+sendOrderConfirmationEmail(order)
+
+Features:
+• retry up to 3 times
+• log success or failure
+• timeout protection
+
+Example logging:
+
+"Order created: ZAY-10012"
+"Attempting to send email..."
+"Email sent successfully"
+
+If failure:
+
+"Email send failed, retrying..."
+
+----------------------------------
+STEP 4 — FIX ORDER FLOW
+----------------------------------
+
+Find the order creation logic.
+
+Example:
+
+createOrder()
+
+After the order is successfully saved in the database:
+
+await sendOrderConfirmationEmail(order)
+
+Email must trigger immediately.
+
+Do not delay with background queues.
+
+----------------------------------
+STEP 5 — PREVENT DUPLICATE EMAILS
+----------------------------------
+
+Add a database flag:
+
+email_sent: false
+
+After successful email send:
+
+email_sent = true
+
+Check before sending:
+
+if email_sent == false
+send email
+
+----------------------------------
+
+
+----------------------------------
+STEP 6 — ERROR LOGGING 
+----------------------------------
+
+Add console logs everywhere:
+
+Order created
+Email sending
+SMTP connection
+Email success
+Email failure
+
+----------------------------------
+STEP 7 — ADD TEST ROUTE 
+----------------------------------
+
+Create API route:
+
+/api/test-email
+
+This route should send a test email using the same system.
+
+----------------------------------
+STEP 8 — VERIFY SMTP CONNECTION 
+----------------------------------
+
+Before sending emails:
+
+transporter.verify()
+
+If verification fails:
+log error and stop sending.
+
+----------------------------------
+STEP 9 — EMAIL TEMPLATE 
+----------------------------------
+
+Use the Zayelle branded template:
+
+• beige theme
+• product images
+• order summary
+• track order button
+• responsive HTML
+
+----------------------------------
+FINAL RESULT
+----------------------------------
+
+After fixing:
+
+Every order must trigger confirmation email instantly.
+
+Expected delivery time:
+3–10 seconds.

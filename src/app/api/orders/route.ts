@@ -61,9 +61,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Order created:", orderId);
-    console.log("Sending confirmation email for order:", orderId);
+    console.log("Attempting to send email...");
     
-    sendOrderConfirmationEmail({
+    await sendOrderConfirmationEmail({
+      id: newOrder.id,
       orderId,
       customerName,
       customerEmail,
@@ -80,10 +81,6 @@ export async function POST(request: NextRequest) {
       })),
       couponCode,
       discountAmount: discountAmount ? String(discountAmount) : null,
-    }).then(() => {
-      console.log("Email sent successfully for order:", orderId);
-    }).catch((err) => {
-      console.error("Order confirmation email failed for", orderId, err);
     });
 
     return NextResponse.json({ order: newOrder }, { status: 201 });

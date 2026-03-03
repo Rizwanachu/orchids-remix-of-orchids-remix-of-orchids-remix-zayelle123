@@ -31,6 +31,7 @@ export const orders = pgTable("orders", {
   trackingCarrier: text("tracking_carrier"),
   couponCode: text("coupon_code"),
   discountAmount: numeric("discount_amount", { precision: 10, scale: 2 }),
+  emailSent: boolean("email_sent").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

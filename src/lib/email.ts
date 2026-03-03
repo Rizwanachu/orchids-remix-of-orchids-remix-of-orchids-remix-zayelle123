@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import { db } from "@/../server/db";
+import { orders } from "@/../shared/schema";
+import { eq } from "drizzle-orm";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
@@ -20,6 +23,7 @@ export async function verifyConnection() {
   try {
     console.log("Verifying SMTP connection...");
     await transporter.verify();
+    console.log("SMTP Connection Verified successfully");
     return { success: true };
   } catch (error: any) {
     console.error("SMTP Connection Verification Failed:", error.message);
@@ -82,6 +86,7 @@ function baseTemplate(content: string, title: string): string {
 }
 
 interface OrderEmailData {
+  id?: number;
   orderId: string;
   customerName: string;
   customerEmail: string;
@@ -105,12 +110,21 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
   const smtpPass = process.env.SMTP_PASS;
 
   if (!smtpUser || !smtpPass) {
-    console.log("Email credentials missing - skipping order confirmation email");
+    console.error("Email credentials missing - skipping order confirmation email");
     return;
   }
 
+  // Double check if email was already sent for this order in DB
+  if (data.id) {
+    const [order] = await db.select({ emailSent: orders.emailSent }).from(orders).where(eq(orders.id, data.id));
+    if (order?.emailSent) {
+      console.log(`Email already sent for order ${data.orderId}, skipping.`);
+      return;
+    }
+  }
+
   try {
-    console.log(`Sending confirmation email for Order ${data.orderId} to ${data.customerEmail}`);
+    console.log(`Attempting to send email for Order ${data.orderId} to ${data.customerEmail} (Attempt ${retryCount + 1})`);
     
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
@@ -126,7 +140,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
     `).join("");
 
     const subtotal = data.items.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
-    const shipping = 0; // Assuming free shipping for now or can be added to data
+    const shipping = 0; 
     const discount = data.discountAmount ? parseFloat(data.discountAmount) : 0;
 
     const content = `
@@ -177,13 +191,20 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
     });
     
     console.log(`Email sent successfully to ${data.customerEmail} for ${data.orderId}`);
+
+    // Update DB flag
+    if (data.id) {
+      await db.update(orders).set({ emailSent: true }).where(eq(orders.id, data.id));
+      console.log(`Database updated: emailSent = true for order ${data.orderId}`);
+    }
   } catch (error: any) {
-    console.error(`Failed to send order confirmation email (Attempt ${retryCount + 1}):`, error.message);
-    if (retryCount === 0) {
+    console.error(`Email send failed for ${data.orderId} (Attempt ${retryCount + 1}):`, error.message);
+    if (retryCount < 2) {
       console.log("Retrying in 2 seconds...");
       await new Promise(resolve => setTimeout(resolve, 2000));
-      await sendOrderConfirmationEmail(data, 1);
+      return sendOrderConfirmationEmail(data, retryCount + 1);
     }
+    console.error(`Max retries reached for ${data.orderId}. Email not sent.`);
   }
 }
 

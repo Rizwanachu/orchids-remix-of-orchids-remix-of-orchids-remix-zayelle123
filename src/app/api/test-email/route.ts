@@ -1,31 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyConnection, sendOrderConfirmationEmail } from "@/lib/email";
 
-export async function GET(request: NextRequest) {
-  const result = await verifyConnection();
+export async function GET() {
+  console.log("Starting email system test...");
   
-  if (!result.success) {
-    return NextResponse.json({ error: "SMTP Connection Failed", message: result.error }, { status: 500 });
+  // Verify SMTP connection first
+  const verification = await verifyConnection();
+  if (!verification.success) {
+    return NextResponse.json({ 
+      error: "SMTP Verification Failed", 
+      details: verification.error 
+    }, { status: 500 });
   }
 
-  const sampleData = {
-    orderId: "ZAY-TEST-101",
-    customerName: "Test User",
-    customerEmail: "zayelle.in@gmail.com", // Send to brand email for testing
-    totalAmount: "1499",
-    paymentStatus: "paid",
-    paymentMethod: "Razorpay",
-    items: [
-      {
-        productName: "Premium Chiffon Hijab - Beige",
-        quantity: 1,
-        price: "1499",
-        image: "https://slelguoygbfzlbylpxfs.supabase.co/storage/v1/object/public/test-clones/375dbfa2-908b-470f-858e-bf9b21b99d2e-thebeige-in/assets/images/DCE08277-C327-425E-90D0-AE38F478E185-30.jpg"
-      }
-    ]
-  };
+  try {
+    const testOrder = {
+      orderId: "TEST-" + Math.floor(Math.random() * 10000),
+      customerName: "Zayelle Tester",
+      customerEmail: process.env.SMTP_USER || "test@example.com",
+      totalAmount: "2500.00",
+      paymentStatus: "paid",
+      paymentMethod: "Test",
+      items: [
+        {
+          productName: "Premium Chiffon Hijab",
+          quantity: 2,
+          price: "1250.00",
+          image: "https://www.zayelle.in/logo.png"
+        }
+      ]
+    };
 
-  await sendOrderConfirmationEmail(sampleData);
-
-  return NextResponse.json({ success: true, message: "Sample email sent successfully" });
+    console.log("Sending test confirmation email...");
+    await sendOrderConfirmationEmail(testOrder);
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: "Test email process completed. Check server logs for delivery status." 
+    });
+  } catch (error: any) {
+    console.error("Test email route error:", error.message);
+    return NextResponse.json({ 
+      error: "Route execution failed", 
+      details: error.message 
+    }, { status: 500 });
+  }
 }
