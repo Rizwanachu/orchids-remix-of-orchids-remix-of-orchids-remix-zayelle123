@@ -1,12 +1,16 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: process.env.SMTP_PORT === "465", // true for 465, false for other ports
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.SMTP_USER || process.env.GMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD,
   },
 });
+
+const FROM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || "zayelle.in@gmail.com";
 
 function baseTemplate(content: string): string {
   return `
@@ -76,7 +80,10 @@ interface OrderEmailData {
 }
 
 export async function sendOrderConfirmationEmail(data: OrderEmailData) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+  if (!smtpUser || !smtpPass) {
     console.log("Email not configured - skipping order confirmation email");
     return;
   }
@@ -131,9 +138,9 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
   `;
 
   try {
-    const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
+    const recipients = [data.customerEmail, FROM_EMAIL];
     await transporter.sendMail({
-      from: `"Zayelle" <zayelle.in@gmail.com>`,
+      from: `"Zayelle" <${FROM_EMAIL}>`,
       to: recipients.join(", "),
       subject: `Order Confirmed - ${data.orderId} | Zayelle`,
       html: baseTemplate(content),
@@ -153,7 +160,10 @@ interface ShippingEmailData {
 }
 
 export async function sendShippingNotificationEmail(data: ShippingEmailData) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+  if (!smtpUser || !smtpPass) {
     console.log("Email not configured - skipping shipping notification email");
     return;
   }
@@ -178,9 +188,9 @@ export async function sendShippingNotificationEmail(data: ShippingEmailData) {
   `;
 
   try {
-    const recipients = [data.customerEmail, "zayelle.in@gmail.com"];
+    const recipients = [data.customerEmail, FROM_EMAIL];
     await transporter.sendMail({
-      from: `"Zayelle" <zayelle.in@gmail.com>`,
+      from: `"Zayelle" <${FROM_EMAIL}>`,
       to: recipients.join(", "),
       subject: `Your Order ${data.orderId} Has Been Shipped! | Zayelle`,
       html: baseTemplate(content),
