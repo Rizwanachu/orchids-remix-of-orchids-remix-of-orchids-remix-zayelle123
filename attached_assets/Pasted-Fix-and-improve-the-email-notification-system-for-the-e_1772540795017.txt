@@ -1,0 +1,197 @@
+Fix and improve the email notification system for the ecommerce store.
+
+Current issues:
+1. Order confirmation emails are delayed (sometimes 2–10 minutes).
+2. Some orders do not trigger the confirmation email at all.
+3. Email design is basic and does not match the store theme.
+4. No abandoned cart email system exists.
+
+Use the following SMTP environment variables:
+
+SMTP_USER="zayelle.in@gmail.com"
+SMTP_PORT="587"
+SMTP_PASS="YOUR_APP_PASSWORD"
+SMTP_HOST="smtp.gmail.com"
+SMTP_FROM="Zayelle <zayelle.in@gmail.com>"
+EMAIL_PROVIDER="smtp"
+
+--------------------------------
+PART 1 — FIX ORDER CONFIRMATION EMAIL
+--------------------------------
+
+Requirements:
+
+1. Send the confirmation email immediately after an order is successfully placed.
+2. Email must trigger directly in the order creation function.
+3. Do not delay email sending with background queues unless retry is needed.
+4. If sending fails, retry once and log the error.
+5. Add logs:
+   - "Order created"
+   - "Sending confirmation email"
+   - "Email sent successfully"
+
+--------------------------------
+PART 2 — IMPROVE EMAIL DESIGN
+--------------------------------
+
+Create a responsive HTML email template that matches the brand design.
+
+Theme style:
+• Beige / soft luxury colors
+• Minimal premium look
+• Similar to the abandoned cart email reference
+
+Email layout:
+
+HEADER
+- Background: black
+- Centered Zayelle logo image (not just text)
+- Logo should be loaded from:
+  https://yourdomain.com/logo.png
+
+TITLE
+"Your Order Confirmation"
+
+GREETING
+Hello {customer_name},
+
+MESSAGE
+Thank you for your order! We are preparing it now.
+
+ORDER DETAILS BOX
+Order ID
+Order Date
+Order Status
+
+PRODUCT SECTION
+Show product image, name, quantity, and price.
+
+Example layout:
+
+[Product Image]   Premium Chiffon Hijab – Beige
+                  Quantity: 1
+                  Price: ₹XXX
+
+Use a table for multiple items.
+
+TOTAL SECTION
+Subtotal
+Shipping
+Total
+
+CTA BUTTON
+Track Your Order
+
+FOOTER
+© Zayelle
+All rights reserved
+
+Ensure:
+• Mobile responsive
+• Inline CSS
+• Works in Gmail and Outlook
+
+--------------------------------
+PART 3 — ADD PRODUCT IMAGES
+--------------------------------
+
+Include product image in the confirmation email.
+
+Image should come from the product database:
+
+product.image_url
+
+Display image with:
+width: 120px
+rounded corners
+
+--------------------------------
+PART 4 — ADD ABANDONED CART EMAIL SYSTEM
+--------------------------------
+
+Automatically send abandoned cart emails.
+
+Logic:
+
+1. If a user adds products to cart but does not checkout for 30 minutes:
+   send abandoned cart email.
+
+2. If still no purchase after 12 hours:
+   send reminder email.
+
+3. If still no purchase after 24 hours:
+   send final reminder.
+
+--------------------------------
+ABANDONED CART EMAIL DESIGN
+--------------------------------
+
+Subject:
+"You left something beautiful behind ✨"
+
+Design should match the theme.
+
+Layout:
+
+HEADER
+Zayelle logo
+
+TITLE
+Your cart is ready for checkout
+
+MESSAGE
+"We noticed you left a few beautiful pieces behind."
+
+CART PRODUCTS
+
+Show:
+• product image
+• product name
+• quantity
+
+CTA BUTTON
+Continue Checkout
+
+SECOND BUTTON
+Visit our store
+
+--------------------------------
+PART 5 — PREVENT DUPLICATE EMAILS
+--------------------------------
+
+Ensure:
+
+• Confirmation email sends only once per order
+• Abandoned cart emails stop if the order is completed
+
+--------------------------------
+PART 6 — EMAIL TEST ROUTE
+--------------------------------
+
+Create an API route:
+
+/test-email
+
+This route should send a sample confirmation email to verify SMTP works.
+
+--------------------------------
+PART 7 — SMTP CONNECTION CHECK
+--------------------------------
+
+Before sending emails:
+
+verify SMTP connection using smtp.gmail.com:587 with TLS.
+
+If connection fails:
+log error and retry.
+
+--------------------------------
+GOAL
+--------------------------------
+
+After implementation:
+
+• Order confirmation email should arrive within 5 seconds
+• Email design should match Zayelle brand
+• Product images should appear
+• Abandoned cart emails should send automatically

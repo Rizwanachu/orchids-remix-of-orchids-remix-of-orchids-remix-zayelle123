@@ -80,6 +80,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Order created (Razorpay):", orderId);
+    console.log("Sending confirmation email for order:", orderId);
+
     sendOrderConfirmationEmail({
       orderId,
       customerName,
@@ -97,6 +100,8 @@ export async function POST(request: NextRequest) {
       })),
       couponCode,
       discountAmount: discountAmount ? String(discountAmount) : null,
+    }).then(() => {
+      console.log("Email sent successfully for order:", orderId);
     }).catch((err) => {
       console.error("Order confirmation email failed for", orderId, err);
     });
