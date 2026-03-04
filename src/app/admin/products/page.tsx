@@ -132,8 +132,12 @@ export default function AdminProductsPage() {
   const [showMediaPicker, setShowMediaPicker] = useState<"image" | "hoverImage" | null>(null);
 
   useEffect(() => {
-    if (!isLoading && (!user || !user.isAdmin)) {
-      router.push("/account/login");
+    if (!isLoading) {
+      if (!user) {
+        router.push("/admin/login");
+      } else if (!user.isAdmin) {
+        router.push("/");
+      }
     }
   }, [user, isLoading, router]);
 

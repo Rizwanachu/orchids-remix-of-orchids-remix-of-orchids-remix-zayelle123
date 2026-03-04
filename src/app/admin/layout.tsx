@@ -68,7 +68,7 @@ export default function AdminLayout({
     try {
       await fetch("/api/admin/logout", { method: "POST" });
     } catch {}
-    router.push("/admin/login");
+    window.location.href = "/admin/login";
   };
 
   const isActive = (href: string) => {

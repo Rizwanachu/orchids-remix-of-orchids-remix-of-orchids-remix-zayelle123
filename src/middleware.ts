@@ -7,7 +7,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only protect /admin routes, but allow /admin/login
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+
     const token = request.cookies.get("admin_token")?.value;
 
     if (!token) {
