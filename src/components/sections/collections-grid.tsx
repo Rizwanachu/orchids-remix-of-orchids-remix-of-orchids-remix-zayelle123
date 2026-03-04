@@ -14,23 +14,27 @@ interface CollectionItemProps {
 
 const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle, href }) => {
   return (
-    <div className="flex flex-col items-center group cursor-pointer">
-      <Link href={href} className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-[#FFFFFF]">
+    <div className="flex flex-col items-center group cursor-pointer text-center px-2 mb-8">
+      <Link href={href} className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
         <Image
           src={image}
           alt={title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
         />
       </Link>
-      <Link 
-        href={href}
-        className="mt-[10px] text-[15px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors inline-block relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#5C4B3D] hover:after:w-full after:transition-all uppercase tracking-tight"
-      >
-        {title}
-      </Link>
-      <p className="text-[12px] text-[#757575] mt-1 text-center">{subtitle}</p>
+      <div className="mt-4 flex flex-col gap-1 w-full">
+        <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
+          <Link 
+            href={href}
+            className="hover:text-primary transition-colors"
+          >
+            {title}
+          </Link>
+        </h3>
+        <p className="text-[12px] text-[#757575]">{subtitle}</p>
+      </div>
     </div>
   );
 };

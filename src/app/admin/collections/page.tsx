@@ -126,12 +126,16 @@ export default function AdminCollectionsPage() {
       formData.append("file", file);
 
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setForm((prev) => ({ ...prev, imageUrl: data.url }));
+      } else {
+        console.error("Upload failed:", data.error);
+        alert(`Upload failed: ${data.error}`);
       }
     } catch (err) {
       console.error("Upload error:", err);
+      alert("An unexpected error occurred during upload.");
     } finally {
       setUploading(false);
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { ArrowUp, ArrowDown, Save, Eye, EyeOff, Layout } from "lucide-react";
+import { ArrowUp, ArrowDown, Save, Eye, EyeOff, Layout, Plus, X, Trash2 } from "lucide-react";
 
 interface Section {
   sectionName: string;
@@ -26,6 +26,8 @@ export default function AdminHomepageLayoutPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newSection, setNewSection] = useState({ sectionName: "", label: "" });
 
   const fetchSections = useCallback(async () => {
     setLoading(true);
@@ -80,6 +82,27 @@ export default function AdminHomepageLayoutPage() {
     setSections(updated);
   };
 
+  const handleAddSection = () => {
+    if (!newSection.sectionName || !newSection.label) return;
+    if (sections.some(s => s.sectionName === newSection.sectionName)) {
+      alert("Section name must be unique");
+      return;
+    }
+    const updated = [
+      ...sections,
+      { ...newSection, isVisible: true, displayOrder: sections.length }
+    ];
+    setSections(updated);
+    setNewSection({ sectionName: "", label: "" });
+    setShowAddModal(false);
+  };
+
+  const handleRemoveSection = (index: number) => {
+    const updated = sections.filter((_, i) => i !== index);
+    updated.forEach((s, i) => (s.displayOrder = i));
+    setSections(updated);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -117,6 +140,13 @@ export default function AdminHomepageLayoutPage() {
           <p className="text-sm text-[#757575] mt-1">Reorder and toggle visibility of homepage sections</p>
         </div>
         <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-4 py-2 border border-[#5C4B3D] text-[#5C4B3D] text-sm font-medium rounded-lg hover:bg-[#F5F2ED] transition-colors"
+        >
+          <Plus size={16} />
+          Add Section
+        </button>
+        <button
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] disabled:opacity-50 transition-colors"
@@ -125,6 +155,45 @@ export default function AdminHomepageLayoutPage() {
           {saving ? "Saving..." : "Save Layout"}
         </button>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-serif font-semibold">Add Custom Section</h2>
+              <button onClick={() => setShowAddModal(false)}><X size={20} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-[#757575] uppercase tracking-wider mb-1">Section ID (slug)</label>
+                <input
+                  type="text"
+                  value={newSection.sectionName}
+                  onChange={(e) => setNewSection({ ...newSection, sectionName: e.target.value })}
+                  placeholder="e.g. custom-promo"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-sm focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#757575] uppercase tracking-wider mb-1">Display Label</label>
+                <input
+                  type="text"
+                  value={newSection.label}
+                  onChange={(e) => setNewSection({ ...newSection, label: e.target.value })}
+                  placeholder="e.g. Special Offer"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-sm focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+              <button
+                onClick={handleAddSection}
+                className="w-full py-2.5 bg-[#5C4B3D] text-white rounded-lg font-medium hover:bg-[#4A3D31] transition-colors"
+              >
+                Add Section
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {successMessage && (
         <div className="mb-6 p-3 bg-green-50 text-green-700 text-sm rounded-lg border border-green-200">
@@ -184,6 +253,13 @@ export default function AdminHomepageLayoutPage() {
                   title={section.isVisible ? "Visible - click to hide" : "Hidden - click to show"}
                 >
                   {section.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+                <button
+                  onClick={() => handleRemoveSection(index)}
+                  className="p-2 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Remove section"
+                >
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
