@@ -36,7 +36,13 @@ export async function POST(request: NextRequest) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), buffer);
+    console.log(`Writing file to: ${path.join(uploadDir, filename)}`);
+    try {
+      await writeFile(path.join(uploadDir, filename), buffer);
+    } catch (writeError) {
+      console.error("File system write error:", writeError);
+      throw writeError;
+    }
 
     return NextResponse.json({ url: `/uploads/${filename}` });
   } catch (error) {
