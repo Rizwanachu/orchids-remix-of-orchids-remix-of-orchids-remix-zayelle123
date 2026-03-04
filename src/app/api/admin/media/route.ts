@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/admin-auth";
-import { readdir, stat, unlink } from "fs/promises";
+import { readdir, stat, unlink, mkdir } from "fs/promises";
 import path from "path";
 
 export async function GET() {
@@ -11,17 +11,24 @@ export async function GET() {
 
   try {
     const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
+    
     const files = await readdir(uploadDir);
 
     const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"];
-    const imageFiles = files.filter((f) =>
-      imageExtensions.includes(path.extname(f).toLowerCase())
-    );
+    const imageFiles = files.filter((f) => {
+      const ext = path.extname(f).toLowerCase();
+      return imageExtensions.includes(ext);
+    });
 
     const fileDetails = await Promise.all(
       imageFiles.map(async (filename) => {
         const filePath = path.join(uploadDir, filename);
         const fileStat = await stat(filePath);
+        
+        // Skip directories if somehow they matched extension (unlikely but safe)
+        if (fileStat.isDirectory()) return null;
+
         return {
           filename,
           url: `/uploads/${filename}`,
@@ -32,12 +39,14 @@ export async function GET() {
       })
     );
 
-    fileDetails.sort(
+    const validFileDetails = fileDetails.filter(f => f !== null);
+
+    validFileDetails.sort(
       (a, b) =>
         new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()
     );
 
-    return NextResponse.json(fileDetails);
+    return NextResponse.json(validFileDetails);
   } catch (error) {
     console.error("Failed to list media:", error);
     return NextResponse.json({ error: "Failed to list media" }, { status: 500 });

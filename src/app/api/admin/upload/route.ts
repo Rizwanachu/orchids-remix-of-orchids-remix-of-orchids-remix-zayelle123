@@ -38,11 +38,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(uploadDir, filename), buffer);
 
-    const protocol = request.headers.get("x-forwarded-proto") || "http";
-    const host = request.headers.get("host");
-    const origin = `${protocol}://${host}`;
-
-    return NextResponse.json({ url: `${origin}/uploads/${filename}` });
+    return NextResponse.json({ url: `/uploads/${filename}` });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
