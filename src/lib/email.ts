@@ -39,30 +39,50 @@ function baseTemplate(content: string, title: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin: 0; padding: 0; background-color: #f6f1eb; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    body { margin: 0; padding: 0; background-color: #f6f1eb; font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; }
     .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
     .header { background: #f6f1eb; padding: 20px; text-align: center; }
     .header img { height: 40px; width: auto; display: block; margin: 0 auto; }
-    .content { padding: 40px 30px; color: #333333; line-height: 1.6; }
+    .content { padding: 40px 30px; color: #1a1a1a; line-height: 1.6; }
     .title { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #1a1a1a; }
-    .message { font-size: 16px; margin-bottom: 30px; color: #4a4a4a; }
+    .message { font-size: 16px; margin-bottom: 30px; color: #1a1a1a; }
     .order-box { background: #f6f1eb; border: 1px solid #e5e0da; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
-    .order-box p { margin: 5px 0; font-size: 14px; color: #4a4a4a; }
+    .order-box p { margin: 5px 0; font-size: 14px; color: #1a1a1a; }
     .product-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
     .product-row td { padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top; }
     .product-image { width: 80px; height: auto; border-radius: 8px; object-fit: cover; background: #f5f5f5; }
-    .product-info { padding-left: 20px; }
+    .product-info { padding-left: 20px; padding-right: 20px; }
     .product-name { font-weight: 600; font-size: 16px; color: #1a1a1a; margin-bottom: 5px; }
-    .product-meta { font-size: 14px; color: #666; margin-bottom: 4px; }
+    .product-meta { font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
     .product-price { font-weight: 600; color: #1a1a1a; margin-top: 8px; }
     .total-section { border-top: 2px solid #1a1a1a; padding-top: 20px; }
-    .total-row { display: table; width: 100%; margin-bottom: 10px; font-size: 14px; }
+    .total-row { display: table; width: 100%; margin-bottom: 10px; font-size: 14px; color: #1a1a1a; }
     .total-label { display: table-cell; text-align: left; }
     .total-value { display: table-cell; text-align: right; font-weight: 600; }
-    .total-row.grand-total { font-weight: bold; font-size: 18px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+    .total-row.grand-total { font-weight: bold; font-size: 18px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; color: #1a1a1a; }
     .cta-container { text-align: center; margin-top: 40px; }
     .btn { background: #8c6f5a; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; }
-    .footer { padding: 30px; text-align: center; font-size: 12px; color: #888888; background: #ffffff; margin-top: 30px; }
+    .footer { padding: 30px; text-align: center; font-size: 12px; color: #1a1a1a; background: #ffffff; margin-top: 30px; }
+    
+    /* Support for Dark Mode and System Mode */
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #f6f1eb !important; color: #1a1a1a !important; }
+      .container { background-color: #ffffff !important; }
+      .header { background-color: #f6f1eb !important; }
+      .content { color: #1a1a1a !important; }
+      .title { color: #1a1a1a !important; }
+      .message { color: #1a1a1a !important; }
+      .order-box { background-color: #f6f1eb !important; border-color: #e5e0da !important; }
+      .order-box p { color: #1a1a1a !important; }
+      .product-row td { border-bottom-color: #eee !important; }
+      .product-name { color: #1a1a1a !important; }
+      .product-meta { color: #1a1a1a !important; }
+      .product-price { color: #1a1a1a !important; }
+      .total-section { border-top-color: #1a1a1a !important; }
+      .total-row { color: #1a1a1a !important; }
+      .total-row.grand-total { border-top-color: #eee !important; color: #1a1a1a !important; }
+      .footer { background-color: #ffffff !important; color: #1a1a1a !important; }
+    }
     @media only screen and (max-width: 480px) {
       .btn { display: block; width: 100%; box-sizing: border-box; }
     }
