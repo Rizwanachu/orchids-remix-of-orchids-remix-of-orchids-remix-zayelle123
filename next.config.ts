@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
   allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev", "*.spock.replit.dev", "*.riker.replit.dev", "*.picard.replit.dev", "127.0.0.1"],
   images: {
+    localPatterns: [
+      {
+        pathname: '/**',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
