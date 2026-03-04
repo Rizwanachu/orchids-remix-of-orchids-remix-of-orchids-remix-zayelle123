@@ -28,9 +28,10 @@ const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle,
         <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
           <Link 
             href={href}
-            className="hover:text-primary transition-colors"
+            className="relative inline-block pb-0.5"
           >
             {title}
+            <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
           </Link>
         </h3>
         <p className="text-[12px] text-[#757575]">{subtitle}</p>
