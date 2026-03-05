@@ -78,7 +78,7 @@ const PromoBanners: React.FC = () => {
         <div className="container mx-auto px-5 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {[1, 2].map(i => (
-              <div key={i} className="aspect-square md:aspect-auto md:h-[600px] bg-[#E8E4DE] rounded-[12px] animate-pulse" />
+              <div key={i} className="aspect-square bg-[#E8E4DE] rounded-[12px] animate-pulse" />
             ))}
           </div>
         </div>
@@ -127,7 +127,7 @@ const PromoBanners: React.FC = () => {
             <a
               key={banner.id}
               href={banner.href}
-              className="group relative block aspect-square md:aspect-auto md:h-[600px] overflow-hidden rounded-[12px] transform transition-premium hover:shadow-soft"
+              className="group relative block aspect-square overflow-hidden rounded-[12px] transform transition-premium hover:shadow-soft"
             >
               <div className="absolute inset-0 w-full h-full">
                 <Image
