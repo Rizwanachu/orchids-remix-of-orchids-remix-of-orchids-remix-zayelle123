@@ -39,20 +39,35 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   }, [refreshProducts]);
 
   const addProduct = useCallback(async (product: Omit<Product, "id">) => {
+    const tempId = `temp-${Date.now()}`;
+    const optimisticProduct = { ...product, id: tempId } as Product;
+    
+    // 1. Update UI immediately
+    setProducts((prev) => [optimisticProduct, ...prev]);
+
     try {
       const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
       });
+      
       if (res.ok) {
         const newProduct = await res.json();
-        setProducts((prev) => [newProduct, ...prev]);
+        // 2. Replace optimistic product with real one from server
+        setProducts((prev) => 
+          prev.map(p => p.id === tempId ? newProduct : p)
+        );
+      } else {
+        // Rollback on server error
+        setProducts((prev) => prev.filter(p => p.id !== tempId));
+        console.error("Failed to add product: Server returned", res.status);
       }
     } catch (error) {
       console.error("Failed to add product:", error);
-      const id = Date.now().toString();
-      setProducts((prev) => [{ ...product, id }, ...prev]);
+      // Keep the optimistic one if it's just a network error, or rollback? 
+      // User wants it "immediately", so let's keep it but maybe mark it?
+      // For now, just leave it as is or rollback.
     }
   }, []);
 

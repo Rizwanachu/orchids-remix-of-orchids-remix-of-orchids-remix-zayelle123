@@ -214,11 +214,6 @@ export default function AdminProductsPage() {
     }
 
     handleCancel();
-    
-    // Immediate refresh to ensure sync with server
-    setTimeout(() => {
-      refreshProducts();
-    }, 500);
   };
 
   const handleDelete = (id: string) => {
