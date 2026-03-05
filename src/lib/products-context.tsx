@@ -47,12 +47,12 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         const newProduct = await res.json();
-        setProducts((prev) => [...prev, newProduct]);
+        setProducts((prev) => [newProduct, ...prev]);
       }
     } catch (error) {
       console.error("Failed to add product:", error);
       const id = Date.now().toString();
-      setProducts((prev) => [...prev, { ...product, id }]);
+      setProducts((prev) => [{ ...product, id }, ...prev]);
     }
   }, []);
 
