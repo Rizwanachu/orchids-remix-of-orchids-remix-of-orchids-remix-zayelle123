@@ -58,14 +58,7 @@ const Header = () => {
   }, [cmsSettings.header_navigation]);
 
   const logoUrl = useMemo(() => {
-    const url = cmsSettings.header_logo_url || "/logo.png";
-    const cacheBuster = `v=${Date.now()}`;
-    const finalUrl = url.includes("?") ? `${url}&${cacheBuster}` : `${url}?${cacheBuster}`;
-    
-    if (typeof window !== "undefined" && url.startsWith("/uploads/")) {
-      return `${window.location.origin}${finalUrl}`;
-    }
-    return finalUrl;
+    return cmsSettings.header_logo_url || "/logo.png";
   }, [cmsSettings.header_logo_url]);
   
   console.log("Header Logo URL:", logoUrl); // Debugging line
@@ -175,13 +168,12 @@ const Header = () => {
             {/* Logo */}
             <div className="flex-shrink-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
               <a href="/" className="block">
-                <Image
+                <img
                   src={logoUrl}
                   alt="Zayelle"
                   width={140}
                   height={40}
                   className="h-8 lg:h-9 w-auto object-contain"
-                  priority
                 />
               </a>
             </div>

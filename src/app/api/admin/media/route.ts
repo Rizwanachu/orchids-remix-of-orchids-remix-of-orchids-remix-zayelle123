@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/admin-auth";
-import { readdir, stat, unlink, mkdir } from "fs/promises";
-import path from "path";
+import { db } from "@/../server/db";
+import { media } from "@/../shared/schema";
+import { eq, desc } from "drizzle-orm";
 
 export async function GET() {
   const admin = await verifyAdmin();
@@ -10,43 +11,14 @@ export async function GET() {
   }
 
   try {
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
+    const results = await db.select().from(media).orderBy(desc(media.createdAt));
     
-    const files = await readdir(uploadDir);
-
-    const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"];
-    const imageFiles = files.filter((f) => {
-      const ext = path.extname(f).toLowerCase();
-      return imageExtensions.includes(ext);
-    });
-
-    const fileDetails = await Promise.all(
-      imageFiles.map(async (filename) => {
-        const filePath = path.join(uploadDir, filename);
-        const fileStat = await stat(filePath);
-        
-        // Skip directories if somehow they matched extension (unlikely but safe)
-        if (fileStat.isDirectory()) return null;
-
-        return {
-          filename,
-          url: `/uploads/${filename}`,
-          size: fileStat.size,
-          createdAt: fileStat.birthtime.toISOString(),
-          modifiedAt: fileStat.mtime.toISOString(),
-        };
-      })
-    );
-
-    const validFileDetails = fileDetails.filter(f => f !== null);
-
-    validFileDetails.sort(
-      (a, b) =>
-        new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()
-    );
-
-    return NextResponse.json(validFileDetails);
+    return NextResponse.json(results.map(f => ({
+      filename: f.filename,
+      url: f.url,
+      size: f.size,
+      createdAt: f.createdAt.toISOString(),
+    })));
   } catch (error) {
     console.error("Failed to list media:", error);
     return NextResponse.json({ error: "Failed to list media" }, { status: 500 });
@@ -61,13 +33,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const { filename } = await request.json();
-
-    if (!filename || filename.includes("..") || filename.includes("/")) {
-      return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
-    }
-
-    const filePath = path.join(process.cwd(), "public", "uploads", filename);
-    await unlink(filePath);
+    await db.delete(media).where(eq(media.filename, filename));
 
     return NextResponse.json({ success: true });
   } catch (error) {

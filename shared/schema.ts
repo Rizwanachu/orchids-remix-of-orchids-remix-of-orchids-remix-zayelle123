@@ -1,6 +1,20 @@
-import { pgTable, text, serial, timestamp, integer, numeric, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, numeric, boolean, customType } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Helper for BYTEA type in Drizzle
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+  fromDriver(value: unknown) {
+    if (Buffer.isBuffer(value)) return value;
+    return Buffer.from(value as string, "hex");
+  },
+  toDriver(value: Buffer) {
+    return value;
+  },
+});
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -185,27 +199,6 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).extend({
-  password: z.string().min(6),
-});
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type Order = typeof orders.$inferSelect;
-export type OrderItem = typeof orderItems.$inferSelect;
-export type Coupon = typeof coupons.$inferSelect;
-export type AdminActivityLog = typeof adminActivityLogs.$inferSelect;
-export type DbProduct = typeof products.$inferSelect;
-export type Collection = typeof collections.$inferSelect;
-export type NewArrival = typeof newArrivals.$inferSelect;
-export type ZayelleEdit = typeof zayelleEdits.$inferSelect;
-export type Banner = typeof banners.$inferSelect;
-export type GiftHamper = typeof giftHampers.$inferSelect;
-export type HomepageSetting = typeof homepageSettings.$inferSelect;
-export type HomepageSection = typeof homepageSections.$inferSelect;
-export type DmTestimonial = typeof dmTestimonials.$inferSelect;
-export type Review = typeof reviews.$inferSelect;
-
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   key: text("key").notNull().unique(),
@@ -239,6 +232,37 @@ export const pageContents = pgTable("page_contents", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const media = pgTable("media", {
+  id: serial("id").primaryKey(),
+  filename: text("filename").notNull(),
+  url: text("url").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  content: bytea("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertUserSchema = createInsertSchema(users).extend({
+  password: z.string().min(6),
+});
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Order = typeof orders.$inferSelect;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type Coupon = typeof coupons.$inferSelect;
+export type AdminActivityLog = typeof adminActivityLogs.$inferSelect;
+export type DbProduct = typeof products.$inferSelect;
+export type Collection = typeof collections.$inferSelect;
+export type NewArrival = typeof newArrivals.$inferSelect;
+export type ZayelleEdit = typeof zayelleEdits.$inferSelect;
+export type Banner = typeof banners.$inferSelect;
+export type GiftHamper = typeof giftHampers.$inferSelect;
+export type HomepageSetting = typeof homepageSettings.$inferSelect;
+export type HomepageSection = typeof homepageSections.$inferSelect;
+export type DmTestimonial = typeof dmTestimonials.$inferSelect;
+export type Review = typeof reviews.$inferSelect;
 export type SiteSetting = typeof siteSettings.$inferSelect;
 export type ThemeSetting = typeof themeSettings.$inferSelect;
 export type PageContent = typeof pageContents.$inferSelect;
+export type Media = typeof media.$inferSelect;
