@@ -87,10 +87,15 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         setProducts((prev) => prev.filter((p) => p.id !== id));
+        return true;
+      } else {
+        const errorData = await res.json();
+        console.error("Failed to delete product:", errorData.error || res.statusText);
+        throw new Error(errorData.error || "Failed to delete product");
       }
     } catch (error) {
-      console.error("Failed to delete product:", error);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+      console.error("Failed to delete product:", error)
+      throw error;
     }
   }, []);
 

@@ -224,10 +224,15 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleDelete = (id: string) => {
-    deleteProduct(id);
-    setDeleteConfirm(null);
-    showSuccess("Product deleted successfully");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteProduct(id);
+      setDeleteConfirm(null);
+      showSuccess("Product deleted successfully");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete product. Please check the console for details.");
+    }
   };
 
   const updateField = (field: keyof ProductFormData, value: string) => {
