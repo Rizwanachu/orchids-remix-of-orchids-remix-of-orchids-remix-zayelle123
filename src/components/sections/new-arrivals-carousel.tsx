@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, Search, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -13,70 +15,72 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <div 
-      className="group flex flex-col items-center text-center px-2 mb-8"
+      className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
-        <a href={`/products/${product.handle}`} className="block w-full h-full">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className={`object-cover transition-opacity duration-500 scale-100 group-hover:scale-105 ${
-              isHovered ? "opacity-0" : "opacity-100"
-            }`}
-          />
-          <Image
-            src={product.hoverImage}
-            alt={`${product.name} alternate view`}
-            fill
-            className={`object-cover transition-opacity duration-500 scale-105 group-hover:scale-100 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        </a>
-
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
-          <button
-            onClick={() => toggleWishlist(product.id)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center shadow-soft transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-primary hover:text-white"}`}
-          >
-            <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
-          </button>
-          <a href={`/products/${product.handle}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
-            <Search size={18} />
+      <div className="group flex flex-col items-center text-center mb-8">
+        <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
+          <a href={`/products/${product.handle}`} className="block w-full h-full">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className={`object-cover transition-opacity duration-500 scale-100 group-hover:scale-105 ${
+                isHovered ? "opacity-0" : "opacity-100"
+              }`}
+            />
+            <Image
+              src={product.hoverImage}
+              alt={`${product.name} alternate view`}
+              fill
+              className={`object-cover transition-opacity duration-500 scale-105 group-hover:scale-100 ${
+                isHovered ? "opacity-100" : "opacity-0"
+              }`}
+            />
           </a>
+
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
+            <button
+              onClick={() => toggleWishlist(product.id)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center shadow-soft transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-primary hover:text-white"}`}
+            >
+              <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
+            </button>
+            <a href={`/products/${product.handle}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
+              <Search size={18} />
+            </a>
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
+            <button
+              onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+              className="w-full bg-white/90 backdrop-blur-sm text-foreground py-3 rounded-[8px] font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all duration-300 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
+            >
+              <ShoppingCart size={16} />
+              <span>Add to Cart</span>
+            </button>
+          </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
-          <button
-            onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
-            className="w-full bg-white/90 backdrop-blur-sm text-foreground py-3 rounded-[8px] font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all duration-300 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
-          >
-            <ShoppingCart size={16} />
-            <span>Add to Cart</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-1 w-full">
-        <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
-          <a href={`/products/${product.handle}`} className="hover:text-primary transition-colors">
-            {product.name}
-          </a>
-        </h3>
+        <div className="mt-4 flex flex-col gap-1 w-full px-2">
+          <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
+            <a href={`/products/${product.handle}`} className="hover:text-primary transition-colors">
+              {product.name}
+            </a>
+          </h3>
           <p className="text-[12px] text-[#757575]">{product.subtitle}</p>
-            <div className="flex flex-col gap-0.5 mt-1">
-              <span className="text-[16px] font-semibold text-foreground">
-                ₹{product.price.toLocaleString("en-IN")}.00
+          <div className="flex flex-col gap-0.5 mt-1">
+            <span className="text-[16px] font-semibold text-foreground">
+              ₹{product.price.toLocaleString("en-IN")}.00
+            </span>
+            {product.compareAt && product.compareAt > product.price && (
+              <span className="text-[13px] text-[#757575] line-through">
+                ₹{product.compareAt.toLocaleString("en-IN")}.00
               </span>
-              {product.compareAt && product.compareAt > product.price && (
-                <span className="text-[13px] text-[#757575] line-through">
-                  ₹{product.compareAt.toLocaleString("en-IN")}.00
-                </span>
-              )}
-            </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -87,6 +91,36 @@ export default function NewArrivalsCarousel() {
   const [loading, setLoading] = useState(true);
   const [sectionTitle, setSectionTitle] = useState("New Arrivals");
   const [sectionSubtitle, setSectionSubtitle] = useState("Designed for comfort. Crafted for elegance.");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    breakpoints: {
+      "(min-width: 1024px)": { slidesToScroll: 4 }
+    }
+  }, [Autoplay({ delay: 4000, stopOnInteraction: false })]);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
 
   useEffect(() => {
     Promise.all([
@@ -115,7 +149,7 @@ export default function NewArrivalsCarousel() {
           </header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse">
+              <div key={i} className="animate-pulse px-2">
                 <div className="aspect-square bg-[#F5F2ED] rounded-[12px]" />
                 <div className="mt-4 space-y-2">
                   <div className="h-4 bg-[#F5F2ED] rounded w-3/4 mx-auto" />
@@ -129,8 +163,10 @@ export default function NewArrivalsCarousel() {
     );
   }
 
+  if (products.length === 0) return null;
+
   return (
-    <section className="py-[80px] bg-background">
+    <section className="py-[80px] bg-background overflow-hidden">
       <div className="container">
         <header className="flex flex-col items-center mb-10 text-center">
           <h2 className="text-[32px] font-serif italic text-foreground mb-2">
@@ -140,21 +176,25 @@ export default function NewArrivalsCarousel() {
           <div className="w-[60px] h-[1px] bg-border mb-8"></div>
         </header>
 
-        <div className="relative group/carousel">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        <div className="relative group/carousel px-4 sm:px-0">
+          <div className="embla overflow-hidden" ref={emblaRef}>
+            <div className="embla__container flex ml-[-20px]">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
 
           <button 
-            className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:left-[-40px] transition-all duration-300 hidden xl:flex"
+            onClick={scrollPrev}
+            className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:left-[-40px] transition-all duration-300 hidden xl:flex z-10"
             aria-label="Previous"
           >
             <ChevronLeft size={20} />
           </button>
           <button 
-            className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:right-[-40px] transition-all duration-300 hidden xl:flex"
+            onClick={scrollNext}
+            className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:right-[-40px] transition-all duration-300 hidden xl:flex z-10"
             aria-label="Next"
           >
             <ChevronRight size={20} />
@@ -162,11 +202,17 @@ export default function NewArrivalsCarousel() {
         </div>
 
         <div className="flex justify-center gap-2 mt-8">
-          <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
+          {Array.from({ length: Math.ceil(products.length / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 4 : 1)) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => emblaApi?.scrollTo(index * (window.innerWidth >= 1024 ? 4 : 1))}
+              className={`transition-all duration-300 rounded-full ${
+                Math.floor(selectedIndex / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 4 : 1)) === index 
+                  ? "w-4 h-2 bg-primary" 
+                  : "w-2 h-2 bg-border"
+              }`}
+            />
+          ))}
         </div>
 
         <div className="mt-10 text-center">
