@@ -6,16 +6,16 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_s
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only protect /admin routes, but allow /admin/login
-  if (pathname.startsWith("/admin")) {
-    if (pathname === "/admin/login") {
+  // Only protect /letsgetsuccessin2026 routes, but allow /letsgetsuccessin2026/login
+  if (pathname.startsWith("/letsgetsuccessin2026")) {
+    if (pathname === "/letsgetsuccessin2026/login") {
       return NextResponse.next();
     }
 
     const token = request.cookies.get("admin_token")?.value;
 
     if (!token) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/letsgetsuccessin2026/login", request.url));
     }
 
     try {
@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
       
       return NextResponse.next();
     } catch (error) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/letsgetsuccessin2026/login", request.url));
     }
   }
 
@@ -35,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/letsgetsuccessin2026/:path*"],
 };

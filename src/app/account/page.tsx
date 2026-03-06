@@ -79,7 +79,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {user.isAdmin && (
               <a
-                href="/admin"
+                href="/letsgetsuccessin2026"
                 className="flex items-center gap-4 p-5 bg-[#5C4B3D] border border-[#5C4B3D] rounded-[12px] hover:bg-[#4A3C31] transition-all"
               >
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
