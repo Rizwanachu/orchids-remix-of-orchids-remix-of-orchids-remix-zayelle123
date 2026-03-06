@@ -13,8 +13,9 @@ export interface Product {
   badge?: string;
   description: string;
   details: string[];
-  shippingPolicy: string;
-  returnPolicy: string;
+  dimension: string;
+  material: string;
+  careInstructions: string;
   category: string;
   shippingCost?: number;
   isFreeShipping?: boolean;

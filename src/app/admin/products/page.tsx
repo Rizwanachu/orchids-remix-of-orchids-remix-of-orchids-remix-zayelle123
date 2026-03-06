@@ -54,8 +54,9 @@ interface ProductFormData {
   badge: string;
   description: string;
   details: string;
-  shippingPolicy: string;
-  returnPolicy: string;
+  dimension: string;
+  material: string;
+  careInstructions: string;
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -74,8 +75,9 @@ const emptyForm: ProductFormData = {
   badge: "",
   description: "",
   details: "",
-  shippingPolicy: "",
-  returnPolicy: "",
+  dimension: "",
+  material: "",
+  careInstructions: "",
   category: CATEGORIES[0].value,
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -95,8 +97,9 @@ function toFormData(product: Product): ProductFormData {
     badge: product.badge || "",
     description: product.description,
     details: product.details.join("\n"),
-    shippingPolicy: product.shippingPolicy || "",
-    returnPolicy: product.returnPolicy || "",
+    dimension: (product as any).dimension || "",
+    material: (product as any).material || "",
+    careInstructions: (product as any).careInstructions || "",
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
@@ -196,8 +199,9 @@ export default function AdminProductsPage() {
         .split("\n")
         .map((d) => d.trim())
         .filter(Boolean),
-      shippingPolicy: form.shippingPolicy,
-      returnPolicy: form.returnPolicy,
+      dimension: form.dimension,
+      material: form.material,
+      careInstructions: form.careInstructions,
       category: form.category,
       stockQuantity: form.stockQuantity ? Number(form.stockQuantity) : 100,
       lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : 10,
@@ -464,6 +468,47 @@ export default function AdminProductsPage() {
                       />
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Product Details</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Dimension
+                  </label>
+                  <input
+                    type="text"
+                    value={form.dimension}
+                    onChange={(e) => updateField("dimension", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. 180cm x 70cm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Material
+                  </label>
+                  <input
+                    type="text"
+                    value={form.material}
+                    onChange={(e) => updateField("material", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. Premium Chiffon"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Care Instructions
+                  </label>
+                  <textarea
+                    value={form.careInstructions}
+                    onChange={(e) => updateField("careInstructions", e.target.value)}
+                    className="w-full h-[100px] px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-none"
+                    placeholder="e.g. Hand wash only"
+                  />
                 </div>
               </div>
             </div>

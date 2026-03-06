@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, ChevronDown } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, ChevronDown, Share2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 import ProductReviews, { ProductReviewSummary } from "@/components/product-reviews";
@@ -53,6 +53,19 @@ export default function ProductDetailPage() {
       </>
     );
   }
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.subtitle,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
 
   const images = [product.image, product.hoverImage];
   const wishlisted = isInWishlist(product.id);
@@ -228,6 +241,14 @@ export default function ProductDetailPage() {
                 >
                   <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
                 </button>
+
+                <button
+                  onClick={handleShare}
+                  className="w-11 h-11 border border-[#E8E4DE] rounded-sm flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors"
+                  title="Share Product"
+                >
+                  <Share2 size={18} />
+                </button>
               </div>
 
               <button
@@ -272,33 +293,54 @@ export default function ProductDetailPage() {
 
                 <div className="border-b border-[#E8E4DE]">
                   <button
-                    onClick={() => setOpenAccordion(openAccordion === "shipping" ? null : "shipping")}
+                    onClick={() => setOpenAccordion(openAccordion === "dimension" ? null : "dimension")}
                     className="w-full flex items-center justify-between py-4 text-left"
                   >
-                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Shipping Policy</span>
-                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "shipping" ? "rotate-180" : ""}`} />
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Dimension</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "dimension" ? "rotate-180" : ""}`} />
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "shipping" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "dimension" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
                     <p className="text-[14px] text-[#555] leading-relaxed">
-                      {product.shippingPolicy || "Free shipping on orders above Rs. 1,950. Standard delivery within 5-7 business days across India. Express shipping available at checkout."}
+                      {(product as any).dimension || "180cm x 70cm"}
                     </p>
                   </div>
                 </div>
 
                 <div className="border-b border-[#E8E4DE]">
                   <button
-                    onClick={() => setOpenAccordion(openAccordion === "returns" ? null : "returns")}
+                    onClick={() => setOpenAccordion(openAccordion === "material" ? null : "material")}
                     className="w-full flex items-center justify-between py-4 text-left"
                   >
-                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Return Policy</span>
-                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "returns" ? "rotate-180" : ""}`} />
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Material</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "material" ? "rotate-180" : ""}`} />
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "returns" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "material" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
                     <p className="text-[14px] text-[#555] leading-relaxed">
-                      {product.returnPolicy || "Easy returns within 7 days of delivery. Product must be unused, unwashed, and in original packaging with tags attached. Refunds are processed within 5-7 business days."}
+                      {(product as any).material || "Premium Chiffon"}
                     </p>
                   </div>
                 </div>
+
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "care" ? null : "care")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Care Instruction</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "care" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "care" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    <p className="text-[14px] text-[#555] leading-relaxed">
+                      {(product as any).careInstructions || "Hand wash recommended. Use mild detergent. Do not bleach. Steam iron only."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 bg-[#F5F2ED] rounded-lg border border-[#E8E4DE]">
+                <p className="text-[12px] text-[#757575] leading-relaxed italic">
+                  <span className="font-semibold text-[#1A1A1A]">Please Note:</span> While we try to display product colors as accurately as possible, slight variations may occur due to different screen settings and lighting conditions.
+                </p>
               </div>
 
               {/* Trust badges */}

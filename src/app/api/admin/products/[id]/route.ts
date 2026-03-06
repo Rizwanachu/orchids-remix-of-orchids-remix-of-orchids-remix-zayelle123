@@ -26,8 +26,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.badge !== undefined) updateData.badge = body.badge || null;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.details !== undefined) updateData.details = body.details;
-    if (body.shippingPolicy !== undefined) updateData.shippingPolicy = body.shippingPolicy;
-    if (body.returnPolicy !== undefined) updateData.returnPolicy = body.returnPolicy;
+    if (body.dimension !== undefined) updateData.dimension = body.dimension;
+    if (body.material !== undefined) updateData.material = body.material;
+    if (body.careInstructions !== undefined) updateData.careInstructions = body.careInstructions;
     if (body.category !== undefined) updateData.category = body.category;
     if (body.stockQuantity !== undefined) updateData.stockQuantity = body.stockQuantity;
     if (body.lowStockThreshold !== undefined) updateData.lowStockThreshold = body.lowStockThreshold;
@@ -55,8 +56,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       badge: updated.badge || undefined,
       description: updated.description,
       details: updated.details || [],
-      shippingPolicy: updated.shippingPolicy || "",
-      returnPolicy: updated.returnPolicy || "",
+      dimension: updated.dimension || "",
+      material: updated.material || "",
+      careInstructions: updated.careInstructions || "",
       category: updated.category,
       stockQuantity: updated.stockQuantity,
       lowStockThreshold: updated.lowStockThreshold,
