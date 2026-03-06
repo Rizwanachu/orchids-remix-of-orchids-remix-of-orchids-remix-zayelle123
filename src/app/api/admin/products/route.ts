@@ -45,6 +45,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    
+    // Validate handle uniqueness
+    const existing = await db.select().from(products).where(eq(products.handle, body.handle)).limit(1);
+    if (existing.length > 0) {
+      return NextResponse.json({ error: "A product with this URL handle already exists. Please use a unique name or handle." }, { status: 400 });
+    }
+
     const [newProduct] = await db.insert(products).values({
       handle: body.handle,
       name: body.name,

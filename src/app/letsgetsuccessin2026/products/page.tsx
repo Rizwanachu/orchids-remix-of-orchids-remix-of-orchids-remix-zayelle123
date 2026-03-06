@@ -181,7 +181,7 @@ export default function AdminProductsPage() {
     setForm(emptyForm);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name || !form.price || !form.image || !form.description) return;
 
     const handle = form.handle || generateHandle(form.name);
@@ -209,15 +209,19 @@ export default function AdminProductsPage() {
       isFreeShipping: form.isFreeShipping,
     };
 
-    if (isAdding) {
-      addProduct(productData);
-      showSuccess("Product added successfully");
-    } else if (editingProduct) {
-      updateProduct(editingProduct, productData);
-      showSuccess("Product updated successfully");
+    try {
+      if (isAdding) {
+        await addProduct(productData);
+        showSuccess("Product added successfully");
+      } else if (editingProduct) {
+        await updateProduct(editingProduct, productData);
+        showSuccess("Product updated successfully");
+      }
+      handleCancel();
+    } catch (error) {
+      console.error("Save failed:", error);
+      alert("Failed to save product. Please check the console for details.");
     }
-
-    handleCancel();
   };
 
   const handleDelete = (id: string) => {
