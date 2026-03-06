@@ -81,9 +81,13 @@ export async function POST(request: NextRequest) {
     await logAdminActivity(user.id, user.email, "admin_login", `Admin logged in from IP: ${ip}`);
 
     const response = NextResponse.json({ success: true });
+    
+    // Set cookie with appropriate flags for the environment
+    const isProduction = process.env.NODE_ENV === "production";
+    
     response.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
       sameSite: "lax",
       maxAge: 60 * 60 * 24,
       path: "/",
