@@ -40,9 +40,9 @@ const HeroSection = () => {
   const title = heroBanner?.title || settings.heroTitle || "GRACE IN\nEVERY LAYER";
   const subtitle = heroBanner?.subtitle || settings.heroSubtitle || "Timeless Hijabs & Refined Accessories for Everyday Elegance";
   const description = "Gracefully designed for modern women across India.";
-  const buttonText = heroBanner?.buttonText || "SHOP NEW ARRIVALS";
-  const buttonLink = heroBanner?.buttonLink || "/collections/new-arrivals";
-  const imageUrl = heroBanner?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain";
+  const buttonText = settings.heroButtonText || heroBanner?.buttonText || "SHOP NEW ARRIVALS";
+  const buttonLink = settings.heroButtonLink || heroBanner?.buttonLink || "/collections/new-arrivals";
+  const imageUrl = settings.heroImage || heroBanner?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain";
 
   if (!loaded) {
     return (

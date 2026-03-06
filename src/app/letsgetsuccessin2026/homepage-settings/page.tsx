@@ -1,11 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Save, Settings, CheckCircle, AlertCircle } from "lucide-react";
+import { Save, Settings, CheckCircle, AlertCircle, Upload, Image as ImageIcon, X } from "lucide-react";
+import Image from "next/image";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 const SETTING_KEYS = [
   { key: "heroTitle", label: "Hero Title" },
   { key: "heroSubtitle", label: "Hero Subtitle" },
+  { key: "heroImage", label: "Hero Image", type: "image" },
+  { key: "heroButtonText", label: "Hero Button Text" },
+  { key: "heroButtonLink", label: "Hero Button Link" },
   { key: "collectionsTitle", label: "Collections Title" },
   { key: "collectionsSubtitle", label: "Collections Subtitle" },
   { key: "newArrivalsTitle", label: "New Arrivals Title" },
@@ -23,6 +28,9 @@ export default function AdminHomepageSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [activeImageKey, setActiveImageKey] = useState<string | null>(null);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -86,6 +94,32 @@ export default function AdminHomepageSettingsPage() {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        handleChange(key, data.url);
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      showError("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 lg:p-8">
@@ -131,18 +165,70 @@ export default function AdminHomepageSettingsPage() {
       )}
 
       <div className="bg-white border border-[#E8E4DE] rounded-xl p-6 space-y-6">
-        {SETTING_KEYS.map(({ key, label }) => (
+        {SETTING_KEYS.map(({ key, label, type }) => (
           <div key={key}>
             <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1.5">
               {label}
             </label>
-            <input
-              type="text"
-              value={settings[key] || ""}
-              onChange={(e) => handleChange(key, e.target.value)}
-              placeholder={`Enter ${label.toLowerCase()}...`}
-              className="w-full px-3 py-2 text-[13px] border border-[#E8E4DE] rounded-lg bg-white text-[#1A1A1A] placeholder-[#AAAAAA] focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] transition-colors"
-            />
+            {type === "image" ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <input
+                    type="text"
+                    value={settings[key] || ""}
+                    onChange={(e) => handleChange(key, e.target.value)}
+                    placeholder={`Enter ${label.toLowerCase()} URL...`}
+                    className="flex-1 px-3 py-2 text-[13px] border border-[#E8E4DE] rounded-lg bg-white text-[#1A1A1A] placeholder-[#AAAAAA] focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] transition-colors"
+                  />
+                  <label className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] cursor-pointer transition-colors">
+                    <Upload size={14} />
+                    {uploading ? "Uploading..." : "Upload"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, key)}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveImageKey(key);
+                      setShowMediaPicker(true);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                  >
+                    <ImageIcon size={14} />
+                    Browse
+                  </button>
+                </div>
+                {settings[key] && (
+                  <div className="relative w-40 h-24 rounded-lg overflow-hidden border border-[#E8E4DE] group">
+                    <Image
+                      src={settings[key]}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      onClick={() => handleChange(key, "")}
+                      className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={settings[key] || ""}
+                onChange={(e) => handleChange(key, e.target.value)}
+                placeholder={`Enter ${label.toLowerCase()}...`}
+                className="w-full px-3 py-2 text-[13px] border border-[#E8E4DE] rounded-lg bg-white text-[#1A1A1A] placeholder-[#AAAAAA] focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] transition-colors"
+              />
+            )}
           </div>
         ))}
 
@@ -157,6 +243,20 @@ export default function AdminHomepageSettingsPage() {
           </button>
         </div>
       </div>
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => {
+          setShowMediaPicker(false);
+          setActiveImageKey(null);
+        }}
+        onSelect={(url) => {
+          if (activeImageKey) {
+            handleChange(activeImageKey, url);
+          }
+          setShowMediaPicker(false);
+          setActiveImageKey(null);
+        }}
+      />
     </div>
   );
 }
