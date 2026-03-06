@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import MediaPickerModal from "@/components/letsgetsuccessin2026/media-picker-modal";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface ZayelleEditItem {
   id: number;

@@ -23,7 +23,7 @@ import {
     ToggleLeft,
     FolderOpen,
   } from "lucide-react";
-import MediaPickerModal from "@/components/letsgetsuccessin2026/media-picker-modal";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 const CATEGORIES = [
   { value: "chiffon-hijabs", label: "Chiffon Hijabs" },

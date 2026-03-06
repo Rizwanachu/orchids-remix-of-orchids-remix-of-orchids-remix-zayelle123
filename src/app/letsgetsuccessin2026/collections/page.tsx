@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon } from "lucide-react";
-import MediaPickerModal from "@/components/letsgetsuccessin2026/media-picker-modal";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Collection {
   id: number;

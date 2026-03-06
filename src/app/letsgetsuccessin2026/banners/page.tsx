@@ -12,7 +12,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import MediaPickerModal from "@/components/letsgetsuccessin2026/media-picker-modal";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Banner {
   id: number;

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Gift, Save, Upload, Image as ImageIcon } from "lucide-react";
-import MediaPickerModal from "@/components/letsgetsuccessin2026/media-picker-modal";
+import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Product {
   id: number;
