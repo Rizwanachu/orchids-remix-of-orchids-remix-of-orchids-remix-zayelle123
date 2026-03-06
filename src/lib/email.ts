@@ -234,6 +234,63 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
   }
 }
 
+export async function sendShippingNotificationEmail(data: OrderEmailData, retryCount = 0) {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (!smtpUser || !smtpPass) {
+    console.error("Email credentials missing - skipping shipping notification email");
+    return;
+  }
+
+  try {
+    console.log(`Attempting to send shipping notification for Order ${data.orderId} to ${data.customerEmail}`);
+    
+    const itemsHtml = data.items.map(item => `
+      <tr class="product-row">
+        <td style="width: 80px;">
+          <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
+        </td>
+        <td class="product-info">
+          <div class="product-name">${item.productName}</div>
+          <div class="product-meta">Quantity: ${item.quantity}</div>
+        </td>
+      </tr>
+    `).join("");
+
+    const content = `
+      <p class="message">Great news, ${data.customerName}! Your order is on its way.</p>
+      
+      <div class="order-box">
+        <p><strong>Order ID:</strong> ${data.orderId}</p>
+        ${data.trackingNumber ? `<p><strong>Tracking Number:</strong> ${data.trackingNumber}</p>` : ''}
+        ${data.trackingCarrier ? `<p><strong>Carrier:</strong> ${data.trackingCarrier}</p>` : ''}
+      </div>
+
+      <table class="product-table">
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <div class="cta-container">
+        <a href="https://www.zayelle.in/account/orders" class="btn">Track Your Order</a>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Zayelle" <${FROM_EMAIL}>`,
+      to: data.customerEmail,
+      subject: `Your Order ${data.orderId} Has Been Shipped!`,
+      html: baseTemplate(content, "Your Order is on its Way"),
+    });
+    
+    console.log(`Shipping notification sent successfully to ${data.customerEmail}`);
+  } catch (error: any) {
+    console.error(`Shipping notification failed:`, error.message);
+  }
+}
+
 export async function sendAbandonedCartEmail(customerEmail: string, customerName: string, items: any[], type: '30min' | '12hr' | '24hr') {
   const smtpUser = process.env.SMTP_USER;
   if (!smtpUser) return;
