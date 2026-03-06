@@ -40,7 +40,7 @@ export default function AdminDmTestimonialsPage() {
   const fetchTestimonials = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/dm-testimonials");
+      const res = await fetch("/api/admin/dm-testimonials");
       if (res.ok) {
         const data = await res.json();
         setTestimonials(data.testimonials);
@@ -91,7 +91,7 @@ export default function AdminDmTestimonialsPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/letsgetsuccessin2026/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
         setForm((f) => ({ ...f, imageUrl: data.url }));
@@ -117,13 +117,13 @@ export default function AdminDmTestimonialsPage() {
 
       let res;
       if (editingId) {
-        res = await fetch(`/api/letsgetsuccessin2026/dm-testimonials/${editingId}`, {
+        res = await fetch(`/api/admin/dm-testimonials/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch("/api/letsgetsuccessin2026/dm-testimonials", {
+        res = await fetch("/api/admin/dm-testimonials", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -144,7 +144,7 @@ export default function AdminDmTestimonialsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/dm-testimonials/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/dm-testimonials/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Testimonial deleted successfully");
         setDeleteConfirm(null);
@@ -157,7 +157,7 @@ export default function AdminDmTestimonialsPage() {
 
   const handleToggleActive = async (t: DmTestimonial) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/dm-testimonials/${t.id}`, {
+      const res = await fetch(`/api/admin/dm-testimonials/${t.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !t.isActive }),

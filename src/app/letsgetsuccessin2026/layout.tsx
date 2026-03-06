@@ -66,7 +66,7 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/letsgetsuccessin2026/logout", { method: "POST" });
+      await fetch("/api/admin/logout", { method: "POST" });
     } catch {}
     window.location.href = "/letsgetsuccessin2026/login";
   };

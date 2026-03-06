@@ -53,7 +53,7 @@ export default function SiteSettingsPage() {
   const fetchSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/site-settings");
+      const res = await fetch("/api/admin/site-settings");
       if (res.ok) {
         const data = await res.json();
         const map: Record<string, string> = {};
@@ -97,7 +97,7 @@ export default function SiteSettingsPage() {
   }, [fetchSettings]);
 
   const saveSetting = async (key: string, value: string) => {
-    const res = await fetch("/api/letsgetsuccessin2026/site-settings", {
+    const res = await fetch("/api/admin/site-settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key, value }),
@@ -156,7 +156,7 @@ export default function SiteSettingsPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/letsgetsuccessin2026/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
         // Ensure absolute URL for external domains

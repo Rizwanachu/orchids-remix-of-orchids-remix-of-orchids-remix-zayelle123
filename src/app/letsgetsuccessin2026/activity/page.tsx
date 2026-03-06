@@ -22,7 +22,7 @@ export default function AdminActivityPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-      const res = await fetch(`/api/letsgetsuccessin2026/activity?${params}`);
+      const res = await fetch(`/api/admin/activity?${params}`);
       if (res.ok) {
         const data = await res.json();
         setLogs(data.logs);

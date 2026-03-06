@@ -110,7 +110,7 @@ export default function AdminOrdersPage() {
       if (dateFrom) params.set("dateFrom", dateFrom);
       if (dateTo) params.set("dateTo", dateTo);
 
-      const res = await fetch(`/api/letsgetsuccessin2026/orders?${params.toString()}`);
+      const res = await fetch(`/api/admin/orders?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setOrders(data.orders || []);
@@ -134,7 +134,7 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId: number, field: "orderStatus" | "paymentStatus", newValue: string) => {
     setUpdatingStatus(orderId);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/orders/${orderId}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: newValue }),
@@ -192,7 +192,7 @@ export default function AdminOrdersPage() {
     }
     setSavingEdit(true);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/orders/${selectedOrder.id}`, {
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -221,7 +221,7 @@ export default function AdminOrdersPage() {
     if (!selectedOrder) return;
     setSavingTracking(true);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/orders/${selectedOrder.id}`, {
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ trackingNumber, trackingCarrier }),
@@ -247,7 +247,7 @@ export default function AdminOrdersPage() {
     if (dateFrom) params.set("dateFrom", dateFrom);
     if (dateTo) params.set("dateTo", dateTo);
 
-    const res = await fetch(`/api/letsgetsuccessin2026/orders/export?${params.toString()}`);
+    const res = await fetch(`/api/admin/orders/export?${params.toString()}`);
     if (!res.ok) return;
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);

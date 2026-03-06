@@ -44,7 +44,7 @@ export default function AdminNewArrivalsPage() {
   const fetchEntries = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/new-arrivals");
+      const res = await fetch("/api/admin/new-arrivals");
       if (res.ok) {
         const data = await res.json();
         setEntries(data);
@@ -58,7 +58,7 @@ export default function AdminNewArrivalsPage() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/products");
+      const res = await fetch("/api/admin/products");
       if (res.ok) {
         const data = await res.json();
         setAllProducts(data);
@@ -82,7 +82,7 @@ export default function AdminNewArrivalsPage() {
     if (!selectedProductId) return;
     setSaving(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/new-arrivals", {
+      const res = await fetch("/api/admin/new-arrivals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -108,7 +108,7 @@ export default function AdminNewArrivalsPage() {
 
   const handleUpdateOrder = async (id: number, newOrder: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/new-arrivals/${id}`, {
+      const res = await fetch(`/api/admin/new-arrivals/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ displayOrder: newOrder }),
@@ -123,7 +123,7 @@ export default function AdminNewArrivalsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/new-arrivals/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/new-arrivals/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Product removed from new arrivals");
         setDeleteConfirm(null);

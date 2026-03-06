@@ -194,7 +194,7 @@ export default function InvoicePage() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/letsgetsuccessin2026/orders/${params.id}`);
+        const res = await fetch(`/api/admin/orders/${params.id}`);
         if (!res.ok) throw new Error("Order not found");
         const data = await res.json();
         setOrder(data);

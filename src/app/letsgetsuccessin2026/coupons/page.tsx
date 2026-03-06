@@ -47,7 +47,7 @@ export default function AdminCouponsPage() {
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/coupons");
+      const res = await fetch("/api/admin/coupons");
       if (res.ok) {
         const data = await res.json();
         setCoupons(data.coupons);
@@ -109,13 +109,13 @@ export default function AdminCouponsPage() {
 
       let res;
       if (editingId) {
-        res = await fetch(`/api/letsgetsuccessin2026/coupons/${editingId}`, {
+        res = await fetch(`/api/admin/coupons/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch("/api/letsgetsuccessin2026/coupons", {
+        res = await fetch("/api/admin/coupons", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -136,7 +136,7 @@ export default function AdminCouponsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/coupons/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Coupon deleted successfully");
         setDeleteConfirm(null);

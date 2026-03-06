@@ -56,7 +56,7 @@ export default function AdminPageContentsPage() {
   const fetchPages = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/page-contents");
+      const res = await fetch("/api/admin/page-contents");
       if (res.ok) {
         const data = await res.json();
         setPages(data.pages || []);
@@ -107,7 +107,7 @@ export default function AdminPageContentsPage() {
     setSaving(true);
     try {
       if (editingSlug) {
-        const res = await fetch(`/api/letsgetsuccessin2026/page-contents/${editingSlug}`, {
+        const res = await fetch(`/api/admin/page-contents/${editingSlug}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -122,7 +122,7 @@ export default function AdminPageContentsPage() {
           showSuccess("Page updated successfully");
         }
       } else {
-        const res = await fetch("/api/letsgetsuccessin2026/page-contents", {
+        const res = await fetch("/api/admin/page-contents", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
@@ -142,7 +142,7 @@ export default function AdminPageContentsPage() {
 
   const handleDelete = async (slug: string) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/page-contents/${slug}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/page-contents/${slug}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Page deleted successfully");
         fetchPages();
@@ -160,7 +160,7 @@ export default function AdminPageContentsPage() {
       const toCreate = defaultPages.filter((dp) => !existingSlugs.includes(dp.slug));
 
       for (const page of toCreate) {
-        await fetch("/api/letsgetsuccessin2026/page-contents", {
+        await fetch("/api/admin/page-contents", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

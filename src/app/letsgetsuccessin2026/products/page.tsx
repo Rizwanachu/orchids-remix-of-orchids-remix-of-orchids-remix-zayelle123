@@ -260,7 +260,7 @@ export default function AdminProductsPage() {
   const handleBulkDelete = async () => {
     setBulkLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/products/bulk", {
+      const res = await fetch("/api/admin/products/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", ids: Array.from(selectedIds) }),
@@ -280,7 +280,7 @@ export default function AdminProductsPage() {
   const handleBulkSetCategory = async (category: string) => {
     setBulkLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/products/bulk", {
+      const res = await fetch("/api/admin/products/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "set_category", ids: Array.from(selectedIds), category }),
@@ -300,7 +300,7 @@ export default function AdminProductsPage() {
   const handleBulkToggleActive = async () => {
     setBulkLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/products/bulk", {
+      const res = await fetch("/api/admin/products/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "toggle_active", ids: Array.from(selectedIds) }),

@@ -55,7 +55,7 @@ export default function BannersPage() {
 
   const fetchBanners = async () => {
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/banners");
+      const res = await fetch("/api/admin/banners");
       if (res.ok) {
         const data = await res.json();
         setBanners(data);
@@ -77,8 +77,8 @@ export default function BannersPage() {
 
     try {
       const url = editingId
-        ? `/api/letsgetsuccessin2026/banners/${editingId}`
-        : "/api/letsgetsuccessin2026/banners";
+        ? `/api/admin/banners/${editingId}`
+        : "/api/admin/banners";
       const method = editingId ? "PATCH" : "POST";
 
       const res = await fetch(url, {
@@ -119,7 +119,7 @@ export default function BannersPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/banners/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
       if (res.ok) {
         setBanners(banners.filter((b) => b.id !== id));
         setDeleteConfirm(null);
@@ -131,7 +131,7 @@ export default function BannersPage() {
 
   const handleToggleActive = async (banner: Banner) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/banners/${banner.id}`, {
+      const res = await fetch(`/api/admin/banners/${banner.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !banner.isActive }),
@@ -153,7 +153,7 @@ export default function BannersPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/letsgetsuccessin2026/upload", {
+      const res = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData,
       });

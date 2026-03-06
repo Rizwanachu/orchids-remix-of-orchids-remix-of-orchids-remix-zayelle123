@@ -27,7 +27,7 @@ export default function AdminHomepageSettingsPage() {
   const fetchSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/homepage-settings");
+      const res = await fetch("/api/admin/homepage-settings");
       if (res.ok) {
         const data = await res.json();
         setSettings(data.settings || {});
@@ -63,7 +63,7 @@ export default function AdminHomepageSettingsPage() {
         value: settings[key] || "",
       }));
 
-      const res = await fetch("/api/letsgetsuccessin2026/homepage-settings", {
+      const res = await fetch("/api/admin/homepage-settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings: settingsArray }),

@@ -49,7 +49,7 @@ export default function AdminZayelleEditPage() {
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/zayelle-edit");
+      const res = await fetch("/api/admin/zayelle-edit");
       if (res.ok) {
         const data = await res.json();
         setItems(data);
@@ -103,7 +103,7 @@ export default function AdminZayelleEditPage() {
     try {
       const formData = new window.FormData();
       formData.append("file", file);
-      const res = await fetch("/api/letsgetsuccessin2026/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
         setForm((prev) => ({ ...prev, imageUrl: data.url }));
@@ -129,7 +129,7 @@ export default function AdminZayelleEditPage() {
       };
 
       if (editingId) {
-        const res = await fetch(`/api/letsgetsuccessin2026/zayelle-edit/${editingId}`, {
+        const res = await fetch(`/api/admin/zayelle-edit/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -138,7 +138,7 @@ export default function AdminZayelleEditPage() {
           showSuccess("Item updated successfully");
         }
       } else {
-        const res = await fetch("/api/letsgetsuccessin2026/zayelle-edit", {
+        const res = await fetch("/api/admin/zayelle-edit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -158,7 +158,7 @@ export default function AdminZayelleEditPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/zayelle-edit/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/zayelle-edit/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Item deleted successfully");
         fetchItems();

@@ -29,7 +29,7 @@ export default function AdminReviewsPage() {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/reviews?status=${filter}`);
+      const res = await fetch(`/api/admin/reviews?status=${filter}`);
       if (res.ok) {
         const data = await res.json();
         setReviews(data.reviews);
@@ -50,7 +50,7 @@ export default function AdminReviewsPage() {
   const updateStatus = async (id: number, status: string) => {
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/reviews/${id}`, {
+      const res = await fetch(`/api/admin/reviews/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -69,7 +69,7 @@ export default function AdminReviewsPage() {
     if (!confirm("Are you sure you want to delete this review?")) return;
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/reviews/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });
       if (res.ok) {
         fetchReviews();
       }

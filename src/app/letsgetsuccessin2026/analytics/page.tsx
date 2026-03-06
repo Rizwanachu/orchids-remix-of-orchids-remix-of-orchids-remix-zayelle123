@@ -79,7 +79,7 @@ export default function AnalyticsPage() {
     if (from) params.set("dateFrom", from);
     if (to) params.set("dateTo", to);
     const qs = params.toString();
-    fetch(`/api/letsgetsuccessin2026/analytics${qs ? `?${qs}` : ""}`)
+    fetch(`/api/admin/analytics${qs ? `?${qs}` : ""}`)
       .then((res) => res.json())
       .then((d) => {
         setData(d);

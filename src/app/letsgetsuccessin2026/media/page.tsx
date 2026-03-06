@@ -21,7 +21,7 @@ export default function MediaPage() {
 
   const fetchFiles = async () => {
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/media");
+      const res = await fetch("/api/admin/media");
       if (res.ok) {
         const data = await res.json();
         setFiles(data);
@@ -47,7 +47,7 @@ export default function MediaPage() {
         const formData = new FormData();
         formData.append("file", fileList[i]);
 
-        await fetch("/api/letsgetsuccessin2026/upload", {
+        await fetch("/api/admin/upload", {
           method: "POST",
           body: formData,
         });
@@ -63,7 +63,7 @@ export default function MediaPage() {
 
   const handleDelete = async (filename: string) => {
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/media", {
+      const res = await fetch("/api/admin/media", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename }),

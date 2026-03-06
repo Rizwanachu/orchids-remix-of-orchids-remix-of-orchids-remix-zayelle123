@@ -61,7 +61,7 @@ export default function AdminGiftHampersPage() {
   const fetchHampers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/gift-hampers");
+      const res = await fetch("/api/admin/gift-hampers");
       if (res.ok) {
         const data = await res.json();
         setHampers(data.hampers);
@@ -75,7 +75,7 @@ export default function AdminGiftHampersPage() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/products");
+      const res = await fetch("/api/admin/products");
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || []);
@@ -129,7 +129,7 @@ export default function AdminGiftHampersPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/letsgetsuccessin2026/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
         setForm((f) => ({ ...f, imageUrl: data.url }));
@@ -168,13 +168,13 @@ export default function AdminGiftHampersPage() {
 
       let res;
       if (editingId) {
-        res = await fetch(`/api/letsgetsuccessin2026/gift-hampers/${editingId}`, {
+        res = await fetch(`/api/admin/gift-hampers/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch("/api/letsgetsuccessin2026/gift-hampers", {
+        res = await fetch("/api/admin/gift-hampers", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -195,7 +195,7 @@ export default function AdminGiftHampersPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/gift-hampers/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/gift-hampers/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Gift hamper deleted successfully");
         setDeleteConfirm(null);
@@ -208,7 +208,7 @@ export default function AdminGiftHampersPage() {
 
   const handleToggleActive = async (hamper: GiftHamper) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/gift-hampers/${hamper.id}`, {
+      const res = await fetch(`/api/admin/gift-hampers/${hamper.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !hamper.isActive }),

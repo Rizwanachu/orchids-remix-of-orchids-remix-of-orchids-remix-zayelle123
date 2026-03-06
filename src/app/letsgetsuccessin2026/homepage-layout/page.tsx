@@ -32,7 +32,7 @@ export default function AdminHomepageLayoutPage() {
   const fetchSections = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/homepage-layout");
+      const res = await fetch("/api/admin/homepage-layout");
       if (res.ok) {
         const data = await res.json();
         if (data.sections && data.sections.length > 0) {
@@ -106,7 +106,7 @@ export default function AdminHomepageLayoutPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/homepage-layout", {
+      const res = await fetch("/api/admin/homepage-layout", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sections }),

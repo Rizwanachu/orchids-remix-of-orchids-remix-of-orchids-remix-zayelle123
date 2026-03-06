@@ -21,7 +21,7 @@ export default function ThemeSettingsPage() {
   });
 
   useEffect(() => {
-    fetch("/api/letsgetsuccessin2026/theme-settings")
+    fetch("/api/admin/theme-settings")
       .then((res) => res.json())
       .then((data) => {
         if (data.id) {
@@ -46,7 +46,7 @@ export default function ThemeSettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/theme-settings", {
+      const res = await fetch("/api/admin/theme-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),

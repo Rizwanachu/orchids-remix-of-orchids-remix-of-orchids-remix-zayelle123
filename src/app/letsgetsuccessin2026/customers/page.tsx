@@ -58,7 +58,7 @@ export default function AdminCustomersPage() {
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (search) params.set("search", search);
-      const res = await fetch(`/api/letsgetsuccessin2026/customers?${params}`);
+      const res = await fetch(`/api/admin/customers?${params}`);
       if (res.ok) {
         const data = await res.json();
         setCustomers(data.customers);
@@ -92,7 +92,7 @@ export default function AdminCustomersPage() {
     if (!editCustomer?.userId) return;
     setEditSaving(true);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/customers/${editCustomer.userId}`, {
+      const res = await fetch(`/api/admin/customers/${editCustomer.userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -112,7 +112,7 @@ export default function AdminCustomersPage() {
     if (!deleteCustomer?.userId) return;
     setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/customers/${deleteCustomer.userId}`, {
+      const res = await fetch(`/api/admin/customers/${deleteCustomer.userId}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -131,7 +131,7 @@ export default function AdminCustomersPage() {
     setViewCustomer(customer);
     setOrdersLoading(true);
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/customers/${customer.userId}`);
+      const res = await fetch(`/api/admin/customers/${customer.userId}`);
       if (res.ok) {
         const data = await res.json();
         setCustomerOrders(data.orders || []);

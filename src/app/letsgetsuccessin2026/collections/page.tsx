@@ -61,7 +61,7 @@ export default function AdminCollectionsPage() {
   const fetchCollections = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/letsgetsuccessin2026/collections");
+      const res = await fetch("/api/admin/collections");
       if (res.ok) {
         const data = await res.json();
         setCollections(data.collections);
@@ -125,7 +125,7 @@ export default function AdminCollectionsPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/letsgetsuccessin2026/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (res.ok) {
         setForm((prev) => ({ ...prev, imageUrl: data.url }));
@@ -158,13 +158,13 @@ export default function AdminCollectionsPage() {
 
       let res;
       if (editingId) {
-        res = await fetch(`/api/letsgetsuccessin2026/collections/${editingId}`, {
+        res = await fetch(`/api/admin/collections/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        res = await fetch("/api/letsgetsuccessin2026/collections", {
+        res = await fetch("/api/admin/collections", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -185,7 +185,7 @@ export default function AdminCollectionsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/letsgetsuccessin2026/collections/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/collections/${id}`, { method: "DELETE" });
       if (res.ok) {
         showSuccess("Collection deleted!");
         setDeleteConfirm(null);

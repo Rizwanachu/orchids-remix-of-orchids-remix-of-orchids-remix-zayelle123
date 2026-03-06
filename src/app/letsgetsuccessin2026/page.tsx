@@ -69,9 +69,9 @@ export default function AdminDashboard() {
     async function fetchData() {
       try {
         const [analyticsRes, ordersRes, customersRes] = await Promise.all([
-          fetch("/api/letsgetsuccessin2026/analytics"),
-          fetch("/api/letsgetsuccessin2026/orders?limit=5"),
-          fetch("/api/letsgetsuccessin2026/customers?limit=1"),
+          fetch("/api/admin/analytics"),
+          fetch("/api/admin/orders?limit=5"),
+          fetch("/api/admin/customers?limit=1"),
         ]);
 
         if (analyticsRes.ok) {
