@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json(activeBanners);
   } catch (error: any) {
     console.error("Error fetching banners:", error);
-    return NextResponse.json({ error: "Failed to fetch banners" }, { status: 500 });
+    return NextResponse.json([]);
   }
 }

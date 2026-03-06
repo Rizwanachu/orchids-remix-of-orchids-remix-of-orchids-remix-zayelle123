@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json(items);
   } catch (error: any) {
     console.error("Error fetching zayelle edits:", error);
-    return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
+    return NextResponse.json([]);
   }
 }

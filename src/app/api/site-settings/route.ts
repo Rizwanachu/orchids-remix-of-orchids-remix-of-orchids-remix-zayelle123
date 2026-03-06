@@ -12,6 +12,6 @@ export async function GET() {
     return NextResponse.json(map);
   } catch (error) {
     console.error("Error fetching site settings:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({});
   }
 }

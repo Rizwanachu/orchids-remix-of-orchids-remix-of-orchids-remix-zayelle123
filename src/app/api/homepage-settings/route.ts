@@ -12,6 +12,6 @@ export async function GET() {
     return NextResponse.json(settingsMap);
   } catch (error) {
     console.error("Error fetching homepage settings:", error);
-    return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
+    return NextResponse.json({});
   }
 }

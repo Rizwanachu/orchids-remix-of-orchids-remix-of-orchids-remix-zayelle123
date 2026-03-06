@@ -13,6 +13,6 @@ export async function GET() {
     return NextResponse.json({ hampers: list });
   } catch (error) {
     console.error("Error fetching gift hampers:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ hampers: [] });
   }
 }
