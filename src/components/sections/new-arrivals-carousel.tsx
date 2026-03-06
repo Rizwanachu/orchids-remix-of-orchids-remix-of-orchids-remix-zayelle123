@@ -217,7 +217,7 @@ export default function NewArrivalsCarousel() {
 
         <div className="mt-10 text-center">
           <a 
-            href="/collections/all" 
+            href="/new-arrivals" 
             className="inline-flex items-center gap-2 text-[14px] font-medium text-foreground hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-1"
           >
             View All
