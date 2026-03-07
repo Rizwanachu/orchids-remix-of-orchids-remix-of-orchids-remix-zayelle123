@@ -4,6 +4,7 @@
 - E-commerce platform with admin panel.
 - JWT-based admin authentication.
 - PostgreSQL database with Drizzle ORM.
+- Contact form saves messages to `contact_messages` table.
 
 ## Admin Authentication
 - Login at `/letsgetsuccessin2026/login`.
@@ -17,6 +18,7 @@
 - Media and data are stored in the PostgreSQL database.
 - Database tables initialized using `drizzle-kit push`.
 - API routes updated with error handling to prevent frontend crashes when data is missing.
+- Product images stored as URLs (`/api/media/serve/filename`) pointing to media table, NOT as base64 strings.
 
 ## Admin Panel - Products
 - Product image upload uses server-side upload via `/api/admin/upload` (not base64 encoding).
@@ -29,6 +31,10 @@
 - Position options: Hero (horizontal/wide), Mid Left (square/vertical), Mid Right (square/vertical).
 - Form shows error/success messages for uploads and save operations.
 - Image preview uses `object-contain` to show any aspect ratio.
+
+## Performance Notes
+- All product images migrated from base64 to media URLs (March 2026). API response dropped from 25-74s to <200ms.
+- Migration script at `scripts/migrate-base64-images.ts` can be re-run safely (skips products already using URLs).
 
 ## Deployment
 - Deployed on Vercel.

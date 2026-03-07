@@ -65,7 +65,6 @@ export default function SiteSettingsPage() {
         setAnnouncementText(map["header_announcement_text"] || "");
         setAnnouncementEnabled(map["header_announcement_enabled"] === "true");
         setLogoUrl(map["header_logo_url"] || "");
-        console.log("Admin Settings Logo URL:", map["header_logo_url"]); // Debugging line
         setSearchPlaceholder(map["header_search_placeholder"] || "");
         try {
           setNavItems(JSON.parse(map["header_nav_items"] || "[]"));

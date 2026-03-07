@@ -61,7 +61,6 @@ const Header = () => {
     return cmsSettings.header_logo_url || "/logo.png";
   }, [cmsSettings.header_logo_url]);
   
-  console.log("Header Logo URL:", logoUrl); // Debugging line
   const searchPlaceholder = cmsSettings.header_search_placeholder || "Search Hijabs, Satin Scarves, Undercaps...";
   const announcementEnabled = cmsSettings.header_announcement_enabled === "true";
   const announcementText = cmsSettings.header_announcement_text || "";

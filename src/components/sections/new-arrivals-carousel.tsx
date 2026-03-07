@@ -92,6 +92,7 @@ export default function NewArrivalsCarousel() {
   const [sectionTitle, setSectionTitle] = useState("New Arrivals");
   const [sectionSubtitle, setSectionSubtitle] = useState("Designed for comfort. Crafted for elegance.");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [slidesPerView, setSlidesPerView] = useState(1);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
@@ -121,6 +122,15 @@ export default function NewArrivalsCarousel() {
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
   }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    const updateSlidesPerView = () => {
+      setSlidesPerView(window.innerWidth >= 1024 ? 4 : 1);
+    };
+    updateSlidesPerView();
+    window.addEventListener("resize", updateSlidesPerView);
+    return () => window.removeEventListener("resize", updateSlidesPerView);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -202,12 +212,12 @@ export default function NewArrivalsCarousel() {
         </div>
 
         <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: Math.ceil(products.length / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 4 : 1)) }).map((_, index) => (
+          {Array.from({ length: Math.ceil(products.length / slidesPerView) }).map((_, index) => (
             <button
               key={index}
-              onClick={() => emblaApi?.scrollTo(index * (window.innerWidth >= 1024 ? 4 : 1))}
+              onClick={() => emblaApi?.scrollTo(index * slidesPerView)}
               className={`transition-all duration-300 rounded-full ${
-                Math.floor(selectedIndex / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 4 : 1)) === index 
+                Math.floor(selectedIndex / slidesPerView) === index 
                   ? "w-4 h-2 bg-primary" 
                   : "w-2 h-2 bg-border"
               }`}

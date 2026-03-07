@@ -16,10 +16,30 @@ export default function ContactPage() {
       .catch(() => {});
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Thank you for your message! We'll get back to you within 24 hours.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setSubmitting(true);
+    setSubmitStatus("idle");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send message");
+      }
+      setSubmitStatus("success");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      setSubmitStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -50,7 +70,7 @@ export default function ContactPage() {
               <div className="space-y-6">
                 {[
                   { icon: Mail, label: "Email", value: "zayelle.in@gmail.com", href: "mailto:zayelle.in@gmail.com" },
-                  { icon: Phone, label: "WhatsApp", value: "+91 8891485648", href: "https://wa.me/918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648" },
+                  { icon: Phone, label: "WhatsApp", value: "+91 8891485648", href: "https://wa.me/918891485648" },
                   { icon: Clock, label: "Working Hours", value: "Mon - Sat | 10 AM - 6 PM", href: null },
                   { icon: MapPin, label: "Location", value: "India", href: null },
                 ].map((item) => (
@@ -127,12 +147,23 @@ export default function ContactPage() {
                     placeholder="Your message..."
                   />
                 </div>
+                {submitStatus === "success" && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-sm text-green-800 text-[14px]">
+                    Thank you for your message! We&apos;ll get back to you within 24 hours.
+                  </div>
+                )}
+                {submitStatus === "error" && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-sm text-red-800 text-[14px]">
+                    Something went wrong. Please try again or reach out via WhatsApp.
+                  </div>
+                )}
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center gap-2 bg-[#5C4B3D] text-white px-8 py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors"
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center gap-2 bg-[#5C4B3D] text-white px-8 py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-50"
                 >
                   <Send size={14} />
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
                 </button>
               </form>
             </div>
