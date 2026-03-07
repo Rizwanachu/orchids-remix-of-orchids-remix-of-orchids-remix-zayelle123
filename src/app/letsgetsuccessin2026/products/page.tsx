@@ -62,6 +62,8 @@ interface ProductFormData {
   lowStockThreshold: string;
   shippingCost: string;
   isFreeShipping: boolean;
+  shippingPolicy: string;
+  returnPolicy: string;
 }
 
 const emptyForm: ProductFormData = {
@@ -83,6 +85,8 @@ const emptyForm: ProductFormData = {
   lowStockThreshold: "10",
   shippingCost: "49",
   isFreeShipping: false,
+  shippingPolicy: "",
+  returnPolicy: "",
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -105,6 +109,8 @@ function toFormData(product: Product): ProductFormData {
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
     shippingCost: (product as any).shippingCost?.toString() ?? "49",
     isFreeShipping: (product as any).isFreeShipping ?? false,
+    shippingPolicy: (product as any).shippingPolicy || "",
+    returnPolicy: (product as any).returnPolicy || "",
   };
 }
 
@@ -133,6 +139,35 @@ export default function AdminProductsPage() {
   const [bulkCategoryOpen, setBulkCategoryOpen] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [showMediaPicker, setShowMediaPicker] = useState<"image" | "hoverImage" | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | null>(null);
+
+  const handleImageUpload = async (file: File, field: "image" | "hoverImage") => {
+    setUploadingImage(field);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        updateField(field, data.url);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setErrorMessage(errData.error || "Failed to upload image. Please try again.");
+        setTimeout(() => setErrorMessage(""), 5000);
+      }
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      setErrorMessage("Failed to upload image. Please try again.");
+      setTimeout(() => setErrorMessage(""), 5000);
+    } finally {
+      setUploadingImage(null);
+    }
+  };
 
   useEffect(() => {
     if (!isLoading) {
@@ -183,7 +218,19 @@ export default function AdminProductsPage() {
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.price || !form.image || !form.description) return;
+    const missing: string[] = [];
+    if (!form.name) missing.push("Product Name");
+    if (!form.price) missing.push("Price");
+    if (!form.image) missing.push("Main Image");
+    if (!form.description) missing.push("Description");
+    if (missing.length > 0) {
+      setErrorMessage(`Please fill in the required fields: ${missing.join(", ")}`);
+      setTimeout(() => setErrorMessage(""), 5000);
+      return;
+    }
+
+    setSaving(true);
+    setErrorMessage("");
 
     const handle = form.handle || generateHandle(form.name);
     const productData = {
@@ -219,9 +266,12 @@ export default function AdminProductsPage() {
         showSuccess("Product updated successfully");
       }
       handleCancel();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Save failed:", error);
-      alert("Failed to save product. Please check the console for details.");
+      setErrorMessage(error.message || "Failed to save product. Please try again.");
+      setTimeout(() => setErrorMessage(""), 5000);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -571,19 +621,18 @@ export default function AdminProductsPage() {
                       className="flex-1 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                       placeholder="Paste URL or upload file"
                     />
-                    <label className="flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] cursor-pointer transition-colors bg-white flex-shrink-0">
+                    <label className={`flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] cursor-pointer transition-colors bg-white flex-shrink-0 ${uploadingImage === "image" ? "opacity-50 pointer-events-none" : ""}`}>
                       <Upload size={14} />
-                      Upload
+                      {uploadingImage === "image" ? "Uploading..." : "Upload"}
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={uploadingImage === "image"}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = () => updateField("image", reader.result as string);
-                          reader.readAsDataURL(file);
+                          handleImageUpload(file, "image");
                           e.target.value = "";
                         }}
                       />
@@ -615,19 +664,18 @@ export default function AdminProductsPage() {
                       className="flex-1 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                       placeholder="Paste URL or upload file"
                     />
-                    <label className="flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] cursor-pointer transition-colors bg-white flex-shrink-0">
+                    <label className={`flex items-center gap-1.5 h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] cursor-pointer transition-colors bg-white flex-shrink-0 ${uploadingImage === "hoverImage" ? "opacity-50 pointer-events-none" : ""}`}>
                       <Upload size={14} />
-                      Upload
+                      {uploadingImage === "hoverImage" ? "Uploading..." : "Upload"}
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={uploadingImage === "hoverImage"}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = () => updateField("hoverImage", reader.result as string);
-                          reader.readAsDataURL(file);
+                          handleImageUpload(file, "hoverImage");
                           e.target.value = "";
                         }}
                       />
@@ -704,14 +752,20 @@ export default function AdminProductsPage() {
               </div>
             </div>
 
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-sm text-[13px] text-red-700">
+                {errorMessage}
+              </div>
+            )}
+
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleSave}
-                disabled={!form.name || !form.price || !form.image || !form.description}
+                disabled={saving || uploadingImage !== null}
                 className="flex items-center gap-2 bg-[#5C4B3D] text-white px-6 py-3 rounded-sm text-[13px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Save size={14} />
-                {isAdding ? "Add Product" : "Save Changes"}
+                {saving ? "Saving..." : isAdding ? "Add Product" : "Save Changes"}
               </button>
               <button
                 onClick={handleCancel}

@@ -52,6 +52,8 @@ export default function BannersPage() {
   const [uploading, setUploading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const fetchBanners = async () => {
     try {
@@ -73,6 +75,13 @@ export default function BannersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+
+    if (!form.imageUrl) {
+      setErrorMessage("Please upload or select a banner image.");
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -91,10 +100,16 @@ export default function BannersPage() {
         setShowForm(false);
         setEditingId(null);
         setForm(emptyForm);
+        setSuccessMessage(editingId ? "Banner updated successfully" : "Banner created successfully");
+        setTimeout(() => setSuccessMessage(""), 3000);
         fetchBanners();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setErrorMessage(errData.error || "Failed to save banner. Please try again.");
       }
     } catch (error) {
       console.error("Failed to save banner:", error);
+      setErrorMessage("Failed to save banner. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -114,6 +129,7 @@ export default function BannersPage() {
       subtitleColor: banner.subtitleColor || "#5C4B3D",
     });
     setEditingId(banner.id);
+    setErrorMessage("");
     setShowForm(true);
   };
 
@@ -149,6 +165,7 @@ export default function BannersPage() {
     if (!file) return;
 
     setUploading(true);
+    setErrorMessage("");
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -161,9 +178,13 @@ export default function BannersPage() {
       if (res.ok) {
         const data = await res.json();
         setForm({ ...form, imageUrl: data.url });
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setErrorMessage(errData.error || "Failed to upload image. Make sure the file is under 10MB and is a valid image format (JPEG, PNG, WebP, GIF).");
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
+      setErrorMessage("Failed to upload image. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -195,6 +216,18 @@ export default function BannersPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+      {successMessage && (
+        <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg text-[13px] text-green-700">
+          {successMessage}
+        </div>
+      )}
+
+      {errorMessage && !showForm && (
+        <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-[28px] font-serif font-semibold text-[#1A1A1A]">
@@ -208,6 +241,7 @@ export default function BannersPage() {
           onClick={() => {
             setForm(emptyForm);
             setEditingId(null);
+            setErrorMessage("");
             setShowForm(true);
           }}
           className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"
@@ -236,6 +270,11 @@ export default function BannersPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-700">
+                {errorMessage}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
@@ -305,10 +344,13 @@ export default function BannersPage() {
                   }
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 >
-                  <option value="hero">Hero</option>
-                  <option value="mid-left">Mid Left</option>
-                  <option value="mid-right">Mid Right</option>
+                  <option value="hero">Hero (Horizontal / Wide)</option>
+                  <option value="mid-left">Mid Left (Square / Vertical)</option>
+                  <option value="mid-right">Mid Right (Square / Vertical)</option>
                 </select>
+                <p className="text-[11px] text-[#757575] mt-1">
+                  Hero: wide horizontal banner. Mid Left/Right: square or vertical promo banners. Any image orientation is accepted.
+                </p>
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
@@ -395,8 +437,11 @@ export default function BannersPage() {
 
             <div>
               <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
-                Image
+                Banner Image *
               </label>
+              <p className="text-[11px] text-[#757575] mb-2">
+                Upload any image - square, vertical, or horizontal. It will be displayed according to the selected position.
+              </p>
               <div className="flex items-center gap-4">
                 <input
                   type="text"
@@ -407,7 +452,7 @@ export default function BannersPage() {
                   placeholder="Image URL"
                   className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
-                <label className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] cursor-pointer transition-colors">
+                <label className={`flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] cursor-pointer transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
                   <Upload size={14} />
                   {uploading ? "Uploading..." : "Upload"}
                   <input
@@ -428,12 +473,13 @@ export default function BannersPage() {
                 </button>
               </div>
               {form.imageUrl && (
-                <div className="mt-3 relative w-40 h-24 rounded-lg overflow-hidden border border-[#E8E4DE]">
+                <div className="mt-3 relative w-40 h-40 rounded-lg overflow-hidden border border-[#E8E4DE]">
                   <Image
                     src={form.imageUrl}
                     alt="Preview"
                     fill
-                    className="object-cover"
+                    className="object-contain"
+                    sizes="160px"
                   />
                 </div>
               )}

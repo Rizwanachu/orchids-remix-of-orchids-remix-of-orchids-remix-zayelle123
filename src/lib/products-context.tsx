@@ -71,12 +71,13 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const updated = await res.json();
         setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to update product");
       }
     } catch (error) {
       console.error("Failed to update product:", error);
-      setProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
-      );
+      throw error;
     }
   }, []);
 

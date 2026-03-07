@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { db } from "@/../server/db";
 import { media } from "@/../shared/schema";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
 export async function POST(request: NextRequest) {

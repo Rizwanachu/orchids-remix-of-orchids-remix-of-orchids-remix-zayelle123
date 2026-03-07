@@ -18,6 +18,18 @@
 - Database tables initialized using `drizzle-kit push`.
 - API routes updated with error handling to prevent frontend crashes when data is missing.
 
+## Admin Panel - Products
+- Product image upload uses server-side upload via `/api/admin/upload` (not base64 encoding).
+- Save button shows loading state and validation errors for missing required fields.
+- Form includes shippingPolicy and returnPolicy text fields (UI only, not yet in DB schema).
+- Products context (`src/lib/products-context.tsx`) properly throws errors on failed API calls.
+
+## Admin Panel - Banners
+- Banner image upload limit: 10MB (via `/api/admin/upload`).
+- Position options: Hero (horizontal/wide), Mid Left (square/vertical), Mid Right (square/vertical).
+- Form shows error/success messages for uploads and save operations.
+- Image preview uses `object-contain` to show any aspect ratio.
+
 ## Deployment
 - Deployed on Vercel.
 - Ensure `DATABASE_URL` and `JWT_SECRET` environment variables are set in Vercel.
