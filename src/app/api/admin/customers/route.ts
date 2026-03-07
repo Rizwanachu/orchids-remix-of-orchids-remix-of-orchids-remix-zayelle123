@@ -109,8 +109,8 @@ export async function GET(request: NextRequest) {
     }
 
     customersList.sort((a, b) => {
-      const dateA = a.lastOrderDate?.getTime() || 0;
-      const dateB = b.lastOrderDate?.getTime() || 0;
+      const dateA = a.lastOrderDate ? new Date(a.lastOrderDate).getTime() : 0;
+      const dateB = b.lastOrderDate ? new Date(b.lastOrderDate).getTime() : 0;
       return dateB - dateA;
     });
 

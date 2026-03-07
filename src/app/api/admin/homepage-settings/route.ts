@@ -42,7 +42,7 @@ export async function PUT(request: Request) {
         .values({ key, value })
         .onConflictDoUpdate({
           target: homepageSettings.key,
-          set: { value, updatedAt: new Date() },
+          set: { value, updatedAt: new Date().toISOString() },
         });
     }
 

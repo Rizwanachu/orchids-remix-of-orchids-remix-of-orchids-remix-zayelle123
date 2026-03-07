@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
     const dateConditions = [];
     dateConditions.push(eq(orders.paymentStatus, "paid"));
     if (dateFrom) {
-      dateConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+      dateConditions.push(gte(orders.createdAt, dateFrom));
     }
     if (dateTo) {
       const toDate = new Date(dateTo);
       toDate.setHours(23, 59, 59, 999);
-      dateConditions.push(lte(orders.createdAt, toDate));
+      dateConditions.push(lte(orders.createdAt, toDate.toISOString()));
     }
 
     const summaryWhere = and(...dateConditions);
@@ -37,16 +37,16 @@ export async function GET(request: NextRequest) {
 
     const dateFilterConditions = [];
     if (dateFrom) {
-      dateFilterConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+      dateFilterConditions.push(gte(orders.createdAt, dateFrom));
     } else {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      dateFilterConditions.push(gte(orders.createdAt, sevenDaysAgo));
+      dateFilterConditions.push(gte(orders.createdAt, sevenDaysAgo.toISOString()));
     }
     if (dateTo) {
       const toDate = new Date(dateTo);
       toDate.setHours(23, 59, 59, 999);
-      dateFilterConditions.push(lte(orders.createdAt, toDate));
+      dateFilterConditions.push(lte(orders.createdAt, toDate.toISOString()));
     }
 
     const dailyWhere = dateFilterConditions.length > 0 ? and(...dateFilterConditions) : undefined;
@@ -64,16 +64,16 @@ export async function GET(request: NextRequest) {
 
     const monthlyFilterConditions = [];
     if (dateFrom) {
-      monthlyFilterConditions.push(gte(orders.createdAt, new Date(dateFrom)));
+      monthlyFilterConditions.push(gte(orders.createdAt, dateFrom));
     } else {
       const twelveMonthsAgo = new Date();
       twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
-      monthlyFilterConditions.push(gte(orders.createdAt, twelveMonthsAgo));
+      monthlyFilterConditions.push(gte(orders.createdAt, twelveMonthsAgo.toISOString()));
     }
     if (dateTo) {
       const toDate = new Date(dateTo);
       toDate.setHours(23, 59, 59, 999);
-      monthlyFilterConditions.push(lte(orders.createdAt, toDate));
+      monthlyFilterConditions.push(lte(orders.createdAt, toDate.toISOString()));
     }
 
     const monthlyWhere = monthlyFilterConditions.length > 0 ? and(...monthlyFilterConditions) : undefined;
