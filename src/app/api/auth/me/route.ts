@@ -5,18 +5,21 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_s
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get("user_token")?.value;
+    const userToken = request.cookies.get("user_token")?.value;
+    const adminToken = request.cookies.get("admin_token")?.value;
 
-    if (!token) {
+    if (!userToken && !adminToken) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const token = adminToken || userToken;
+    const { payload } = await jwtVerify(token!, JWT_SECRET);
 
     return NextResponse.json({
       user: {
+        id: payload.id,
         email: payload.email as string,
-        name: payload.name as string,
+        name: (payload.name as string) || (payload.email as string).split("@")[0],
         isAdmin: payload.role === "admin",
       },
     });

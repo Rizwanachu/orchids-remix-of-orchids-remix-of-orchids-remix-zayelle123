@@ -137,7 +137,8 @@ export default function AdminProductsPage() {
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.push("/letsgetsuccessin2026/login");
+        // Only redirect if no user at all, but middleware should handle this too
+        // router.push("/letsgetsuccessin2026/login");
       } else if (!user.isAdmin) {
         router.push("/");
       }
