@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     
     response.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true, // Always use secure cookies for auth tokens if possible, or at least in prod
       sameSite: "lax",
       maxAge: 60 * 60 * 24,
       path: "/",
