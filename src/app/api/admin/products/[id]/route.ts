@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
-import { products } from "@/../shared/schema";
+import { products, newArrivals, reviews } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-logger";
@@ -81,7 +81,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   try {
     const { id } = await params;
-    const [deleted] = await db.delete(products).where(eq(products.id, parseInt(id))).returning();
+    const productId = parseInt(id);
+    await db.delete(newArrivals).where(eq(newArrivals.productId, productId));
+    await db.delete(reviews).where(eq(reviews.productId, productId));
+    const [deleted] = await db.delete(products).where(eq(products.id, productId)).returning();
 
     if (!deleted) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
