@@ -24,6 +24,7 @@ export async function GET() {
       stockQuantity: p.stockQuantity,
       lowStockThreshold: p.lowStockThreshold,
       shippingCost: Number(p.shippingCost),
+      shippingCostKerala: Number(p.shippingCostKerala),
       isFreeShipping: p.isFreeShipping,
       gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     }));

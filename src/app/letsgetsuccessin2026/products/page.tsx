@@ -51,6 +51,7 @@ interface ProductFormData {
   stockQuantity: string;
   lowStockThreshold: string;
   shippingCost: string;
+  shippingCostKerala: string;
   isFreeShipping: boolean;
   shippingPolicy: string;
   returnPolicy: string;
@@ -75,6 +76,7 @@ const emptyForm: ProductFormData = {
   stockQuantity: "100",
   lowStockThreshold: "10",
   shippingCost: "49",
+  shippingCostKerala: "49",
   isFreeShipping: false,
   shippingPolicy: "",
   returnPolicy: "",
@@ -100,6 +102,7 @@ function toFormData(product: Product): ProductFormData {
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
     shippingCost: (product as any).shippingCost?.toString() ?? "49",
+    shippingCostKerala: (product as any).shippingCostKerala?.toString() ?? "49",
     isFreeShipping: (product as any).isFreeShipping ?? false,
     shippingPolicy: (product as any).shippingPolicy || "",
     returnPolicy: (product as any).returnPolicy || "",
@@ -424,6 +427,7 @@ export default function AdminProductsPage() {
       stockQuantity: form.stockQuantity ? Number(form.stockQuantity) : 100,
       lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : 10,
       shippingCost: Number(form.shippingCost),
+      shippingCostKerala: Number(form.shippingCostKerala),
       isFreeShipping: form.isFreeShipping,
       gallery: form.gallery,
     };
@@ -758,18 +762,33 @@ export default function AdminProductsPage() {
                   </label>
 
                   {!form.isFreeShipping && (
-                    <div className="max-w-[200px]">
-                      <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                        Delivery Charge (Rs.)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={form.shippingCost}
-                        onChange={(e) => updateField("shippingCost", e.target.value)}
-                        className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                        placeholder="49"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                          Within Kerala (Rs.)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={form.shippingCostKerala}
+                          onChange={(e) => updateField("shippingCostKerala", e.target.value)}
+                          className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                          placeholder="49"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                          Outside Kerala (Rs.)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={form.shippingCost}
+                          onChange={(e) => updateField("shippingCost", e.target.value)}
+                          className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                          placeholder="49"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

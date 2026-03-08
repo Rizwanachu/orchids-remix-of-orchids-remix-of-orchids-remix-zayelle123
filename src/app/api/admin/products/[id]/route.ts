@@ -33,6 +33,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.stockQuantity !== undefined) updateData.stockQuantity = body.stockQuantity;
     if (body.lowStockThreshold !== undefined) updateData.lowStockThreshold = body.lowStockThreshold;
     if (body.shippingCost !== undefined) updateData.shippingCost = String(body.shippingCost);
+    if (body.shippingCostKerala !== undefined) updateData.shippingCostKerala = String(body.shippingCostKerala);
     if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping;
     if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
     if (body.active !== undefined) updateData.active = body.active;
@@ -64,6 +65,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       stockQuantity: updated.stockQuantity,
       lowStockThreshold: updated.lowStockThreshold,
       shippingCost: Number(updated.shippingCost),
+      shippingCostKerala: Number(updated.shippingCostKerala),
       isFreeShipping: updated.isFreeShipping,
       gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
     });

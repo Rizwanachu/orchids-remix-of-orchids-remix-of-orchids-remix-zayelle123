@@ -31,6 +31,7 @@ export async function GET() {
     stockQuantity: p.stockQuantity,
     lowStockThreshold: p.lowStockThreshold,
     shippingCost: Number(p.shippingCost),
+    shippingCostKerala: Number(p.shippingCostKerala),
     isFreeShipping: p.isFreeShipping,
     gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     active: p.active,
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
       stockQuantity: body.stockQuantity ?? 100,
       lowStockThreshold: body.lowStockThreshold ?? 10,
       shippingCost: body.shippingCost != null ? String(body.shippingCost) : "49",
+      shippingCostKerala: body.shippingCostKerala != null ? String(body.shippingCostKerala) : "49",
       isFreeShipping: body.isFreeShipping ?? false,
       gallery: Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null,
     }).returning();
@@ -96,6 +98,7 @@ export async function POST(request: NextRequest) {
       stockQuantity: newProduct.stockQuantity,
       lowStockThreshold: newProduct.lowStockThreshold,
       shippingCost: Number(newProduct.shippingCost),
+      shippingCostKerala: Number(newProduct.shippingCostKerala),
       isFreeShipping: newProduct.isFreeShipping,
       gallery: (() => { try { return newProduct.gallery ? (typeof newProduct.gallery === 'string' ? JSON.parse(newProduct.gallery) : newProduct.gallery) : []; } catch { return []; } })(),
     });

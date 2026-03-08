@@ -19,6 +19,7 @@ export interface Product {
   careInstructions: string;
   category: string;
   shippingCost?: number;
+  shippingCostKerala?: number;
   isFreeShipping?: boolean;
   stockQuantity?: number;
   lowStockThreshold?: number;

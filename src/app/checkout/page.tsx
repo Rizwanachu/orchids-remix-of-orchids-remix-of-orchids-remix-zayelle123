@@ -48,19 +48,6 @@ function CheckoutContent() {
     ? (directProduct.price || 0) * productQuantity
     : cartTotalPrice;
 
-  const maxShipping = items.reduce((max, item: any) => {
-    if (item.isFreeShipping) return max; // Don't let free shipping items reset max
-    const itemShipping = item.shippingCost != null ? Number(item.shippingCost) : 49;
-    return Math.max(max, itemShipping);
-  }, 0);
-
-  // If any single item has free shipping explicitly, we should probably check if that's meant for the whole order
-  // But usually it's better to just ensure if it's 0, it stays 0 if it's the only item
-  const hasGlobalFreeShipping = items.some((item: any) => item.isFreeShipping);
-  const finalMaxShipping = hasGlobalFreeShipping && items.length === 1 ? 0 : maxShipping;
-
-  const shippingCost = subtotal >= 1950 || hasGlobalFreeShipping ? 0 : finalMaxShipping;
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -72,6 +59,21 @@ function CheckoutContent() {
     pincode: "",
     paymentMethod: "online",
   });
+
+  const isKerala = formData.state === "Kerala";
+
+  const maxShipping = items.reduce((max, item: any) => {
+    if (item.isFreeShipping) return max;
+    const itemShipping = isKerala
+      ? (item.shippingCostKerala != null ? Number(item.shippingCostKerala) : (item.shippingCost != null ? Number(item.shippingCost) : 49))
+      : (item.shippingCost != null ? Number(item.shippingCost) : 49);
+    return Math.max(max, itemShipping);
+  }, 0);
+
+  const hasGlobalFreeShipping = items.some((item: any) => item.isFreeShipping);
+  const finalMaxShipping = hasGlobalFreeShipping && items.length === 1 ? 0 : maxShipping;
+
+  const shippingCost = subtotal >= 1950 || hasGlobalFreeShipping ? 0 : finalMaxShipping;
 
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -593,7 +595,15 @@ function CheckoutContent() {
                     </div>
                   )}
                   <div className="flex justify-between text-[13px]">
-                    <span className="text-[#757575]">Shipping</span>
+                    <div>
+                      <span className="text-[#757575]">Shipping</span>
+                      {formData.state && shippingCost > 0 && (
+                        <span className="text-[11px] text-[#999] ml-1">({isKerala ? "Kerala" : "Outside Kerala"})</span>
+                      )}
+                      {!formData.state && shippingCost > 0 && (
+                        <span className="text-[11px] text-[#999] ml-1">(select state)</span>
+                      )}
+                    </div>
                     <span className={shippingCost === 0 ? "text-green-600 font-medium" : "text-[#1A1A1A]"}>
                       {shippingCost === 0 ? "Free" : `₹${shippingCost}.00`}
                     </span>

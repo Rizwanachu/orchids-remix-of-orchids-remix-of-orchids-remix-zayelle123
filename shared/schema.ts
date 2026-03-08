@@ -78,6 +78,7 @@ export const products = sqliteTable("products", {
   stockQuantity: integer("stock_quantity").notNull().default(100),
   lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
   shippingCost: numeric("shipping_cost", { precision: 10, scale: 2 }).notNull().default("49"),
+  shippingCostKerala: numeric("shipping_cost_kerala", { precision: 10, scale: 2 }).notNull().default("49"),
   isFreeShipping: integer("is_free_shipping").notNull().default(0),
   gallery: text("gallery"),
   active: integer("active").notNull().default(1),

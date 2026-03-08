@@ -35,6 +35,7 @@
 - **Dynamic Categories**: Categories stored in `categories` table. Admin can add/edit/delete categories inline via "Manage" button on category dropdown. API: `/api/admin/categories` (CRUD), `/api/categories` (public GET). Default categories seeded on first access.
 - **Dynamic Badges**: Badges stored in `badges` table. Admin can add/edit/delete badges inline via "Manage" button on badge dropdown. API: `/api/admin/badges` (CRUD). Default badges (New, Sale, Bestseller, Gift) seeded on first access.
 - **Product Templates**: Saved in `product_templates` table. Admin can save current product details (description, details, dimension, material, careInstructions, shippingPolicy, returnPolicy) as a named template. "Load Template" dropdown auto-fills these fields. Templates manageable (edit/delete) via "Manage Templates" panel. API: `/api/admin/product-templates` (CRUD).
+- **Kerala / Outside Kerala Shipping**: Products have two shipping cost fields: `shippingCostKerala` (default 49) and `shippingCost` (outside Kerala). Admin form shows both fields side by side. Checkout page dynamically switches shipping cost based on selected state — uses Kerala rate when state is "Kerala", outside Kerala rate otherwise. Shipping label shows which rate is applied.
 
 ## Admin Panel - Banners
 - Banner image upload limit: 10MB (via `/api/admin/upload`).
