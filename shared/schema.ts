@@ -119,6 +119,7 @@ export const zayelleEdits = sqliteTable("zayelle_edits", {
   subtitle: text("subtitle").notNull().default(""),
   buttonText: text("button_text").notNull().default("Shop Now"),
   redirectLink: text("redirect_link").notNull().default(""),
+  productIds: text("product_ids"),
   displayOrder: integer("display_order").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });

@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       subtitle: body.subtitle || "",
       buttonText: body.buttonText || "Shop Now",
       redirectLink: body.redirectLink || "",
+      productIds: body.productIds ? JSON.stringify(body.productIds) : null,
       displayOrder: body.displayOrder ?? 0,
     }).returning();
 

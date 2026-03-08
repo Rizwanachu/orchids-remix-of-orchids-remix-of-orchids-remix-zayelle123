@@ -21,6 +21,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.subtitle !== undefined) updateData.subtitle = body.subtitle;
     if (body.buttonText !== undefined) updateData.buttonText = body.buttonText;
     if (body.redirectLink !== undefined) updateData.redirectLink = body.redirectLink;
+    if (body.productIds !== undefined) updateData.productIds = body.productIds ? JSON.stringify(body.productIds) : null;
     if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
 
     const [updated] = await db.update(zayelleEdits)
