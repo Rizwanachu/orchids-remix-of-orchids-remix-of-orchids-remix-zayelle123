@@ -145,6 +145,7 @@ export const banners = pgTable("banners", {
   titleColor: text("title_color").notNull().default("#5C4B3D"),
   subtitleColor: text("subtitle_color").notNull().default("#5C4B3D"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  productIds: text("product_ids").default("[]"),
 });
 
 export const giftHampers = pgTable("gift_hampers", {

@@ -26,6 +26,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.titleFont !== undefined) updateData.titleFont = body.titleFont;
     if (body.titleColor !== undefined) updateData.titleColor = body.titleColor;
     if (body.subtitleColor !== undefined) updateData.subtitleColor = body.subtitleColor;
+    if (body.productIds !== undefined) updateData.productIds = JSON.stringify(body.productIds);
 
     const [updated] = await db.update(banners).set(updateData).where(eq(banners.id, parseInt(id))).returning();
 

@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   Plus,
   Pencil,
   Trash2,
   Image as ImageIcon,
-  Upload,
   X,
   Eye,
   EyeOff,
   Package,
   Search,
+  UserPlus,
+  UserMinus,
 } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
@@ -38,6 +39,7 @@ interface Banner {
   titleColor: string;
   subtitleColor: string;
   createdAt: string;
+  productIds: string[];
 }
 
 const emptyForm = {
@@ -66,7 +68,9 @@ export default function BannersPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [showProductPicker, setShowProductPicker] = useState(false);
+  const [viewingBannerId, setViewingBannerId] = useState<number | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState<number | null>(null);
+  const [updatingProduct, setUpdatingProduct] = useState<string | null>(null);
   const [productSearch, setProductSearch] = useState("");
 
   const fetchProducts = useCallback(async () => {
@@ -86,7 +90,18 @@ export default function BannersPage() {
       const res = await fetch("/api/admin/banners");
       if (res.ok) {
         const data = await res.json();
-        setBanners(data);
+        setBanners(
+          data.map((b: any) => ({
+            ...b,
+            productIds: (() => {
+              try {
+                return JSON.parse(b.productIds || "[]");
+              } catch {
+                return [];
+              }
+            })(),
+          }))
+        );
       }
     } catch (error) {
       console.error("Failed to fetch banners:", error);
@@ -99,6 +114,65 @@ export default function BannersPage() {
     fetchBanners();
     fetchProducts();
   }, [fetchProducts]);
+
+  const getBannerProducts = (bannerId: number) => {
+    const banner = banners.find((b) => b.id === bannerId);
+    if (!banner || !banner.productIds?.length) return [];
+    return allProducts.filter((p) => banner.productIds.includes(p.id));
+  };
+
+  const getUnassignedProducts = (bannerId: number) => {
+    const banner = banners.find((b) => b.id === bannerId);
+    const ids = banner?.productIds || [];
+    return allProducts.filter(
+      (p) =>
+        !ids.includes(p.id) &&
+        (!productSearch ||
+          p.name.toLowerCase().includes(productSearch.toLowerCase()))
+    );
+  };
+
+  const handleAddProductToBanner = async (productId: string, bannerId: number) => {
+    setUpdatingProduct(productId);
+    const banner = banners.find((b) => b.id === bannerId);
+    if (!banner) return;
+    const newIds = [...(banner.productIds || []), productId];
+    try {
+      const res = await fetch(`/api/admin/banners/${bannerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: newIds }),
+      });
+      if (res.ok) {
+        await fetchBanners();
+      }
+    } catch (err) {
+      console.error("Failed to add product to banner:", err);
+    } finally {
+      setUpdatingProduct(null);
+    }
+  };
+
+  const handleRemoveProductFromBanner = async (productId: string, bannerId: number) => {
+    setUpdatingProduct(productId);
+    const banner = banners.find((b) => b.id === bannerId);
+    if (!banner) return;
+    const newIds = (banner.productIds || []).filter((id) => id !== productId);
+    try {
+      const res = await fetch(`/api/admin/banners/${bannerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: newIds }),
+      });
+      if (res.ok) {
+        await fetchBanners();
+      }
+    } catch (err) {
+      console.error("Failed to remove product from banner:", err);
+    } finally {
+      setUpdatingProduct(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,8 +201,6 @@ export default function BannersPage() {
         setShowForm(false);
         setEditingId(null);
         setForm(emptyForm);
-        setShowProductPicker(false);
-        setProductSearch("");
         setSuccessMessage(editingId ? "Banner updated successfully" : "Banner created successfully");
         setTimeout(() => setSuccessMessage(""), 3000);
         fetchBanners();
@@ -159,8 +231,6 @@ export default function BannersPage() {
     });
     setEditingId(banner.id);
     setErrorMessage("");
-    setShowProductPicker(false);
-    setProductSearch("");
     setShowForm(true);
   };
 
@@ -170,6 +240,8 @@ export default function BannersPage() {
       if (res.ok) {
         setBanners(banners.filter((b) => b.id !== id));
         setDeleteConfirm(null);
+        if (viewingBannerId === id) setViewingBannerId(null);
+        if (showAddProduct === id) setShowAddProduct(null);
       }
     } catch (error) {
       console.error("Failed to delete banner:", error);
@@ -273,8 +345,6 @@ export default function BannersPage() {
             setForm(emptyForm);
             setEditingId(null);
             setErrorMessage("");
-            setShowProductPicker(false);
-            setProductSearch("");
             setShowForm(true);
           }}
           className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"
@@ -295,8 +365,6 @@ export default function BannersPage() {
                 setShowForm(false);
                 setEditingId(null);
                 setForm(emptyForm);
-                setShowProductPicker(false);
-                setProductSearch("");
               }}
               className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
             >
@@ -349,91 +417,17 @@ export default function BannersPage() {
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
                   Button Link
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={form.buttonLink}
-                    onChange={(e) => setForm({ ...form, buttonLink: e.target.value })}
-                    placeholder="/products/my-product or any URL"
-                    className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { setShowProductPicker(!showProductPicker); setProductSearch(""); }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap ${showProductPicker ? "border-[#5C4B3D] bg-[#5C4B3D] text-white" : "border-[#E8E4DE] text-[#5C4B3D] hover:bg-[#F5F2ED]"}`}
-                  >
-                    <Package size={14} />
-                    Pick Product
-                  </button>
-                </div>
-
-                {showProductPicker && (
-                  <div className="mt-2 border border-[#E8E4DE] rounded-lg bg-white shadow-sm overflow-hidden">
-                    <div className="p-3 border-b border-[#E8E4DE] bg-[#FAFAF8]">
-                      <div className="flex items-center gap-2">
-                        <Search size={14} className="text-[#999] flex-shrink-0" />
-                        <input
-                          type="text"
-                          value={productSearch}
-                          onChange={(e) => setProductSearch(e.target.value)}
-                          placeholder="Search products..."
-                          className="flex-1 text-[13px] bg-transparent outline-none text-[#1A1A1A] placeholder-[#999]"
-                          autoFocus
-                        />
-                        {productSearch && (
-                          <button type="button" onClick={() => setProductSearch("")} className="text-[#999] hover:text-[#555]">
-                            <X size={13} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="max-h-[240px] overflow-y-auto">
-                      {allProducts
-                        .filter((p) =>
-                          !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
-                        )
-                        .length === 0 ? (
-                        <p className="text-[12px] text-[#999] text-center py-6">No products found.</p>
-                      ) : (
-                        allProducts
-                          .filter((p) =>
-                            !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
-                          )
-                          .map((product) => (
-                            <button
-                              key={product.id}
-                              type="button"
-                              onClick={() => {
-                                setForm({ ...form, buttonLink: `/products/${product.handle}` });
-                                setShowProductPicker(false);
-                                setProductSearch("");
-                              }}
-                              className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-[#F5F2ED] transition-colors text-left border-b border-[#F5F2ED] last:border-b-0"
-                            >
-                              {product.image ? (
-                                <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
-                                  <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
-                                </div>
-                              ) : (
-                                <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
-                                  <Package size={14} className="text-[#C4B5A5]" />
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="text-[13px] font-medium text-[#1A1A1A] truncate">{product.name}</div>
-                                <div className="text-[11px] text-[#999] font-mono truncate">/products/{product.handle}</div>
-                              </div>
-                              <span className="text-[12px] text-[#5C4B3D] font-medium flex-shrink-0">₹{product.price}</span>
-                            </button>
-                          ))
-                      )}
-                    </div>
-                  </div>
-                )}
+                <input
+                  type="text"
+                  value={form.buttonLink}
+                  onChange={(e) => setForm({ ...form, buttonLink: e.target.value })}
+                  placeholder="/products/my-product or any URL"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                />
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
@@ -450,15 +444,12 @@ export default function BannersPage() {
                         | "mid-right",
                     })
                   }
-                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                 >
-                  <option value="hero">Hero (Horizontal / Wide)</option>
-                  <option value="mid-left">Mid Left (Square / Vertical)</option>
-                  <option value="mid-right">Mid Right (Square / Vertical)</option>
+                  <option value="hero">Hero (Full Width Top)</option>
+                  <option value="mid-left">Mid Left</option>
+                  <option value="mid-right">Mid Right</option>
                 </select>
-                <p className="text-[11px] text-[#757575] mt-1">
-                  Hero: wide horizontal banner. Mid Left/Right: square or vertical promo banners. Any image orientation is accepted.
-                </p>
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
@@ -469,24 +460,24 @@ export default function BannersPage() {
                   onChange={(e) =>
                     setForm({ ...form, titleFont: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                 >
-                  <option value="serif">Serif (Playfair)</option>
-                  <option value="sans">Sans (Inter)</option>
+                  <option value="serif">Serif</option>
+                  <option value="sans-serif">Sans Serif</option>
                 </select>
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
                   Title Color
                 </label>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={form.titleColor}
                     onChange={(e) =>
                       setForm({ ...form, titleColor: e.target.value })
                     }
-                    className="h-9 w-12 border border-[#E8E4DE] rounded cursor-pointer"
+                    className="w-10 h-9 rounded cursor-pointer border border-[#E8E4DE]"
                   />
                   <input
                     type="text"
@@ -502,14 +493,14 @@ export default function BannersPage() {
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
                   Subtitle Color
                 </label>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={form.subtitleColor}
                     onChange={(e) =>
                       setForm({ ...form, subtitleColor: e.target.value })
                     }
-                    className="h-9 w-12 border border-[#E8E4DE] rounded cursor-pointer"
+                    className="w-10 h-9 rounded cursor-pointer border border-[#E8E4DE]"
                   />
                   <input
                     type="text"
@@ -521,76 +512,64 @@ export default function BannersPage() {
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-3 pt-6">
-                <label className="text-[13px] font-medium text-[#1A1A1A]">
-                  Active
-                </label>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm({ ...form, isActive: !form.isActive })
-                  }
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
-                    form.isActive ? "bg-[#5C4B3D]" : "bg-[#E8E4DE]"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      form.isActive ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
             </div>
 
             <div>
               <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
-                Banner Image *
+                Active
               </label>
-              <p className="text-[11px] text-[#757575] mb-2">
-                Upload any image - square, vertical, or horizontal. It will be displayed according to the selected position.
-              </p>
-              <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
-                  type="text"
-                  value={form.imageUrl}
+                  type="checkbox"
+                  checked={form.isActive}
                   onChange={(e) =>
-                    setForm({ ...form, imageUrl: e.target.value })
+                    setForm({ ...form, isActive: e.target.checked })
                   }
-                  placeholder="Image URL"
-                  className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  className="w-4 h-4 rounded border-[#E8E4DE] text-[#5C4B3D]"
                 />
-                <label className={`flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] cursor-pointer transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
-                  <Upload size={14} />
-                  {uploading ? "Uploading..." : "Upload"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowMediaPicker(true)}
-                  className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
-                >
-                  <ImageIcon size={14} />
-                  Browse Media
-                </button>
-              </div>
-              {form.imageUrl && (
-                <div className="mt-3 relative w-40 h-40 rounded-lg overflow-hidden border border-[#E8E4DE]">
-                  <Image
-                    src={form.imageUrl}
-                    alt="Preview"
-                    fill
-                    className="object-contain"
-                    sizes="160px"
-                  />
+                <span className="text-[14px] text-[#757575]">
+                  Show this banner on the site
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-2">
+                Banner Image
+              </label>
+              <div className="flex items-start gap-3">
+                {form.imageUrl && (
+                  <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-[#E8E4DE] flex-shrink-0">
+                    <Image
+                      src={form.imageUrl}
+                      alt="Banner preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <label className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] cursor-pointer hover:bg-[#F5F2ED] transition-colors">
+                    <ImageIcon size={14} />
+                    {uploading ? "Uploading..." : "Upload"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaPicker(true)}
+                    className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                  >
+                    <ImageIcon size={14} />
+                    Media Library
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -611,8 +590,6 @@ export default function BannersPage() {
                   setShowForm(false);
                   setEditingId(null);
                   setForm(emptyForm);
-                  setShowProductPicker(false);
-                  setProductSearch("");
                 }}
                 className="px-6 py-2.5 rounded-lg text-[13px] font-medium text-[#757575] hover:bg-[#F5F2ED] transition-colors"
               >
@@ -651,6 +628,9 @@ export default function BannersPage() {
                   <th className="text-left px-5 py-3 text-[12px] font-medium text-[#757575] uppercase tracking-wider">
                     Position
                   </th>
+                  <th className="text-center px-5 py-3 text-[12px] font-medium text-[#757575] uppercase tracking-wider">
+                    Products
+                  </th>
                   <th className="text-left px-5 py-3 text-[12px] font-medium text-[#757575] uppercase tracking-wider">
                     Active
                   </th>
@@ -660,95 +640,286 @@ export default function BannersPage() {
                 </tr>
               </thead>
               <tbody>
-                {banners.map((banner) => (
-                  <tr
-                    key={banner.id}
-                    className="border-b border-[#E8E4DE] last:border-b-0 hover:bg-[#FAF9F6] transition-colors"
-                  >
-                    <td className="px-5 py-3">
-                      {banner.imageUrl ? (
-                        <div className="relative w-16 h-10 rounded overflow-hidden border border-[#E8E4DE]">
-                          <Image
-                            src={banner.imageUrl}
-                            alt={banner.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-10 rounded bg-[#F5F2ED] flex items-center justify-center">
-                          <ImageIcon size={16} className="text-[#C4B5A5]" />
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-[13px] font-medium text-[#1A1A1A]">
-                      {banner.title}
-                    </td>
-                    <td className="px-5 py-3 text-[13px] text-[#757575] max-w-[200px] truncate">
-                      {banner.subtitle}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-[12px] text-[#5C4B3D] bg-[#F5F2ED] px-2 py-1 rounded">
-                        {banner.buttonText}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-[12px] font-medium text-[#5C4B3D] bg-[#F5F2ED] px-2 py-1 rounded">
-                        {positionLabel(banner.position)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <button
-                        onClick={() => handleToggleActive(banner)}
-                        className={`flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded transition-colors ${
-                          banner.isActive
-                            ? "text-green-700 bg-green-50"
-                            : "text-[#757575] bg-[#F5F2ED]"
-                        }`}
-                      >
-                        {banner.isActive ? (
-                          <Eye size={12} />
-                        ) : (
-                          <EyeOff size={12} />
-                        )}
-                        {banner.isActive ? "Active" : "Inactive"}
-                      </button>
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleEdit(banner)}
-                          className="p-2 text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded-lg transition-colors"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        {deleteConfirm === banner.id ? (
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleDelete(banner.id)}
-                              className="px-2 py-1 text-[11px] font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="px-2 py-1 text-[11px] font-medium text-[#757575] bg-[#F5F2ED] rounded hover:bg-[#E8E4DE] transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        ) : (
+                {banners.map((banner) => {
+                  const productCount = banner.productIds?.length ?? 0;
+                  return (
+                    <React.Fragment key={banner.id}>
+                      <tr className="border-b border-[#E8E4DE] last:border-b-0 hover:bg-[#FAF9F6] transition-colors">
+                        <td className="px-5 py-3">
+                          {banner.imageUrl ? (
+                            <div className="relative w-16 h-10 rounded overflow-hidden border border-[#E8E4DE]">
+                              <Image
+                                src={banner.imageUrl}
+                                alt={banner.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-16 h-10 rounded bg-[#F5F2ED] flex items-center justify-center">
+                              <ImageIcon size={16} className="text-[#C4B5A5]" />
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-[13px] font-medium text-[#1A1A1A]">
+                          {banner.title}
+                        </td>
+                        <td className="px-5 py-3 text-[13px] text-[#757575] max-w-[200px] truncate">
+                          {banner.subtitle}
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="text-[12px] text-[#5C4B3D] bg-[#F5F2ED] px-2 py-1 rounded">
+                            {banner.buttonText}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="text-[12px] font-medium text-[#5C4B3D] bg-[#F5F2ED] px-2 py-1 rounded">
+                            {positionLabel(banner.position)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
                           <button
-                            onClick={() => setDeleteConfirm(banner.id)}
-                            className="p-2 text-[#757575] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={() =>
+                              setViewingBannerId(
+                                viewingBannerId === banner.id ? null : banner.id
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F2ED] text-[#5C4B3D] text-[12px] font-medium rounded-full hover:bg-[#E8E4DE] transition-colors"
                           >
-                            <Trash2 size={14} />
+                            <Package size={12} />
+                            {productCount}
+                            <Eye size={12} />
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                        </td>
+                        <td className="px-5 py-3">
+                          <button
+                            onClick={() => handleToggleActive(banner)}
+                            className={`flex items-center gap-1 text-[12px] font-medium px-2 py-1 rounded transition-colors ${
+                              banner.isActive
+                                ? "text-green-700 bg-green-50"
+                                : "text-[#757575] bg-[#F5F2ED]"
+                            }`}
+                          >
+                            {banner.isActive ? (
+                              <Eye size={12} />
+                            ) : (
+                              <EyeOff size={12} />
+                            )}
+                            {banner.isActive ? "Active" : "Inactive"}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => {
+                                setShowAddProduct(
+                                  showAddProduct === banner.id ? null : banner.id
+                                );
+                                setViewingBannerId(banner.id);
+                                setProductSearch("");
+                              }}
+                              className="p-2 text-[#757575] hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="Add product to banner"
+                            >
+                              <UserPlus size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(banner)}
+                              className="p-2 text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded-lg transition-colors"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            {deleteConfirm === banner.id ? (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleDelete(banner.id)}
+                                  className="px-2 py-1 text-[11px] font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="px-2 py-1 text-[11px] font-medium text-[#757575] bg-[#F5F2ED] rounded hover:bg-[#E8E4DE] transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setDeleteConfirm(banner.id)}
+                                className="p-2 text-[#757575] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+
+                      {viewingBannerId === banner.id && (
+                        <tr>
+                          <td colSpan={8} className="px-4 py-4 bg-[#FAFAF8] border-b border-[#E8E4DE]">
+                            {showAddProduct === banner.id && (
+                              <div className="mb-4 p-4 bg-white border border-[#E8E4DE] rounded-lg">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="text-[13px] font-semibold text-[#1A1A1A]">
+                                    Add Product to &quot;{banner.title}&quot;
+                                  </h4>
+                                  <button
+                                    onClick={() => setShowAddProduct(null)}
+                                    className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                                <div className="mb-3">
+                                  <div className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg bg-[#FAFAF8]">
+                                    <Search size={13} className="text-[#999] flex-shrink-0" />
+                                    <input
+                                      type="text"
+                                      value={productSearch}
+                                      onChange={(e) => setProductSearch(e.target.value)}
+                                      placeholder="Search products..."
+                                      className="flex-1 text-[13px] bg-transparent outline-none text-[#1A1A1A] placeholder-[#999]"
+                                      autoFocus
+                                    />
+                                    {productSearch && (
+                                      <button onClick={() => setProductSearch("")} className="text-[#999] hover:text-[#555]">
+                                        <X size={13} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {getUnassignedProducts(banner.id).length === 0 ? (
+                                  <p className="text-[12px] text-[#757575]">
+                                    {productSearch
+                                      ? "No products match your search."
+                                      : "All products are already in this banner."}
+                                  </p>
+                                ) : (
+                                  <div className="max-h-[240px] overflow-y-auto space-y-1">
+                                    {getUnassignedProducts(banner.id).map((product) => (
+                                      <div
+                                        key={product.id}
+                                        className="flex items-center justify-between p-2 rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          {product.image ? (
+                                            <div className="relative w-8 h-8 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                              <Image
+                                                src={product.image}
+                                                alt={product.name}
+                                                fill
+                                                className="object-cover"
+                                                sizes="32px"
+                                              />
+                                            </div>
+                                          ) : (
+                                            <div className="w-8 h-8 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                              <Package size={12} className="text-[#C4B5A5]" />
+                                            </div>
+                                          )}
+                                          <div>
+                                            <div className="text-[12px] font-medium text-[#1A1A1A]">
+                                              {product.name}
+                                            </div>
+                                            <div className="text-[11px] text-[#757575]">
+                                              ₹{product.price}
+                                              {product.category && (
+                                                <span className="ml-2 text-[#9E8E7E]">
+                                                  in: {product.category}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() =>
+                                            handleAddProductToBanner(product.id, banner.id)
+                                          }
+                                          disabled={updatingProduct === product.id}
+                                          className="flex items-center gap-1 px-2.5 py-1 bg-[#5C4B3D] text-white text-[11px] font-medium rounded-md hover:bg-[#4A3D31] transition-colors disabled:opacity-50"
+                                        >
+                                          <Plus size={12} />
+                                          {updatingProduct === product.id
+                                            ? "Adding..."
+                                            : "Add"}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div>
+                              <h4 className="text-[12px] font-semibold text-[#757575] uppercase tracking-wider mb-3">
+                                Products in &quot;{banner.title}&quot; ({productCount})
+                              </h4>
+                              {productCount === 0 ? (
+                                <p className="text-[12px] text-[#757575] italic">
+                                  No products in this banner yet.
+                                </p>
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                  {getBannerProducts(banner.id).map((product) => (
+                                    <div
+                                      key={product.id}
+                                      className="flex items-center justify-between p-2.5 bg-white border border-[#E8E4DE] rounded-lg"
+                                    >
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        {product.image ? (
+                                          <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                            <Image
+                                              src={product.image}
+                                              alt={product.name}
+                                              fill
+                                              className="object-cover"
+                                              sizes="36px"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                            <Package size={14} className="text-[#C4B5A5]" />
+                                          </div>
+                                        )}
+                                        <div className="min-w-0">
+                                          <div className="text-[12px] font-medium text-[#1A1A1A] truncate">
+                                            {product.name}
+                                          </div>
+                                          <div className="text-[11px] text-[#757575]">
+                                            ₹{product.price}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() =>
+                                          handleRemoveProductFromBanner(
+                                            product.id,
+                                            banner.id
+                                          )
+                                        }
+                                        disabled={updatingProduct === product.id}
+                                        className="flex-shrink-0 p-1.5 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                                        title="Remove from banner"
+                                      >
+                                        {updatingProduct === product.id ? (
+                                          <div className="w-3.5 h-3.5 border-2 border-[#757575] border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                          <UserMinus size={14} />
+                                        )}
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
