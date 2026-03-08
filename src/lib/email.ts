@@ -18,6 +18,13 @@ const transporter = nodemailer.createTransport({
 
 const FROM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || "zayelle.in@gmail.com";
 const LOGO_URL = "https://www.zayelle.in/_next/image?url=%2Flogo.png%3Fv%3D1772539365565&w=384&q=75";
+const SITE_URL = "https://www.zayelle.in";
+
+function toAbsoluteUrl(url: string | null | undefined): string {
+  if (!url) return "https://placehold.co/80x80/f5f2ed/8c6f5a?text=Product";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
 export async function verifyConnection() {
   try {
@@ -149,7 +156,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
         <td style="width: 80px; padding-right: 20px; vertical-align: top;">
-          <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
+          <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
         </td>
         <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
           <div class="product-name">${item.productName}</div>
@@ -249,7 +256,7 @@ export async function sendShippingNotificationEmail(data: OrderEmailData, retryC
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
         <td style="width: 80px; padding-right: 20px; vertical-align: top;">
-          <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
+          <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
         </td>
         <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
           <div class="product-name">${item.productName}</div>
