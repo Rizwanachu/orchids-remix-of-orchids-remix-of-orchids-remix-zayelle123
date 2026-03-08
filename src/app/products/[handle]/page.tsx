@@ -472,6 +472,51 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
+              {(product as any).customHamperEnabled ? (
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "hamper" ? null : "hamper")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">
+                      {(product as any).customHamperTitle || "Need a Custom Hamper?"}
+                    </span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "hamper" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "hamper" ? "max-h-[600px] pb-4" : "max-h-0"}`}>
+                    <div className="space-y-3">
+                      {((product as any).customHamperBody || "").split("\n").filter((l: string) => l.trim()).map((para: string, idx: number) => (
+                        <p key={idx} className="text-[14px] text-[#555] leading-relaxed">{para}</p>
+                      ))}
+                      {((product as any).customHamperInstagram || (product as any).customHamperContact) && (
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          {(product as any).customHamperInstagram && (
+                            <a
+                              href={(product as any).customHamperInstagram}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-[13px] rounded-sm hover:bg-[#4A3C31] transition-colors"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                              DM on Instagram
+                            </a>
+                          )}
+                          {(product as any).customHamperContact && (
+                            <a
+                              href={(product as any).customHamperContact}
+                              className="inline-flex items-center gap-2 px-4 py-2 border border-[#5C4B3D] text-[#5C4B3D] text-[13px] rounded-sm hover:bg-[#F5F2ED] transition-colors"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                              Contact Page
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="mt-4 p-4 bg-[#F5F2ED] rounded-lg border border-[#E8E4DE]">
                 <p className="text-[12px] text-[#757575] leading-relaxed italic">
                   <span className="font-semibold text-[#1A1A1A]">Please Note:</span> While we try to display product colors as accurately as possible, slight variations may occur due to different screen settings and lighting conditions.

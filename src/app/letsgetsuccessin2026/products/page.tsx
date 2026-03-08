@@ -58,6 +58,11 @@ interface ProductFormData {
   isFreeShipping: boolean;
   shippingPolicy: string;
   returnPolicy: string;
+  customHamperEnabled: boolean;
+  customHamperTitle: string;
+  customHamperBody: string;
+  customHamperInstagram: string;
+  customHamperContact: string;
 }
 
 const emptyForm: ProductFormData = {
@@ -84,6 +89,11 @@ const emptyForm: ProductFormData = {
   isFreeShipping: false,
   shippingPolicy: "",
   returnPolicy: "",
+  customHamperEnabled: false,
+  customHamperTitle: "Need a Custom Hamper?",
+  customHamperBody: "Looking for a specific hijab color or a personalized hamper?\n\nDM us on Instagram or contact us through our Contact Page, and we'll help you create your perfect hamper.\n\nCustom hampers are one of our most requested gifts.",
+  customHamperInstagram: "",
+  customHamperContact: "",
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -111,6 +121,11 @@ function toFormData(product: Product): ProductFormData {
     isFreeShipping: (product as any).isFreeShipping ?? false,
     shippingPolicy: (product as any).shippingPolicy || "",
     returnPolicy: (product as any).returnPolicy || "",
+    customHamperEnabled: !!((product as any).customHamperEnabled),
+    customHamperTitle: (product as any).customHamperTitle || "Need a Custom Hamper?",
+    customHamperBody: (product as any).customHamperBody || "",
+    customHamperInstagram: (product as any).customHamperInstagram || "",
+    customHamperContact: (product as any).customHamperContact || "",
   };
 }
 
@@ -471,6 +486,11 @@ export default function AdminProductsPage() {
       isFreeShipping: form.isFreeShipping,
       colors: form.colors,
       gallery: form.gallery,
+      customHamperEnabled: form.customHamperEnabled,
+      customHamperTitle: form.customHamperTitle,
+      customHamperBody: form.customHamperBody,
+      customHamperInstagram: form.customHamperInstagram,
+      customHamperContact: form.customHamperContact,
     };
 
     try {
@@ -528,6 +548,11 @@ export default function AdminProductsPage() {
         isFreeShipping: (product as any).isFreeShipping ?? false,
         colors: (product as any).colors || [],
         gallery: (product as any).gallery || [],
+        customHamperEnabled: (product as any).customHamperEnabled ?? false,
+        customHamperTitle: (product as any).customHamperTitle || "",
+        customHamperBody: (product as any).customHamperBody || "",
+        customHamperInstagram: (product as any).customHamperInstagram || "",
+        customHamperContact: (product as any).customHamperContact || "",
       };
       await addProduct(productData);
       showSuccess(`"${product.name}" duplicated successfully`);
@@ -1047,6 +1072,81 @@ export default function AdminProductsPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden">
+              <button
+                type="button"
+                onClick={() => updateField("customHamperEnabled", !form.customHamperEnabled)}
+                className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#FAFAF8] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-5 rounded-full transition-colors ${form.customHamperEnabled ? "bg-[#5C4B3D]" : "bg-[#D1C7C0]"} relative flex-shrink-0`}>
+                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${form.customHamperEnabled ? "translate-x-4" : "translate-x-0.5"}`} />
+                  </div>
+                  <div>
+                    <p className="text-[15px] font-semibold text-[#1A1A1A]">Custom Hamper Section</p>
+                    <p className="text-[12px] text-[#757575]">Show a &ldquo;Need a Custom Hamper?&rdquo; accordion on this product page</p>
+                  </div>
+                </div>
+                <ChevronDown size={16} className={`text-[#757575] transition-transform flex-shrink-0 ${form.customHamperEnabled ? "rotate-180" : ""}`} />
+              </button>
+
+              {form.customHamperEnabled && (
+                <div className="px-6 pb-6 border-t border-[#F5F2ED] space-y-4 pt-4">
+                  <div>
+                    <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                      Accordion Title
+                    </label>
+                    <input
+                      type="text"
+                      value={form.customHamperTitle}
+                      onChange={(e) => updateField("customHamperTitle", e.target.value)}
+                      className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                      placeholder="Need a Custom Hamper?"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                      Body Text
+                    </label>
+                    <textarea
+                      value={form.customHamperBody}
+                      onChange={(e) => updateField("customHamperBody", e.target.value)}
+                      className="w-full h-[120px] px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-y"
+                      placeholder="Looking for a specific hijab color or a personalized hamper?&#10;&#10;DM us on Instagram or contact us through our Contact Page..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                        Instagram Link URL
+                      </label>
+                      <input
+                        type="text"
+                        value={form.customHamperInstagram}
+                        onChange={(e) => updateField("customHamperInstagram", e.target.value)}
+                        className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                        placeholder="https://instagram.com/zayelle"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                        Contact Page Link URL
+                      </label>
+                      <input
+                        type="text"
+                        value={form.customHamperContact}
+                        onChange={(e) => updateField("customHamperContact", e.target.value)}
+                        className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                        placeholder="https://zayelle.in/contact"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">

@@ -36,6 +36,11 @@ export async function GET() {
     colors: (() => { try { return p.colors ? (typeof p.colors === 'string' ? JSON.parse(p.colors) : p.colors) : []; } catch { return []; } })(),
     gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     active: p.active,
+    customHamperEnabled: p.customHamperEnabled ?? 0,
+    customHamperTitle: p.customHamperTitle || "",
+    customHamperBody: p.customHamperBody || "",
+    customHamperInstagram: p.customHamperInstagram || "",
+    customHamperContact: p.customHamperContact || "",
   }));
   return NextResponse.json(formatted);
 }
@@ -77,6 +82,11 @@ export async function POST(request: NextRequest) {
       isFreeShipping: body.isFreeShipping ? 1 : 0,
       colors: Array.isArray(body.colors) ? JSON.stringify(body.colors) : null,
       gallery: Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null,
+      customHamperEnabled: body.customHamperEnabled ? 1 : 0,
+      customHamperTitle: body.customHamperTitle || null,
+      customHamperBody: body.customHamperBody || null,
+      customHamperInstagram: body.customHamperInstagram || null,
+      customHamperContact: body.customHamperContact || null,
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "product_added", `Added product: ${body.name}`);
@@ -104,6 +114,11 @@ export async function POST(request: NextRequest) {
       isFreeShipping: newProduct.isFreeShipping,
       colors: (() => { try { return newProduct.colors ? (typeof newProduct.colors === 'string' ? JSON.parse(newProduct.colors) : newProduct.colors) : []; } catch { return []; } })(),
       gallery: (() => { try { return newProduct.gallery ? (typeof newProduct.gallery === 'string' ? JSON.parse(newProduct.gallery) : newProduct.gallery) : []; } catch { return []; } })(),
+      customHamperEnabled: newProduct.customHamperEnabled ?? 0,
+      customHamperTitle: newProduct.customHamperTitle || "",
+      customHamperBody: newProduct.customHamperBody || "",
+      customHamperInstagram: newProduct.customHamperInstagram || "",
+      customHamperContact: newProduct.customHamperContact || "",
     });
   } catch (error: any) {
     console.error("Error adding product:", error);

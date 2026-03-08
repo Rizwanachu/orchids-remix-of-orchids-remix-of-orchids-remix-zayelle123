@@ -31,6 +31,11 @@ export async function GET() {
       isFreeShipping: p.isFreeShipping,
       colors: (() => { try { return p.colors ? (typeof p.colors === 'string' ? JSON.parse(p.colors) : p.colors) : []; } catch { return []; } })(),
       gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
+      customHamperEnabled: p.customHamperEnabled ?? 0,
+      customHamperTitle: p.customHamperTitle || "",
+      customHamperBody: p.customHamperBody || "",
+      customHamperInstagram: p.customHamperInstagram || "",
+      customHamperContact: p.customHamperContact || "",
     }));
     return NextResponse.json(formatted);
   } catch (error) {

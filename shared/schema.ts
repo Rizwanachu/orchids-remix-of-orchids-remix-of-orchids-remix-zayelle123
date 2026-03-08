@@ -89,6 +89,11 @@ export const products = pgTable("products", {
   gallery: text("gallery"),
   colors: text("colors"),
   active: integer("active").notNull().default(1),
+  customHamperEnabled: integer("custom_hamper_enabled").notNull().default(0),
+  customHamperTitle: text("custom_hamper_title"),
+  customHamperBody: text("custom_hamper_body"),
+  customHamperInstagram: text("custom_hamper_instagram"),
+  customHamperContact: text("custom_hamper_contact"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 

@@ -38,6 +38,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.colors !== undefined) updateData.colors = Array.isArray(body.colors) ? JSON.stringify(body.colors) : null;
     if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
     if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
+    if (body.customHamperEnabled !== undefined) updateData.customHamperEnabled = body.customHamperEnabled ? 1 : 0;
+    if (body.customHamperTitle !== undefined) updateData.customHamperTitle = body.customHamperTitle || null;
+    if (body.customHamperBody !== undefined) updateData.customHamperBody = body.customHamperBody || null;
+    if (body.customHamperInstagram !== undefined) updateData.customHamperInstagram = body.customHamperInstagram || null;
+    if (body.customHamperContact !== undefined) updateData.customHamperContact = body.customHamperContact || null;
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
 
@@ -70,6 +75,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       isFreeShipping: updated.isFreeShipping,
       colors: (() => { try { return updated.colors ? (typeof updated.colors === 'string' ? JSON.parse(updated.colors) : updated.colors) : []; } catch { return []; } })(),
       gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
+      customHamperEnabled: updated.customHamperEnabled ?? 0,
+      customHamperTitle: updated.customHamperTitle || "",
+      customHamperBody: updated.customHamperBody || "",
+      customHamperInstagram: updated.customHamperInstagram || "",
+      customHamperContact: updated.customHamperContact || "",
     });
   } catch (error: any) {
     console.error("Error updating product:", error);
