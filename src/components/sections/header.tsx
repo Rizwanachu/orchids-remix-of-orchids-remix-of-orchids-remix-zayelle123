@@ -60,6 +60,10 @@ const Header = () => {
   const logoUrl = useMemo(() => {
     return cmsSettings.header_logo_url || "/logo.png";
   }, [cmsSettings.header_logo_url]);
+
+  const logoSize = useMemo(() => {
+    return parseInt(cmsSettings.header_logo_size || "36", 10);
+  }, [cmsSettings.header_logo_size]);
   
   const searchPlaceholder = cmsSettings.header_search_placeholder || "Search Hijabs, Satin Scarves, Undercaps...";
   const announcementEnabled = cmsSettings.header_announcement_enabled === "true";
@@ -170,9 +174,8 @@ const Header = () => {
                 <img
                   src={logoUrl}
                   alt="Zayelle"
-                  width={140}
-                  height={40}
-                  className="h-8 lg:h-9 w-auto object-contain"
+                  style={{ height: `${logoSize}px` }}
+                  className="w-auto object-contain"
                 />
               </a>
             </div>

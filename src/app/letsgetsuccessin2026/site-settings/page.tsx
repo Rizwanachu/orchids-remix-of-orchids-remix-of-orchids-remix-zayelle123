@@ -28,6 +28,7 @@ export default function SiteSettingsPage() {
   const [announcementText, setAnnouncementText] = useState("");
   const [announcementEnabled, setAnnouncementEnabled] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [logoSize, setLogoSize] = useState("36");
   const [searchPlaceholder, setSearchPlaceholder] = useState("");
   const [navItems, setNavItems] = useState<NavItem[]>([]);
 
@@ -65,6 +66,7 @@ export default function SiteSettingsPage() {
         setAnnouncementText(map["header_announcement_text"] || "");
         setAnnouncementEnabled(map["header_announcement_enabled"] === "true");
         setLogoUrl(map["header_logo_url"] || "");
+        setLogoSize(map["header_logo_size"] || "36");
         setSearchPlaceholder(map["header_search_placeholder"] || "");
         try {
           setNavItems(JSON.parse(map["header_nav_items"] || "[]"));
@@ -111,6 +113,7 @@ export default function SiteSettingsPage() {
         saveSetting("header_announcement_text", announcementText),
         saveSetting("header_announcement_enabled", announcementEnabled.toString()),
         saveSetting("header_logo_url", logoUrl),
+        saveSetting("header_logo_size", logoSize),
         saveSetting("header_search_placeholder", searchPlaceholder),
         saveSetting("header_nav_items", JSON.stringify(navItems)),
       ]);
@@ -378,10 +381,34 @@ export default function SiteSettingsPage() {
               </label>
             </div>
             {logoUrl && (
-              <div className="mt-3 relative h-12 w-48 rounded border border-[#E8E4DE] overflow-hidden bg-white">
-                <Image src={logoUrl} alt="Logo preview" fill className="object-contain" />
+              <div className="mt-3 relative rounded border border-[#E8E4DE] overflow-hidden bg-white inline-block p-2">
+                <img src={logoUrl} alt="Logo preview" style={{ height: `${logoSize}px`, width: "auto" }} className="object-contain" />
               </div>
             )}
+
+            <div className="mt-4">
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-2">Logo Size: {logoSize}px</label>
+              <div className="flex items-center gap-4">
+                <span className="text-[12px] text-[#757575]">20px</span>
+                <input
+                  type="range"
+                  min="20"
+                  max="80"
+                  value={logoSize}
+                  onChange={(e) => setLogoSize(e.target.value)}
+                  className="flex-1 accent-[#5C4B3D]"
+                />
+                <span className="text-[12px] text-[#757575]">80px</span>
+                <input
+                  type="number"
+                  min="20"
+                  max="80"
+                  value={logoSize}
+                  onChange={(e) => setLogoSize(e.target.value)}
+                  className="w-16 px-2 py-1 border border-[#E8E4DE] rounded-lg text-[13px] text-center focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
