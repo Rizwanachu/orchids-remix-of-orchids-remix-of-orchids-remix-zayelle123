@@ -10,6 +10,7 @@ import {
     Plus,
     Pencil,
     Trash2,
+    Copy,
     X,
     Package,
     Search,
@@ -132,6 +133,7 @@ export default function AdminProductsPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<ProductFormData>(emptyForm);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
@@ -497,6 +499,44 @@ export default function AdminProductsPage() {
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Failed to delete product. Please check the console for details.");
+    }
+  };
+
+  const handleDuplicate = async (product: Product) => {
+    setDuplicatingId(product.id);
+    try {
+      const suffix = Date.now().toString().slice(-5);
+      const productData = {
+        handle: `${product.handle}-copy-${suffix}`,
+        name: `${product.name} (Copy)`,
+        subtitle: (product as any).subtitle || "",
+        price: product.price,
+        compareAt: (product as any).compareAt || undefined,
+        image: product.image,
+        hoverImage: (product as any).hoverImage || product.image,
+        badge: product.badge || undefined,
+        description: (product as any).description || "",
+        details: (product as any).details || [],
+        dimension: (product as any).dimension || "",
+        material: (product as any).material || "",
+        careInstructions: (product as any).careInstructions || "",
+        category: product.category,
+        stockQuantity: (product as any).stockQuantity ?? 100,
+        lowStockThreshold: (product as any).lowStockThreshold ?? 10,
+        shippingCost: (product as any).shippingCost ?? 0,
+        shippingCostKerala: (product as any).shippingCostKerala ?? 0,
+        isFreeShipping: (product as any).isFreeShipping ?? false,
+        colors: (product as any).colors || [],
+        gallery: (product as any).gallery || [],
+      };
+      await addProduct(productData);
+      showSuccess(`"${product.name}" duplicated successfully`);
+    } catch (error) {
+      console.error("Duplicate failed:", error);
+      setErrorMessage("Failed to duplicate product.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    } finally {
+      setDuplicatingId(null);
     }
   };
 
@@ -1565,6 +1605,17 @@ export default function AdminProductsPage() {
                     title="Edit product"
                   >
                     <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDuplicate(product)}
+                    disabled={duplicatingId === product.id}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F5F2ED] text-[#757575] hover:text-[#5C4B3D] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Duplicate product"
+                  >
+                    {duplicatingId === product.id
+                      ? <span className="w-3.5 h-3.5 border-2 border-[#5C4B3D] border-t-transparent rounded-full animate-spin" />
+                      : <Copy size={14} />
+                    }
                   </button>
                   {deleteConfirm === product.id ? (
                     <div className="flex items-center gap-1">
