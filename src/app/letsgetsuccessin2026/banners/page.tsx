@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   Plus,
@@ -11,8 +11,19 @@ import {
   X,
   Eye,
   EyeOff,
+  Package,
+  Search,
 } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
+
+interface Product {
+  id: string;
+  handle: string;
+  name: string;
+  image: string;
+  price: number;
+  category: string;
+}
 
 interface Banner {
   id: number;
@@ -54,6 +65,21 @@ export default function BannersPage() {
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [showProductPicker, setShowProductPicker] = useState(false);
+  const [productSearch, setProductSearch] = useState("");
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/products");
+      if (res.ok) {
+        const data = await res.json();
+        setAllProducts(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
+  }, []);
 
   const fetchBanners = async () => {
     try {
@@ -71,7 +97,8 @@ export default function BannersPage() {
 
   useEffect(() => {
     fetchBanners();
-  }, []);
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +127,8 @@ export default function BannersPage() {
         setShowForm(false);
         setEditingId(null);
         setForm(emptyForm);
+        setShowProductPicker(false);
+        setProductSearch("");
         setSuccessMessage(editingId ? "Banner updated successfully" : "Banner created successfully");
         setTimeout(() => setSuccessMessage(""), 3000);
         fetchBanners();
@@ -130,6 +159,8 @@ export default function BannersPage() {
     });
     setEditingId(banner.id);
     setErrorMessage("");
+    setShowProductPicker(false);
+    setProductSearch("");
     setShowForm(true);
   };
 
@@ -242,6 +273,8 @@ export default function BannersPage() {
             setForm(emptyForm);
             setEditingId(null);
             setErrorMessage("");
+            setShowProductPicker(false);
+            setProductSearch("");
             setShowForm(true);
           }}
           className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"
@@ -262,6 +295,8 @@ export default function BannersPage() {
                 setShowForm(false);
                 setEditingId(null);
                 setForm(emptyForm);
+                setShowProductPicker(false);
+                setProductSearch("");
               }}
               className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
             >
@@ -314,18 +349,91 @@ export default function BannersPage() {
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
               </div>
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
                   Button Link
                 </label>
-                <input
-                  type="text"
-                  value={form.buttonLink}
-                  onChange={(e) =>
-                    setForm({ ...form, buttonLink: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={form.buttonLink}
+                    onChange={(e) => setForm({ ...form, buttonLink: e.target.value })}
+                    placeholder="/products/my-product or any URL"
+                    className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { setShowProductPicker(!showProductPicker); setProductSearch(""); }}
+                    className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap ${showProductPicker ? "border-[#5C4B3D] bg-[#5C4B3D] text-white" : "border-[#E8E4DE] text-[#5C4B3D] hover:bg-[#F5F2ED]"}`}
+                  >
+                    <Package size={14} />
+                    Pick Product
+                  </button>
+                </div>
+
+                {showProductPicker && (
+                  <div className="mt-2 border border-[#E8E4DE] rounded-lg bg-white shadow-sm overflow-hidden">
+                    <div className="p-3 border-b border-[#E8E4DE] bg-[#FAFAF8]">
+                      <div className="flex items-center gap-2">
+                        <Search size={14} className="text-[#999] flex-shrink-0" />
+                        <input
+                          type="text"
+                          value={productSearch}
+                          onChange={(e) => setProductSearch(e.target.value)}
+                          placeholder="Search products..."
+                          className="flex-1 text-[13px] bg-transparent outline-none text-[#1A1A1A] placeholder-[#999]"
+                          autoFocus
+                        />
+                        {productSearch && (
+                          <button type="button" onClick={() => setProductSearch("")} className="text-[#999] hover:text-[#555]">
+                            <X size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="max-h-[240px] overflow-y-auto">
+                      {allProducts
+                        .filter((p) =>
+                          !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
+                        )
+                        .length === 0 ? (
+                        <p className="text-[12px] text-[#999] text-center py-6">No products found.</p>
+                      ) : (
+                        allProducts
+                          .filter((p) =>
+                            !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
+                          )
+                          .map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onClick={() => {
+                                setForm({ ...form, buttonLink: `/products/${product.handle}` });
+                                setShowProductPicker(false);
+                                setProductSearch("");
+                              }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-[#F5F2ED] transition-colors text-left border-b border-[#F5F2ED] last:border-b-0"
+                            >
+                              {product.image ? (
+                                <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                  <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
+                                </div>
+                              ) : (
+                                <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                  <Package size={14} className="text-[#C4B5A5]" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[13px] font-medium text-[#1A1A1A] truncate">{product.name}</div>
+                                <div className="text-[11px] text-[#999] font-mono truncate">/products/{product.handle}</div>
+                              </div>
+                              <span className="text-[12px] text-[#5C4B3D] font-medium flex-shrink-0">₹{product.price}</span>
+                            </button>
+                          ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
@@ -503,6 +611,8 @@ export default function BannersPage() {
                   setShowForm(false);
                   setEditingId(null);
                   setForm(emptyForm);
+                  setShowProductPicker(false);
+                  setProductSearch("");
                 }}
                 className="px-6 py-2.5 rounded-lg text-[13px] font-medium text-[#757575] hover:bg-[#F5F2ED] transition-colors"
               >

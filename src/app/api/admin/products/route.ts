@@ -23,7 +23,7 @@ export async function GET() {
     hoverImage: p.hoverImage || p.image,
     badge: p.badge || undefined,
     description: p.description,
-    details: p.details || [],
+    details: p.details ? p.details.split("\n").filter((d: string) => d.trim()) : [],
     dimension: p.dimension || "",
     material: p.material || "",
     careInstructions: p.careInstructions || "",
