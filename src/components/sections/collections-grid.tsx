@@ -14,18 +14,18 @@ interface CollectionItemProps {
 
 const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle, href }) => {
   return (
-    <div className="flex flex-col items-center group cursor-pointer text-center px-2 mb-8">
-      <Link href={href} className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
+    <div className="flex flex-col group cursor-pointer text-center">
+      <Link href={href} className="relative w-full aspect-[1/1] overflow-hidden rounded-[10px] bg-white">
         <Image
           src={image}
           alt={title}
           fill
           className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
         />
       </Link>
-      <div className="mt-4 flex flex-col gap-1 w-full">
-        <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
+      <div className="mt-3 flex flex-col gap-0.5 w-full">
+        <h3 className="text-[14px] font-medium text-foreground uppercase tracking-tight line-clamp-1">
           <Link 
             href={href}
             className="relative inline-block pb-0.5"
@@ -138,7 +138,7 @@ const CollectionsGrid: React.FC = () => {
           </p>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-5">
           {collections.map((collection) => (
             <CollectionItem
               key={collection.id}
