@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { sql } from "drizzle-orm";
+import { sendContactFormEmail } from "@/lib/email";
 
 let tableCreated = false;
 
@@ -39,6 +40,12 @@ export async function POST(request: NextRequest) {
       INSERT INTO contact_messages (name, email, subject, message, created_at)
       VALUES (${name}, ${email}, ${subject}, ${message}, ${new Date().toISOString()})
     `);
+
+    try {
+      await sendContactFormEmail({ name, email, subject, message });
+    } catch (emailError) {
+      console.error("Contact email sending failed, but message was saved:", emailError);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

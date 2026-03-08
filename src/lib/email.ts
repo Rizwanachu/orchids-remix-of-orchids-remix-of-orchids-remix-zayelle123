@@ -291,6 +291,50 @@ export async function sendShippingNotificationEmail(data: OrderEmailData, retryC
   }
 }
 
+export async function sendContactFormEmail(data: { name: string; email: string; subject: string; message: string }) {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (!smtpUser || !smtpPass) {
+    console.error("Email credentials missing - skipping contact form email");
+    return;
+  }
+
+  try {
+    const content = `
+      <p class="message">You have received a new message from the contact form on your website.</p>
+      
+      <div class="order-box">
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${data.email}" style="color: #8c6f5a;">${data.email}</a></p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+      </div>
+
+      <div style="background: #fafaf8; border: 1px solid #e5e0da; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <p style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #757575; margin-top: 0; margin-bottom: 10px;">Message</p>
+        <p style="font-size: 15px; color: #1a1a1a; line-height: 1.7; white-space: pre-wrap; margin: 0;">${data.message}</p>
+      </div>
+
+      <div class="cta-container">
+        <a href="mailto:${data.email}?subject=Re: ${encodeURIComponent(data.subject)}" class="btn">Reply to ${data.name}</a>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Zayelle Contact Form" <${FROM_EMAIL}>`,
+      to: "zayelle.in@gmail.com",
+      replyTo: data.email,
+      subject: `Contact Form: ${data.subject}`,
+      html: baseTemplate(content, "New Contact Message"),
+    });
+
+    console.log(`Contact form email sent to zayelle.in@gmail.com from ${data.email}`);
+  } catch (error: any) {
+    console.error("Failed to send contact form email:", error.message);
+    throw error;
+  }
+}
+
 export async function sendAbandonedCartEmail(customerEmail: string, customerName: string, items: any[], type: '30min' | '12hr' | '24hr') {
   const smtpUser = process.env.SMTP_USER;
   if (!smtpUser) return;
