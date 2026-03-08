@@ -12,12 +12,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const { id } = await params;
-    const orderId = parseInt(id);
+    const numericId = parseInt(id);
 
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
+    let order: typeof orders.$inferSelect | undefined;
+
+    if (!isNaN(numericId)) {
+      [order] = await db.select().from(orders).where(eq(orders.id, numericId));
+    }
+
+    if (!order) {
+      [order] = await db.select().from(orders).where(eq(orders.orderId, id));
+    }
+
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
 
     return NextResponse.json({ ...order, items });
   } catch (error) {

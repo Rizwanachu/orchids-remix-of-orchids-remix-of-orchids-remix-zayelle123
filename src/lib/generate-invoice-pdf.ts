@@ -18,7 +18,7 @@ interface OrderData {
   orderStatus: string;
   discountAmount: string | null;
   couponCode: string | null;
-  createdAt: Date;
+  createdAt: Date | string;
   items: OrderItem[];
 }
 
