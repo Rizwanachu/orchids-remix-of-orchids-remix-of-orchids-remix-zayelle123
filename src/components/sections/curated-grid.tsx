@@ -58,7 +58,28 @@ const CuratedGrid = () => {
     );
   }
 
-  if (gridItems.length === 0) return null;
+  if (gridItems.length === 0) {
+    if (!sectionTitle) return null;
+    return (
+      <section className="py-20 md:py-[100px] bg-[#FDFCF8]">
+        <div className="container mx-auto px-5 lg:px-8">
+          <div className="relative mb-12 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-[#E8E4DE]"></div>
+            </div>
+            <div className="relative bg-[#FDFCF8] px-10">
+              <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
+                {sectionTitle}
+              </h2>
+            </div>
+          </div>
+          {sectionSubtitle && (
+            <p className="text-center text-[14px] text-[#757575] -mt-8 mb-12">{sectionSubtitle}</p>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 md:py-[100px] bg-[#FDFCF8]">

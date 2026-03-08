@@ -173,7 +173,19 @@ export default function NewArrivalsCarousel() {
     );
   }
 
-  if (products.length === 0) return null;
+  if (products.length === 0) {
+    return (
+      <section className="py-[80px] bg-background">
+        <div className="container">
+          <header className="flex flex-col items-center mb-10 text-center">
+            <h2 className="text-[32px] font-serif italic text-foreground mb-2">{sectionTitle}</h2>
+            {sectionSubtitle && <p className="text-[14px] text-[#757575] mb-4">{sectionSubtitle}</p>}
+            <div className="w-[60px] h-[1px] bg-border mb-8"></div>
+          </header>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-[80px] bg-background overflow-hidden">
