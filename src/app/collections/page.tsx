@@ -79,22 +79,22 @@ export default function CollectionsPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             {collections.map((collection, index) => (
-              <a key={index} href={collection.href} className="group flex flex-col items-center text-center">
-                <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[14px] bg-white shadow-sm">
+              <a key={index} href={collection.href} className="group flex flex-col">
+                <div className="relative w-full aspect-[1/1] overflow-hidden rounded-[10px] bg-white">
                   <Image
                     src={collection.image}
                     alt={collection.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                   />
                 </div>
-                <h3 className="mt-5 text-[18px] font-medium text-[#1A1A1A] uppercase tracking-tight group-hover:text-[#5C4B3D] transition-colors">
+                <h3 className="mt-3 text-[14px] font-medium text-[#1A1A1A] uppercase tracking-tight group-hover:text-[#5C4B3D] transition-colors text-center">
                   {collection.title}
                 </h3>
-                <p className="text-[14px] text-[#757575] mt-1.5">{collection.subtitle}</p>
+                <p className="text-[12px] text-[#757575] mt-0.5 text-center">{collection.subtitle}</p>
               </a>
             ))}
           </div>
