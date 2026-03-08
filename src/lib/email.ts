@@ -148,10 +148,10 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
     
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
-        <td style="width: 80px;">
+        <td style="width: 80px; padding-right: 20px; vertical-align: top;">
           <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
         </td>
-        <td class="product-info">
+        <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
           <div class="product-name">${item.productName}</div>
           <div class="product-meta">Quantity: ${item.quantity}</div>
           <div class="product-price">₹${parseFloat(item.price).toLocaleString("en-IN")}</div>
@@ -248,10 +248,10 @@ export async function sendShippingNotificationEmail(data: OrderEmailData, retryC
     
     const itemsHtml = data.items.map(item => `
       <tr class="product-row">
-        <td style="width: 80px;">
+        <td style="width: 80px; padding-right: 20px; vertical-align: top;">
           <img src="${item.image || 'https://via.placeholder.com/120x150?text=Product'}" class="product-image" alt="${item.productName}">
         </td>
-        <td class="product-info">
+        <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
           <div class="product-name">${item.productName}</div>
           <div class="product-meta">Quantity: ${item.quantity}</div>
         </td>
