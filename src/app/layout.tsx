@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ProductsProvider } from "@/lib/products-context";
 import { OrdersProvider } from "@/lib/orders-context";
 import { ThemeProvider } from "@/lib/theme-context";
+import ScrollToTop from "@/components/scroll-to-top";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -56,6 +57,7 @@ export default function RootLayout({
                 <OrdersProvider>
                   <CartProvider>
                     <ThemeProvider>
+                      <ScrollToTop />
                       {children}
                     </ThemeProvider>
                   </CartProvider>
