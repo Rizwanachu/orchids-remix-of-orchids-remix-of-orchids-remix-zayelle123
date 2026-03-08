@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, User, Heart, ShoppingBag, Menu, ChevronDown, X } from "lucide-react";
+import { Search, User, Heart, ShoppingBag, Menu, ChevronDown, X, ChevronRight } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { useProducts } from "@/lib/products-context";
@@ -18,11 +18,20 @@ const defaultNavigationItems = [
   { name: "FAQ", href: "/pages/faq" },
 ];
 
+interface CollectionDropdownItem {
+  id: number;
+  title: string;
+  slug: string;
+  imageUrl?: string;
+}
+
 const Header = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cmsSettings, setCmsSettings] = useState<Record<string, string>>({});
+  const [dropdownCollections, setDropdownCollections] = useState<CollectionDropdownItem[]>([]);
+  const [mobileProductsExpanded, setMobileProductsExpanded] = useState(false);
   const { totalItems, wishlist } = useCart();
   const { user } = useAuth();
   const { searchProducts } = useProducts();
@@ -31,6 +40,11 @@ const Header = () => {
     fetch("/api/site-settings")
       .then((res) => res.ok ? res.json() : Promise.reject())
       .then((data: Record<string, string>) => setCmsSettings(data))
+      .catch(() => {});
+
+    fetch("/api/collections")
+      .then((res) => res.ok ? res.json() : Promise.reject())
+      .then((data: { collections: CollectionDropdownItem[] }) => setDropdownCollections(data.collections || []))
       .catch(() => {});
   }, []);
 
@@ -87,7 +101,6 @@ const Header = () => {
         <div className="container mx-auto px-5 lg:px-8">
           <div className="flex items-center justify-between py-6">
             
-            {/* Search Bar */}
             <div className="hidden lg:flex flex-1 max-w-[300px] relative">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
@@ -168,7 +181,6 @@ const Header = () => {
               )}
             </div>
 
-            {/* Logo */}
             <div className="flex-shrink-0 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
               <a href="/" className="block">
                 <img
@@ -180,7 +192,6 @@ const Header = () => {
               </a>
             </div>
 
-            {/* Icons */}
             <div className="flex items-center justify-end flex-1 gap-2 lg:gap-6">
               <button 
                 className="lg:hidden p-2 text-[#1A1A1A]"
@@ -218,15 +229,44 @@ const Header = () => {
                     className="flex items-center gap-1 text-[13px] font-medium tracking-wide text-[#1A1A1A] uppercase hover:text-[#5C4B3D] transition-colors py-1"
                   >
                     {item.name}
-                    {item.hasDropdown && <ChevronDown size={14} className="opacity-60" />}
+                    {item.hasDropdown && <ChevronDown size={14} className="opacity-60 transition-transform duration-200 group-hover:rotate-180" />}
                   </a>
                   <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#5C4B3D] transition-all duration-300 group-hover:w-full" />
+
+                  {item.hasDropdown && dropdownCollections.length > 0 && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="bg-white border border-[#E8E4DE] rounded-lg shadow-xl min-w-[240px] py-2 overflow-hidden">
+                        <a
+                          href="/products"
+                          className="flex items-center gap-3 px-5 py-2.5 text-[13px] font-medium text-[#1A1A1A] hover:bg-[#F5F2ED] transition-colors"
+                        >
+                          View All Products
+                        </a>
+                        <div className="border-t border-[#F0EDE8] my-1" />
+                        {dropdownCollections.map((col) => (
+                          <a
+                            key={col.id}
+                            href={`/products?collection=${encodeURIComponent(col.slug)}`}
+                            className="flex items-center gap-3 px-5 py-2.5 hover:bg-[#F5F2ED] transition-colors group/item"
+                          >
+                            {col.imageUrl ? (
+                              <div className="relative w-8 h-8 rounded-md overflow-hidden border border-[#E8E4DE] flex-shrink-0">
+                                <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="32px" />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 rounded-md bg-[#F5F2ED] flex-shrink-0" />
+                            )}
+                            <span className="text-[13px] text-[#1A1A1A] group-hover/item:text-[#5C4B3D] transition-colors">{col.title}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Mobile menu */}
           {mobileMenuOpen && (
             <div className="lg:hidden border-t border-[#E8E4DE] py-4">
               <form onSubmit={handleSearchSubmit} className="relative mb-4">
@@ -244,12 +284,50 @@ const Header = () => {
               <ul className="space-y-1">
                 {navigationItems.map((item) => (
                   <li key={item.name}>
-                    <a
-                      href={item.href}
-                      className="block py-2.5 text-[14px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors"
-                    >
-                      {item.name}
-                    </a>
+                    {item.hasDropdown && dropdownCollections.length > 0 ? (
+                      <div>
+                        <button
+                          onClick={() => setMobileProductsExpanded(!mobileProductsExpanded)}
+                          className="flex items-center justify-between w-full py-2.5 text-[14px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors"
+                        >
+                          {item.name}
+                          <ChevronRight size={16} className={`text-[#757575] transition-transform duration-200 ${mobileProductsExpanded ? "rotate-90" : ""}`} />
+                        </button>
+                        {mobileProductsExpanded && (
+                          <div className="pl-4 pb-2 space-y-0.5">
+                            <a
+                              href="/products"
+                              className="block py-2 text-[13px] text-[#5C4B3D] font-medium hover:text-[#1A1A1A] transition-colors"
+                            >
+                              View All
+                            </a>
+                            {dropdownCollections.map((col) => (
+                              <a
+                                key={col.id}
+                                href={`/products?collection=${encodeURIComponent(col.slug)}`}
+                                className="flex items-center gap-2.5 py-2 text-[13px] text-[#757575] hover:text-[#5C4B3D] transition-colors"
+                              >
+                                {col.imageUrl ? (
+                                  <div className="relative w-6 h-6 rounded overflow-hidden border border-[#E8E4DE] flex-shrink-0">
+                                    <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="24px" />
+                                  </div>
+                                ) : (
+                                  <div className="w-6 h-6 rounded bg-[#F5F2ED] flex-shrink-0" />
+                                )}
+                                {col.title}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <a
+                        href={item.href}
+                        className="block py-2.5 text-[14px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors"
+                      >
+                        {item.name}
+                      </a>
+                    )}
                   </li>
                 ))}
                 <li className="pt-2 border-t border-[#F5F2ED]">

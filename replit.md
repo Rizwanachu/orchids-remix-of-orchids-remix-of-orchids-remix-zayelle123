@@ -29,6 +29,8 @@
 - Collections page shows product count per collection, allows viewing/adding/removing products from collections.
 - New Arrivals admin page has searchable product picker with images, drag-to-reorder functionality.
 - Zayelle Edit admin page has product/collection picker for redirect links. Also supports collections-style product management: add/remove products per edit item, view product count inline, stored as JSON array in `product_ids` TEXT column.
+- Header "All Products" nav item shows a hover dropdown listing all collections (with images) from `/api/collections`. Mobile menu has an expandable accordion for the same.
+- Products page has a Filters panel (toggle button) with collection filter chips and price range inputs (with quick presets). Supports `?collection=slug` URL parameter for deep linking from header dropdown.
 - Public products page has category filter chips and sort dropdown (Newest, Price Low-High, Price High-Low, Name A-Z).
 
 ## Admin Panel - Banners
