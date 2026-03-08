@@ -42,6 +42,8 @@ export default function SiteSettingsPage() {
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactHours, setContactHours] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [xUrl, setXUrl] = useState("");
   const [copyrightText, setCopyrightText] = useState("");
   const [whatsappFloatUrl, setWhatsappFloatUrl] = useState("");
   const [whatsappFloatText, setWhatsappFloatText] = useState("");
@@ -82,6 +84,8 @@ export default function SiteSettingsPage() {
         setContactWhatsapp(map["footer_contact_whatsapp"] || "");
         setContactHours(map["footer_contact_hours"] || "");
         setInstagramUrl(map["footer_instagram_url"] || "");
+        setFacebookUrl(map["footer_facebook_url"] || "");
+        setXUrl(map["footer_x_url"] || "");
         setCopyrightText(map["footer_copyright"] || "");
         setWhatsappFloatUrl(map["footer_whatsapp_float_url"] || "");
         setWhatsappFloatText(map["footer_whatsapp_float_text"] || "");
@@ -139,6 +143,8 @@ export default function SiteSettingsPage() {
         saveSetting("footer_contact_whatsapp", contactWhatsapp),
         saveSetting("footer_contact_hours", contactHours),
         saveSetting("footer_instagram_url", instagramUrl),
+        saveSetting("footer_facebook_url", facebookUrl),
+        saveSetting("footer_x_url", xUrl),
         saveSetting("footer_copyright", copyrightText),
         saveSetting("footer_whatsapp_float_url", whatsappFloatUrl),
         saveSetting("footer_whatsapp_float_text", whatsappFloatText),
@@ -592,6 +598,26 @@ export default function SiteSettingsPage() {
                   value={instagramUrl}
                   onChange={(e) => setInstagramUrl(e.target.value)}
                   placeholder="https://instagram.com/zayelle.in"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Facebook URL</label>
+                <input
+                  type="text"
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  placeholder="https://facebook.com/yourpage"
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">X (Twitter) URL</label>
+                <input
+                  type="text"
+                  value={xUrl}
+                  onChange={(e) => setXUrl(e.target.value)}
+                  placeholder="https://x.com/yourhandle"
                   className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                 />
               </div>

@@ -3,6 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { Instagram } from 'lucide-react';
 
+const FacebookIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+  </svg>
+);
+
+const XIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
 interface FooterLink {
   name: string;
   href: string;
@@ -44,6 +56,8 @@ const Footer = () => {
   const [contactWhatsapp, setContactWhatsapp] = useState("+91 8891485648");
   const [contactHours, setContactHours] = useState("Mon - Sat | 10 AM - 6 PM");
   const [instagramUrl, setInstagramUrl] = useState("https://instagram.com/zayelle.in");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [xUrl, setXUrl] = useState("");
   const [copyrightText, setCopyrightText] = useState("Copyright © Zayelle.in all rights reserved.");
   const [whatsappFloatUrl, setWhatsappFloatUrl] = useState("https://wa.me/918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648918891485648");
   const [whatsappFloatText, setWhatsappFloatText] = useState("Need Help? Chat with us");
@@ -60,6 +74,8 @@ const Footer = () => {
         if (data["footer_contact_whatsapp"]) setContactWhatsapp(data["footer_contact_whatsapp"]);
         if (data["footer_contact_hours"]) setContactHours(data["footer_contact_hours"]);
         if (data["footer_instagram_url"]) setInstagramUrl(data["footer_instagram_url"]);
+        if (data["footer_facebook_url"] !== undefined) setFacebookUrl(data["footer_facebook_url"]);
+        if (data["footer_x_url"] !== undefined) setXUrl(data["footer_x_url"]);
         if (data["footer_copyright"]) setCopyrightText(data["footer_copyright"]);
         if (data["footer_whatsapp_float_url"]) setWhatsappFloatUrl(data["footer_whatsapp_float_url"]);
         if (data["footer_whatsapp_float_text"]) setWhatsappFloatText(data["footer_whatsapp_float_text"]);
@@ -137,15 +153,40 @@ const Footer = () => {
               <p><span className="font-semibold">Hours:</span> {contactHours}</p>
             </div>
 
-            <div className="mt-4">
-              <a 
-                href={instagramUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-[#5C4B3D] transition-colors hover:bg-[#5C4B3D] hover:text-white"
-              >
-                <Instagram size={16} />
-              </a>
+            <div className="mt-4 flex items-center gap-2">
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-[#5C4B3D] transition-colors hover:bg-[#5C4B3D] hover:text-white"
+                  title="Instagram"
+                >
+                  <Instagram size={16} />
+                </a>
+              )}
+              {facebookUrl && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-[#5C4B3D] transition-colors hover:bg-[#5C4B3D] hover:text-white"
+                  title="Facebook"
+                >
+                  <FacebookIcon />
+                </a>
+              )}
+              {xUrl && (
+                <a
+                  href={xUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-[#5C4B3D] transition-colors hover:bg-[#5C4B3D] hover:text-white"
+                  title="X (Twitter)"
+                >
+                  <XIcon />
+                </a>
+              )}
             </div>
           </div>
         </div>
