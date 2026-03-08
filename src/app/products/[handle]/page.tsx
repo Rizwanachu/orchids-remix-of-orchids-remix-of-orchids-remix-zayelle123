@@ -301,7 +301,7 @@ export default function ProductDetailPage() {
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "dimension" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
                     <p className="text-[14px] text-[#555] leading-relaxed">
-                      {(product as any).dimension || "180cm x 70cm"}
+                      {product.dimension || "180cm x 70cm"}
                     </p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ export default function ProductDetailPage() {
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "material" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
                     <p className="text-[14px] text-[#555] leading-relaxed">
-                      {(product as any).material || "Premium Chiffon"}
+                      {product.material || "Premium Chiffon"}
                     </p>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function ProductDetailPage() {
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "care" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
                     <p className="text-[14px] text-[#555] leading-relaxed">
-                      {(product as any).careInstructions || "Hand wash recommended. Use mild detergent. Do not bleach. Steam iron only."}
+                      {product.careInstructions || "Hand wash recommended. Use mild detergent. Do not bleach. Steam iron only."}
                     </p>
                   </div>
                 </div>
