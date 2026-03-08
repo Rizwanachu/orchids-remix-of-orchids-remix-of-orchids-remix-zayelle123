@@ -3,6 +3,8 @@ import { db } from "@/../server/db";
 import { homepageSections } from "@/../shared/schema";
 import { asc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const sections = await db.select().from(homepageSections).orderBy(asc(homepageSections.displayOrder));

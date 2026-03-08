@@ -15,10 +15,11 @@ const DEFAULT_SECTIONS: Section[] = [
   { sectionName: "collections", label: "Collections", isVisible: true, displayOrder: 1 },
   { sectionName: "new-arrivals", label: "New Arrivals", isVisible: true, displayOrder: 2 },
   { sectionName: "promo-banners", label: "Promo Banners", isVisible: true, displayOrder: 3 },
-  { sectionName: "zayelle-edit", label: "Zayelle Edit", isVisible: true, displayOrder: 4 },
-  { sectionName: "instagram-feed", label: "Instagram Feed", isVisible: true, displayOrder: 5 },
-  { sectionName: "testimonials", label: "Testimonials", isVisible: true, displayOrder: 6 },
-  { sectionName: "trust-bar", label: "Trust Bar", isVisible: true, displayOrder: 7 },
+  { sectionName: "gift-hampers", label: "Gift Hampers", isVisible: true, displayOrder: 4 },
+  { sectionName: "zayelle-edit", label: "Zayelle Edit", isVisible: true, displayOrder: 5 },
+  { sectionName: "instagram-feed", label: "Instagram Feed", isVisible: true, displayOrder: 6 },
+  { sectionName: "testimonials", label: "Testimonials", isVisible: true, displayOrder: 7 },
+  { sectionName: "trust-bar", label: "Trust Bar", isVisible: true, displayOrder: 8 },
 ];
 
 export default function AdminHomepageLayoutPage() {

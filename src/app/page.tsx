@@ -1,6 +1,3 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Header from "@/components/sections/header";
 import HeroSection from "@/components/sections/hero";
 import CollectionsGrid from "@/components/sections/collections-grid";
@@ -12,13 +9,11 @@ import Testimonials from "@/components/sections/testimonials";
 import TrustBar from "@/components/sections/trust-bar";
 import GiftHampers from "@/components/sections/gift-hampers";
 import Footer from "@/components/sections/footer";
+import { db } from "../../server/db";
+import { homepageSections } from "../../shared/schema";
+import { asc } from "drizzle-orm";
 
-interface Section {
-  sectionName: string;
-  label: string;
-  isVisible: boolean;
-  displayOrder: number;
-}
+export const dynamic = "force-dynamic";
 
 const SECTION_MAP: Record<string, React.ComponentType> = {
   hero: HeroSection,
@@ -44,42 +39,32 @@ const DEFAULT_ORDER = [
   "trust-bar",
 ];
 
-export default function Home() {
-  const [sections, setSections] = useState<Section[] | null>(null);
+export default async function Home() {
+  let sectionNames: string[] = DEFAULT_ORDER;
 
-  useEffect(() => {
-    fetch("/api/homepage-layout")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.sections && data.sections.length > 0) {
-          setSections(data.sections);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  try {
+    const rows = await db
+      .select()
+      .from(homepageSections)
+      .orderBy(asc(homepageSections.displayOrder));
 
-  const renderSections = () => {
-    if (sections && sections.length > 0) {
-      return sections
-        .filter((s) => s.isVisible)
-        .map((s) => {
-          const Component = SECTION_MAP[s.sectionName];
-          if (!Component) return null;
-          return <Component key={s.sectionName} />;
-        });
+    if (rows.length > 0) {
+      sectionNames = rows
+        .filter((s) => s.isVisible === 1)
+        .map((s) => s.sectionName);
     }
-
-    return DEFAULT_ORDER.map((name) => {
-      const Component = SECTION_MAP[name];
-      if (!Component) return null;
-      return <Component key={name} />;
-    });
-  };
+  } catch {
+    sectionNames = DEFAULT_ORDER;
+  }
 
   return (
     <>
       <Header />
-      {renderSections()}
+      {sectionNames.map((name) => {
+        const Component = SECTION_MAP[name];
+        if (!Component) return null;
+        return <Component key={name} />;
+      })}
       <Footer />
     </>
   );
