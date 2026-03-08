@@ -25,6 +25,7 @@ import {
   FileText,
   Settings2,
   Palette,
+  Quote,
 } from "lucide-react";
 
 const navItems = [
@@ -38,6 +39,7 @@ const navItems = [
   { href: "/letsgetsuccessin2026/banners", label: "Banners", icon: Megaphone },
   { href: "/letsgetsuccessin2026/zayelle-edit", label: "Zayelle Edit", icon: Image },
   { href: "/letsgetsuccessin2026/media", label: "Media Library", icon: Image },
+  { href: "/letsgetsuccessin2026/testimonials", label: "Testimonials", icon: Quote },
   { href: "/letsgetsuccessin2026/dm-testimonials", label: "DM Testimonials", icon: MessageSquare },
   { href: "/letsgetsuccessin2026/reviews", label: "Reviews", icon: MessageSquare },
   { href: "/letsgetsuccessin2026/coupons", label: "Coupons", icon: Ticket },

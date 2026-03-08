@@ -275,6 +275,17 @@ export const productColors = pgTable("product_colors", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const communityTestimonials = pgTable("community_testimonials", {
+  id: serial("id").primaryKey(),
+  quote: text("quote").notNull(),
+  author: text("author").notNull(),
+  location: text("location").notNull().default(""),
+  rating: integer("rating").notNull().default(5),
+  isActive: integer("is_active").notNull().default(1),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
 export const contactMessages = pgTable("contact_messages", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),

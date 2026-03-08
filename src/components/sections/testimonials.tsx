@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
-const testimonials = [
+interface Testimonial {
+  id: number;
+  quote: string;
+  author: string;
+  location: string;
+  rating: number;
+}
+
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
     quote: "Finally found hijabs that feel light and look premium.",
@@ -35,7 +43,19 @@ const testimonials = [
 ];
 
 const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/testimonials')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.testimonials && data.testimonials.length > 0) {
+          setTestimonials(data.testimonials);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
@@ -56,7 +76,7 @@ const Testimonials = () => {
         </div>
 
         <div className="relative max-w-[1200px] mx-auto">
-          <button 
+          <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 -translate-y-1/2 -left-4 md:-left-8 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#E8E4DE] text-[#5C4B3D] transition-all hover:bg-[#5C4B3D] hover:text-white shadow-sm"
             aria-label="Previous testimonial"
@@ -64,7 +84,7 @@ const Testimonials = () => {
             <ChevronLeft size={20} />
           </button>
 
-          <button 
+          <button
             onClick={nextSlide}
             className="absolute right-0 top-1/2 -translate-y-1/2 -right-4 md:-right-8 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#E8E4DE] text-[#5C4B3D] transition-all hover:bg-[#5C4B3D] hover:text-white shadow-sm"
             aria-label="Next testimonial"
@@ -73,12 +93,12 @@ const Testimonials = () => {
           </button>
 
           <div className="overflow-hidden">
-            <div 
+            <div
               className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {testimonials.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="min-w-full flex items-center justify-center px-8"
                 >
@@ -93,7 +113,9 @@ const Testimonials = () => {
                     </blockquote>
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-[14px] font-semibold text-[#1A1A1A] uppercase tracking-wider">{item.author}</span>
-                      <span className="text-[13px] text-[#757575]">{item.location}</span>
+                      {item.location && (
+                        <span className="text-[13px] text-[#757575]">{item.location}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -114,7 +136,6 @@ const Testimonials = () => {
             ))}
           </div>
         </div>
-
       </div>
     </section>
   );

@@ -48,6 +48,14 @@
 - All product images migrated from base64 to media URLs (March 2026). API response dropped from 25-74s to <200ms.
 - Migration script at `scripts/migrate-base64-images.ts` can be re-run safely (skips products already using URLs).
 
+## Community Testimonials (Our Community Speaks)
+- `community_testimonials` table in DB (fields: id, quote, author, location, rating, is_active, display_order, created_at).
+- Admin CRUD at `/letsgetsuccessin2026/testimonials` (add, edit, toggle active, delete, star rating picker).
+- Admin API: `/api/admin/testimonials` (GET, POST) and `/api/admin/testimonials/[id]` (PATCH, DELETE).
+- Public API: `/api/testimonials` (returns only active testimonials ordered by display_order).
+- Frontend `src/components/sections/testimonials.tsx` fetches from `/api/testimonials` on mount; falls back to 4 hardcoded testimonials if API fails or returns empty.
+- Sidebar link "Testimonials" added to admin layout.
+
 ## Deployment
 - Deployed on Vercel.
 - Ensure `DATABASE_URL` and `JWT_SECRET` environment variables are set in Vercel.
