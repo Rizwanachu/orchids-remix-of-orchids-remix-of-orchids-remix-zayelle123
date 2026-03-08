@@ -888,13 +888,13 @@ export default function AdminProductsPage() {
                 </div>
                 <div>
                   <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                    Care Instructions
+                    Care Instructions (one per line)
                   </label>
                   <textarea
                     value={form.careInstructions}
                     onChange={(e) => updateField("careInstructions", e.target.value)}
-                    className="w-full h-[100px] px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-none"
-                    placeholder="e.g. Hand wash only"
+                    className="w-full h-[100px] px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-y font-mono"
+                    placeholder={"Hand wash recommended\nUse mild detergent\nDo not bleach\nSteam iron only"}
                   />
                 </div>
               </div>

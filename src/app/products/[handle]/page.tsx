@@ -330,9 +330,23 @@ export default function ProductDetailPage() {
                     <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "care" ? "rotate-180" : ""}`} />
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "care" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
-                    <p className="text-[14px] text-[#555] leading-relaxed">
-                      {product.careInstructions || "Hand wash recommended. Use mild detergent. Do not bleach. Steam iron only."}
-                    </p>
+                    {(() => {
+                      const text = product.careInstructions || "Hand wash recommended\nUse mild detergent\nDo not bleach\nSteam iron only";
+                      const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+                      if (lines.length > 1) {
+                        return (
+                          <ul className="space-y-1.5">
+                            {lines.map((line, idx) => (
+                              <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
+                                <span className="text-[#5C4B3D] mt-0.5">•</span>
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return <p className="text-[14px] text-[#555] leading-relaxed">{text}</p>;
+                    })()}
                   </div>
                 </div>
               </div>
