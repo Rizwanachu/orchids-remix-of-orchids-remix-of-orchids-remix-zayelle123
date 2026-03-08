@@ -15,6 +15,7 @@ import {
     Package,
     Search,
     ChevronLeft,
+    ChevronDown,
     Save,
     ImageIcon,
     Upload,
@@ -486,7 +487,7 @@ export default function AdminProductsPage() {
       isFreeShipping: form.isFreeShipping,
       colors: form.colors,
       gallery: form.gallery,
-      customHamperEnabled: form.customHamperEnabled,
+      customHamperEnabled: form.customHamperEnabled ? 1 : 0,
       customHamperTitle: form.customHamperTitle,
       customHamperBody: form.customHamperBody,
       customHamperInstagram: form.customHamperInstagram,
@@ -1077,7 +1078,7 @@ export default function AdminProductsPage() {
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden">
               <button
                 type="button"
-                onClick={() => updateField("customHamperEnabled", !form.customHamperEnabled)}
+                onClick={() => setForm(prev => ({ ...prev, customHamperEnabled: !prev.customHamperEnabled }))}
                 className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#FAFAF8] transition-colors"
               >
                 <div className="flex items-center gap-3">
