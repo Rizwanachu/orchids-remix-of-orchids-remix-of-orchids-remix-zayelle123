@@ -22,26 +22,15 @@ import {
     MinusSquare,
     ToggleLeft,
     FolderOpen,
+    Settings,
+    FileText,
+    BookmarkPlus,
   } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
-const CATEGORIES = [
-  { value: "chiffon-hijabs", label: "Chiffon Hijabs" },
-  { value: "satin-silk-hijabs", label: "Satin Silk Hijabs" },
-  { value: "premium-jersey-wraps", label: "Premium Jersey Wraps" },
-  { value: "everyday-essentials", label: "Everyday Essentials" },
-  { value: "occasion-hijabs", label: "Occasion Hijabs" },
-  { value: "accessories", label: "Accessories" },
-  { value: "gift-hampers", label: "Gift Hampers" },
-];
-
-const BADGES = [
-  { value: "", label: "None" },
-  { value: "New", label: "New" },
-  { value: "Sale", label: "Sale" },
-  { value: "Bestseller", label: "Bestseller" },
-  { value: "Gift", label: "Gift" },
-];
+interface CategoryItem { id: number; name: string; value: string; displayOrder: number }
+interface BadgeItem { id: number; name: string; value: string; color: string }
+interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
 
 interface ProductFormData {
   name: string;
@@ -82,7 +71,7 @@ const emptyForm: ProductFormData = {
   dimension: "",
   material: "",
   careInstructions: "",
-  category: CATEGORIES[0].value,
+  category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
   shippingCost: "49",
@@ -145,6 +134,180 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
+
+  const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
+  const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
+  const [templates, setTemplates] = useState<TemplateItem[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [showBadgeManager, setShowBadgeManager] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newBadgeName, setNewBadgeName] = useState("");
+  const [newBadgeColor, setNewBadgeColor] = useState("");
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
+  const [editingBadge, setEditingBadge] = useState<BadgeItem | null>(null);
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/admin/categories");
+      if (res.ok) { const data = await res.json(); setDynamicCategories(data); }
+    } catch (e) { console.error("Failed to fetch categories:", e); }
+  };
+
+  const fetchBadges = async () => {
+    try {
+      const res = await fetch("/api/admin/badges");
+      if (res.ok) { const data = await res.json(); setDynamicBadges(data); }
+    } catch (e) { console.error("Failed to fetch badges:", e); }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch("/api/admin/product-templates");
+      if (res.ok) { const data = await res.json(); setTemplates(data); }
+    } catch (e) { console.error("Failed to fetch templates:", e); }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBadges();
+    fetchTemplates();
+  }, []);
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    const value = newCategoryName.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newCategoryName.trim(), value }),
+      });
+      if (res.ok) { setNewCategoryName(""); await fetchCategories(); }
+      else { const d = await res.json(); setErrorMessage(d.error || "Failed to add category"); setTimeout(() => setErrorMessage(""), 3000); }
+    } catch { setErrorMessage("Failed to add category"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleUpdateCategory = async (cat: CategoryItem) => {
+    try {
+      const res = await fetch(`/api/admin/categories/${cat.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: cat.name, value: cat.value }),
+      });
+      if (res.ok) { setEditingCategory(null); await fetchCategories(); }
+    } catch { setErrorMessage("Failed to update category"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      if (res.ok) await fetchCategories();
+    } catch { setErrorMessage("Failed to delete category"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleAddBadge = async () => {
+    if (!newBadgeName.trim()) return;
+    try {
+      const res = await fetch("/api/admin/badges", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newBadgeName.trim(), value: newBadgeName.trim(), color: newBadgeColor }),
+      });
+      if (res.ok) { setNewBadgeName(""); setNewBadgeColor(""); await fetchBadges(); }
+      else { const d = await res.json(); setErrorMessage(d.error || "Failed to add badge"); setTimeout(() => setErrorMessage(""), 3000); }
+    } catch { setErrorMessage("Failed to add badge"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleUpdateBadge = async (badge: BadgeItem) => {
+    try {
+      const res = await fetch(`/api/admin/badges/${badge.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: badge.name, value: badge.value, color: badge.color }),
+      });
+      if (res.ok) { setEditingBadge(null); await fetchBadges(); }
+    } catch { setErrorMessage("Failed to update badge"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleDeleteBadge = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/badges/${id}`, { method: "DELETE" });
+      if (res.ok) await fetchBadges();
+    } catch { setErrorMessage("Failed to delete badge"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleApplyTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    if (!templateId) return;
+    const template = templates.find(t => t.id.toString() === templateId);
+    if (!template) return;
+    setForm(prev => ({
+      ...prev,
+      description: template.description || prev.description,
+      details: template.details || prev.details,
+      dimension: template.dimension || prev.dimension,
+      material: template.material || prev.material,
+      careInstructions: template.careInstructions || prev.careInstructions,
+      shippingPolicy: template.shippingPolicy || prev.shippingPolicy,
+      returnPolicy: template.returnPolicy || prev.returnPolicy,
+    }));
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!newTemplateName.trim()) return;
+    setSavingTemplate(true);
+    try {
+      const body = {
+        name: newTemplateName.trim(),
+        description: form.description,
+        details: form.details,
+        dimension: form.dimension,
+        material: form.material,
+        careInstructions: form.careInstructions,
+        shippingPolicy: form.shippingPolicy,
+        returnPolicy: form.returnPolicy,
+      };
+      const res = await fetch("/api/admin/product-templates", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        setNewTemplateName(""); setShowSaveTemplate(false); await fetchTemplates();
+        showSuccess("Template saved successfully");
+      } else {
+        const d = await res.json(); setErrorMessage(d.error || "Failed to save template"); setTimeout(() => setErrorMessage(""), 3000);
+      }
+    } catch { setErrorMessage("Failed to save template"); setTimeout(() => setErrorMessage(""), 3000); }
+    setSavingTemplate(false);
+  };
+
+  const handleUpdateTemplate = async (template: TemplateItem) => {
+    try {
+      const res = await fetch(`/api/admin/product-templates/${template.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: template.name,
+          description: template.description,
+          details: template.details,
+          dimension: template.dimension,
+          material: template.material,
+          careInstructions: template.careInstructions,
+          shippingPolicy: template.shippingPolicy,
+          returnPolicy: template.returnPolicy,
+        }),
+      });
+      if (res.ok) { setEditingTemplate(null); await fetchTemplates(); showSuccess("Template updated"); }
+    } catch { setErrorMessage("Failed to update template"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleDeleteTemplate = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/product-templates/${id}`, { method: "DELETE" });
+      if (res.ok) { await fetchTemplates(); showSuccess("Template deleted"); }
+    } catch { setErrorMessage("Failed to delete template"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
 
   const handleImageUpload = async (file: File, field: "image" | "hoverImage" | "gallery") => {
     setUploadingImage(field);
@@ -439,22 +602,57 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                    Category
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider">
+                      Category
+                    </label>
+                    <button type="button" onClick={() => setShowCategoryManager(!showCategoryManager)} className="text-[11px] text-[#5C4B3D] hover:underline flex items-center gap-1">
+                      <Settings size={11} /> Manage
+                    </button>
+                  </div>
                   <select
                     value={form.category}
                     onChange={(e) => updateField("category", e.target.value)}
                     className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                   >
-                    {CATEGORIES.map((cat) => (
+                    <option value="">Select Category</option>
+                    {dynamicCategories.map((cat) => (
                       <option key={cat.value} value={cat.value}>
-                        {cat.label}
+                        {cat.name}
                       </option>
                     ))}
                   </select>
                 </div>
               </div>
+
+              {showCategoryManager && (
+                <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
+                  <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Manage Categories</h3>
+                  <div className="space-y-2 mb-3 max-h-[200px] overflow-y-auto">
+                    {dynamicCategories.map((cat) => (
+                      <div key={cat.id} className="flex items-center gap-2 bg-[#FAFAF8] px-3 py-2 rounded-sm">
+                        {editingCategory?.id === cat.id ? (
+                          <>
+                            <input type="text" value={editingCategory.name} onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })} className="flex-1 h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                            <button onClick={() => handleUpdateCategory(editingCategory)} className="text-[11px] text-[#5C4B3D] hover:underline">Save</button>
+                            <button onClick={() => setEditingCategory(null)} className="text-[11px] text-[#757575] hover:underline">Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="flex-1 text-[13px] text-[#1A1A1A]">{cat.name}</span>
+                            <button onClick={() => setEditingCategory(cat)} className="text-[#757575] hover:text-[#5C4B3D]"><Pencil size={12} /></button>
+                            <button onClick={() => handleDeleteCategory(cat.id)} className="text-[#757575] hover:text-red-500"><Trash2 size={12} /></button>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="text" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddCategory()} placeholder="New category name" className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                    <button onClick={handleAddCategory} className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31]">Add</button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
@@ -487,22 +685,60 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                    Badge
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider">
+                      Badge
+                    </label>
+                    <button type="button" onClick={() => setShowBadgeManager(!showBadgeManager)} className="text-[11px] text-[#5C4B3D] hover:underline flex items-center gap-1">
+                      <Settings size={11} /> Manage
+                    </button>
+                  </div>
                   <select
                     value={form.badge}
                     onChange={(e) => updateField("badge", e.target.value)}
                     className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                   >
-                    {BADGES.map((badge) => (
+                    <option value="">None</option>
+                    {dynamicBadges.map((badge) => (
                       <option key={badge.value} value={badge.value}>
-                        {badge.label}
+                        {badge.name}
                       </option>
                     ))}
                   </select>
                 </div>
               </div>
+
+              {showBadgeManager && (
+                <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
+                  <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Manage Badges</h3>
+                  <div className="space-y-2 mb-3 max-h-[200px] overflow-y-auto">
+                    {dynamicBadges.map((badge) => (
+                      <div key={badge.id} className="flex items-center gap-2 bg-[#FAFAF8] px-3 py-2 rounded-sm">
+                        {editingBadge?.id === badge.id ? (
+                          <>
+                            <input type="text" value={editingBadge.name} onChange={(e) => setEditingBadge({ ...editingBadge, name: e.target.value, value: e.target.value })} className="flex-1 h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                            <input type="text" value={editingBadge.color} onChange={(e) => setEditingBadge({ ...editingBadge, color: e.target.value })} placeholder="Color (optional)" className="w-[100px] h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                            <button onClick={() => handleUpdateBadge(editingBadge)} className="text-[11px] text-[#5C4B3D] hover:underline">Save</button>
+                            <button onClick={() => setEditingBadge(null)} className="text-[11px] text-[#757575] hover:underline">Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="flex-1 text-[13px] text-[#1A1A1A]">{badge.name}</span>
+                            {badge.color && <span className="w-4 h-4 rounded-full border" style={{ backgroundColor: badge.color }} />}
+                            <button onClick={() => setEditingBadge(badge)} className="text-[#757575] hover:text-[#5C4B3D]"><Pencil size={12} /></button>
+                            <button onClick={() => handleDeleteBadge(badge.id)} className="text-[#757575] hover:text-red-500"><Trash2 size={12} /></button>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="text" value={newBadgeName} onChange={(e) => setNewBadgeName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddBadge()} placeholder="New badge name" className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                    <input type="text" value={newBadgeColor} onChange={(e) => setNewBadgeColor(e.target.value)} placeholder="Color (optional)" className="w-[120px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                    <button onClick={handleAddBadge} className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31]">Add</button>
+                  </div>
+                </div>
+              )}
 
               <div className="pt-4 border-t border-[#F5F2ED]">
                 <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Shipping Options</h3>
@@ -538,6 +774,70 @@ export default function AdminProductsPage() {
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-[16px] font-semibold text-[#1A1A1A] flex items-center gap-2">
+                  <FileText size={18} className="text-[#5C4B3D]" />
+                  Load Template
+                </h2>
+                <button type="button" onClick={() => setShowTemplateManager(!showTemplateManager)} className="text-[11px] text-[#5C4B3D] hover:underline flex items-center gap-1">
+                  <Settings size={11} /> Manage Templates
+                </button>
+              </div>
+              <p className="text-[12px] text-[#757575] mb-3">Select a saved template to auto-fill product details, description, and specifications.</p>
+              <select
+                value={selectedTemplate}
+                onChange={(e) => handleApplyTemplate(e.target.value)}
+                className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+              >
+                <option value="">-- No Template --</option>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id.toString()}>{t.name}</option>
+                ))}
+              </select>
+
+              {showTemplateManager && (
+                <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
+                  <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Saved Templates</h3>
+                  {templates.length === 0 ? (
+                    <p className="text-[13px] text-[#757575]">No templates saved yet. Fill in the product details below and use &quot;Save as Template&quot; to create one.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                      {templates.map((t) => (
+                        <div key={t.id} className="bg-[#FAFAF8] px-3 py-2 rounded-sm">
+                          {editingTemplate?.id === t.id ? (
+                            <div className="space-y-2">
+                              <input type="text" value={editingTemplate.name} onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })} className="w-full h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" placeholder="Template name" />
+                              <textarea value={editingTemplate.description} onChange={(e) => setEditingTemplate({ ...editingTemplate, description: e.target.value })} className="w-full h-[60px] px-2 py-1 border border-[#E8E4DE] rounded-sm text-[12px] bg-white resize-none" placeholder="Description" />
+                              <div className="grid grid-cols-2 gap-2">
+                                <input type="text" value={editingTemplate.dimension} onChange={(e) => setEditingTemplate({ ...editingTemplate, dimension: e.target.value })} className="h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white" placeholder="Dimension" />
+                                <input type="text" value={editingTemplate.material} onChange={(e) => setEditingTemplate({ ...editingTemplate, material: e.target.value })} className="h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white" placeholder="Material" />
+                              </div>
+                              <div className="flex gap-2 justify-end">
+                                <button onClick={() => handleUpdateTemplate(editingTemplate)} className="text-[11px] text-[#5C4B3D] hover:underline">Save</button>
+                                <button onClick={() => setEditingTemplate(null)} className="text-[11px] text-[#757575] hover:underline">Cancel</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <span className="text-[13px] font-medium text-[#1A1A1A]">{t.name}</span>
+                                {t.material && <span className="text-[11px] text-[#757575] ml-2">{t.material}</span>}
+                                {t.dimension && <span className="text-[11px] text-[#757575] ml-1">| {t.dimension}</span>}
+                              </div>
+                              <button onClick={() => handleApplyTemplate(t.id.toString())} className="text-[11px] text-[#5C4B3D] hover:underline">Apply</button>
+                              <button onClick={() => setEditingTemplate(t)} className="text-[#757575] hover:text-[#5C4B3D]"><Pencil size={12} /></button>
+                              <button onClick={() => handleDeleteTemplate(t.id)} className="text-[#757575] hover:text-red-500"><Trash2 size={12} /></button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
@@ -821,6 +1121,42 @@ export default function AdminProductsPage() {
                   />
                 </div>
               </div>
+
+              <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
+                {showSaveTemplate ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newTemplateName}
+                      onChange={(e) => setNewTemplateName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()}
+                      placeholder="Enter template name (e.g. Chiffon Hijab Default)"
+                      className="flex-1 h-[38px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white focus:outline-none focus:border-[#5C4B3D]"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveTemplate}
+                      disabled={savingTemplate || !newTemplateName.trim()}
+                      className="h-[38px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] font-medium hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                    >
+                      <Save size={13} />
+                      {savingTemplate ? "Saving..." : "Save"}
+                    </button>
+                    <button onClick={() => { setShowSaveTemplate(false); setNewTemplateName(""); }} className="h-[38px] px-3 text-[12px] text-[#757575] hover:text-[#1A1A1A] border border-[#E8E4DE] rounded-sm">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowSaveTemplate(true)}
+                    className="flex items-center gap-2 text-[13px] text-[#5C4B3D] hover:text-[#4A3C31] font-medium"
+                  >
+                    <BookmarkPlus size={15} />
+                    Save current details as template
+                  </button>
+                )}
+              </div>
             </div>
 
             {errorMessage && (
@@ -933,14 +1269,14 @@ export default function AdminProductsPage() {
                 </button>
                 {bulkCategoryOpen && (
                   <div className="absolute top-full mt-1 right-0 bg-white border border-[#E8E4DE] rounded-[8px] shadow-lg z-10 min-w-[180px] py-1">
-                    {CATEGORIES.map((cat) => (
+                    {dynamicCategories.map((cat) => (
                       <button
                         key={cat.value}
                         onClick={() => handleBulkSetCategory(cat.value)}
                         disabled={bulkLoading}
                         className="w-full text-left px-3 py-2 text-[12px] text-[#1A1A1A] hover:bg-[#F5F2ED] transition-colors disabled:opacity-50"
                       >
-                        {cat.label}
+                        {cat.name}
                       </button>
                     ))}
                   </div>

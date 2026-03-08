@@ -231,6 +231,35 @@ export const media = sqliteTable("media", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const categories = sqliteTable("categories", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+  value: text("value").notNull().unique(),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const badges = sqliteTable("badges", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+  value: text("value").notNull().unique(),
+  color: text("color").notNull().default(""),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const productTemplates = sqliteTable("product_templates", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description").notNull().default(""),
+  details: text("details").notNull().default(""),
+  dimension: text("dimension").notNull().default(""),
+  material: text("material").notNull().default(""),
+  careInstructions: text("care_instructions").notNull().default(""),
+  shippingPolicy: text("shipping_policy").notNull().default(""),
+  returnPolicy: text("return_policy").notNull().default(""),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -255,3 +284,6 @@ export type SiteSetting = typeof siteSettings.$inferSelect;
 export type ThemeSetting = typeof themeSettings.$inferSelect;
 export type PageContent = typeof pageContents.$inferSelect;
 export type Media = typeof media.$inferSelect;
+export type Category = typeof categories.$inferSelect;
+export type Badge = typeof badges.$inferSelect;
+export type ProductTemplate = typeof productTemplates.$inferSelect;

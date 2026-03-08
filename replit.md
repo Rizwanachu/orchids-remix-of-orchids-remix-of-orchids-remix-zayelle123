@@ -32,6 +32,9 @@
 - Header "All Products" nav item shows a hover dropdown listing all collections (with images) from `/api/collections`. Mobile menu has an expandable accordion for the same.
 - Products page has a Filters panel (toggle button) with collection filter chips and price range inputs (with quick presets). Supports `?collection=slug` URL parameter for deep linking from header dropdown.
 - Public products page has category filter chips and sort dropdown (Newest, Price Low-High, Price High-Low, Name A-Z).
+- **Dynamic Categories**: Categories stored in `categories` table. Admin can add/edit/delete categories inline via "Manage" button on category dropdown. API: `/api/admin/categories` (CRUD), `/api/categories` (public GET). Default categories seeded on first access.
+- **Dynamic Badges**: Badges stored in `badges` table. Admin can add/edit/delete badges inline via "Manage" button on badge dropdown. API: `/api/admin/badges` (CRUD). Default badges (New, Sale, Bestseller, Gift) seeded on first access.
+- **Product Templates**: Saved in `product_templates` table. Admin can save current product details (description, details, dimension, material, careInstructions, shippingPolicy, returnPolicy) as a named template. "Load Template" dropdown auto-fills these fields. Templates manageable (edit/delete) via "Manage Templates" panel. API: `/api/admin/product-templates` (CRUD).
 
 ## Admin Panel - Banners
 - Banner image upload limit: 10MB (via `/api/admin/upload`).
