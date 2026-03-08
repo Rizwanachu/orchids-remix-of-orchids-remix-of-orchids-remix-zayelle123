@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 interface Testimonial {
   id: number;
@@ -42,12 +44,76 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+const TestimonialCard = ({ item }: { item: Testimonial }) => (
+  <div className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] min-w-0 pl-5">
+    <div className="bg-white border border-[#E8E4DE] rounded-2xl p-8 flex flex-col items-center text-center h-full">
+      <div className="flex justify-center gap-1 mb-5">
+        {Array.from({ length: item.rating }).map((_, i) => (
+          <Star key={i} size={16} fill="#D4A574" stroke="#D4A574" />
+        ))}
+      </div>
+      <blockquote className="font-serif italic text-[18px] md:text-[20px] text-[#1A1A1A] leading-relaxed mb-6 flex-1">
+        &ldquo;{item.quote}&rdquo;
+      </blockquote>
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-[13px] font-semibold text-[#1A1A1A] uppercase tracking-wider">
+          {item.author}
+        </span>
+        {item.location && (
+          <span className="text-[12px] text-[#757575]">{item.location}</span>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [slidesPerView, setSlidesPerView] = useState(1);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "start",
+      slidesToScroll: 1,
+    },
+    [Autoplay({ delay: 4000, stopOnInteraction: false })]
+  );
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
   useEffect(() => {
-    fetch('/api/testimonials')
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    const updateSlidesPerView = () => {
+      if (window.innerWidth >= 1024) setSlidesPerView(3);
+      else if (window.innerWidth >= 640) setSlidesPerView(2);
+      else setSlidesPerView(1);
+    };
+    updateSlidesPerView();
+    window.addEventListener("resize", updateSlidesPerView);
+    return () => window.removeEventListener("resize", updateSlidesPerView);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/testimonials")
       .then((res) => res.json())
       .then((data) => {
         if (data.testimonials && data.testimonials.length > 0) {
@@ -57,84 +123,54 @@ const Testimonials = () => {
       .catch(() => {});
   }, []);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
   return (
-    <section className="py-20 bg-[#FAF9F6]">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-[28px] md:text-[36px] font-serif italic text-[#1A1A1A] mb-2">
+    <section className="py-[80px] bg-[#FAF9F6] overflow-hidden">
+      <div className="container">
+        <header className="flex flex-col items-center mb-10 text-center">
+          <h2 className="text-[32px] font-serif italic text-foreground mb-2">
             Our Community Speaks
           </h2>
-          <div className="w-12 h-[2px] bg-[#5C4B3D] mx-auto opacity-20"></div>
-        </div>
+          <div className="w-[60px] h-[1px] bg-[#5C4B3D] opacity-20 mb-8"></div>
+        </header>
 
-        <div className="relative max-w-[1200px] mx-auto">
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -left-4 md:-left-8 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#E8E4DE] text-[#5C4B3D] transition-all hover:bg-[#5C4B3D] hover:text-white shadow-sm"
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={20} />
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -right-4 md:-right-8 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#E8E4DE] text-[#5C4B3D] transition-all hover:bg-[#5C4B3D] hover:text-white shadow-sm"
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
+        <div className="relative group/carousel px-4 sm:px-0">
+          <div className="embla overflow-hidden" ref={emblaRef}>
+            <div className="embla__container flex ml-[-20px]">
               {testimonials.map((item) => (
-                <div
-                  key={item.id}
-                  className="min-w-full flex items-center justify-center px-8"
-                >
-                  <div className="max-w-[600px] text-center py-10">
-                    <div className="flex justify-center gap-1 mb-6">
-                      {Array.from({ length: item.rating }).map((_, i) => (
-                        <Star key={i} size={18} fill="#D4A574" stroke="#D4A574" />
-                      ))}
-                    </div>
-                    <blockquote className="font-serif italic text-[22px] md:text-[28px] text-[#1A1A1A] leading-relaxed mb-8">
-                      &ldquo;{item.quote}&rdquo;
-                    </blockquote>
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-[14px] font-semibold text-[#1A1A1A] uppercase tracking-wider">{item.author}</span>
-                      {item.location && (
-                        <span className="text-[13px] text-[#757575]">{item.location}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <TestimonialCard key={item.id} item={item} />
               ))}
             </div>
           </div>
 
-          <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  currentIndex === idx ? 'bg-[#5C4B3D] w-4' : 'bg-[#D4C8BE]'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
+          <button
+            onClick={scrollPrev}
+            className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft border border-[#E8E4DE] text-[#5C4B3D] opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:left-[-40px] transition-all duration-300 hidden xl:flex z-10 hover:bg-[#5C4B3D] hover:text-white"
+            aria-label="Previous testimonial"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            onClick={scrollNext}
+            className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft border border-[#E8E4DE] text-[#5C4B3D] opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:right-[-40px] transition-all duration-300 hidden xl:flex z-10 hover:bg-[#5C4B3D] hover:text-white"
+            aria-label="Next testimonial"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: Math.ceil(testimonials.length / slidesPerView) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => emblaApi?.scrollTo(index * slidesPerView)}
+              className={`transition-all duration-300 rounded-full ${
+                Math.floor(selectedIndex / slidesPerView) === index
+                  ? "w-4 h-2 bg-[#5C4B3D]"
+                  : "w-2 h-2 bg-[#D4C8BE]"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>
