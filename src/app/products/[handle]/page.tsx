@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, ChevronDown, Share2 } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, ChevronDown, Share2, Check } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 import ProductReviews, { ProductReviewSummary } from "@/components/product-reviews";
@@ -23,6 +23,7 @@ export default function ProductDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
+  const [linkCopied, setLinkCopied] = useState(false);
 
   if (!loaded) {
     return (
@@ -54,16 +55,37 @@ export default function ProductDetailPage() {
     );
   }
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: product.name,
-        text: product.subtitle,
-        url: window.location.href,
-      }).catch(console.error);
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: product.subtitle,
+          url,
+        });
+        return;
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+      }
+    }
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      prompt("Copy this link:", url);
     }
   };
 
@@ -244,10 +266,17 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={handleShare}
-                  className="w-11 h-11 border border-[#E8E4DE] rounded-sm flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors"
+                  className={`h-11 border rounded-sm flex items-center justify-center transition-colors ${linkCopied ? "px-3 gap-1.5 border-green-300 text-green-600 bg-green-50" : "w-11 border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"}`}
                   title="Share Product"
                 >
-                  <Share2 size={18} />
+                  {linkCopied ? (
+                    <>
+                      <Check size={16} />
+                      <span className="text-[12px] font-medium">Copied!</span>
+                    </>
+                  ) : (
+                    <Share2 size={18} />
+                  )}
                 </button>
               </div>
 
