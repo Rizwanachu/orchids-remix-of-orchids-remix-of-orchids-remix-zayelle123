@@ -17,7 +17,6 @@ import {
     Save,
     ImageIcon,
     Upload,
-    Check,
     CheckSquare,
     Square,
     MinusSquare,
@@ -32,8 +31,7 @@ import MediaPickerModal from "@/components/admin/media-picker-modal";
 interface CategoryItem { id: number; name: string; value: string; displayOrder: number }
 interface BadgeItem { id: number; name: string; value: string; color: string }
 interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
-
-interface ColorItem { id: number; name: string; hexValue: string }
+interface ColorVariant { name: string; hex: string; image?: string }
 
 interface ProductFormData {
   name: string;
@@ -143,7 +141,6 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
-  const [uploadingColorHex, setUploadingColorHex] = useState<string | null>(null);
 
   const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
   const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
@@ -161,11 +158,9 @@ export default function AdminProductsPage() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
   const [showTemplateManager, setShowTemplateManager] = useState(false);
-  const [availableColors, setAvailableColors] = useState<ColorItem[]>([]);
-  const [showColorManager, setShowColorManager] = useState(false);
-  const [newColorName, setNewColorName] = useState("");
-  const [newColorHex, setNewColorHex] = useState("#000000");
-  const [editingColor, setEditingColor] = useState<ColorItem | null>(null);
+  const [newVariantName, setNewVariantName] = useState("");
+  const [newVariantHex, setNewVariantHex] = useState("#000000");
+  const [uploadingVariantIdx, setUploadingVariantIdx] = useState<number | null>(null);
 
   const fetchCategories = async () => {
     try {
@@ -188,18 +183,10 @@ export default function AdminProductsPage() {
     } catch (e) { console.error("Failed to fetch templates:", e); }
   };
 
-  const fetchColors = async () => {
-    try {
-      const res = await fetch("/api/admin/product-colors");
-      if (res.ok) { const data = await res.json(); setAvailableColors(data); }
-    } catch (e) { console.error("Failed to fetch colors:", e); }
-  };
-
   useEffect(() => {
     fetchCategories();
     fetchBadges();
     fetchTemplates();
-    fetchColors();
   }, []);
 
   const handleAddCategory = async () => {
@@ -261,48 +248,22 @@ export default function AdminProductsPage() {
     } catch { setErrorMessage("Failed to delete badge"); setTimeout(() => setErrorMessage(""), 3000); }
   };
 
-  const handleAddColor = async () => {
-    if (!newColorName.trim() || !newColorHex.trim()) return;
-    try {
-      const res = await fetch("/api/admin/product-colors", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newColorName.trim(), hexValue: newColorHex.trim() }),
-      });
-      if (res.ok) { setNewColorName(""); setNewColorHex("#000000"); await fetchColors(); }
-    } catch { setErrorMessage("Failed to add color"); setTimeout(() => setErrorMessage(""), 3000); }
+  const addVariant = () => {
+    const name = newVariantName.trim();
+    if (!name) return;
+    setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex }] }));
+    setNewVariantName("");
+    setNewVariantHex("#000000");
   };
 
-  const handleUpdateColor = async (color: ColorItem) => {
-    try {
-      const res = await fetch(`/api/admin/product-colors/${color.id}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: color.name, hexValue: color.hexValue }),
-      });
-      if (res.ok) { setEditingColor(null); await fetchColors(); }
-    } catch { setErrorMessage("Failed to update color"); setTimeout(() => setErrorMessage(""), 3000); }
+  const removeVariant = (idx: number) => {
+    setForm(prev => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }));
   };
 
-  const handleDeleteColor = async (id: number) => {
-    try {
-      const res = await fetch(`/api/admin/product-colors/${id}`, { method: "DELETE" });
-      if (res.ok) await fetchColors();
-    } catch { setErrorMessage("Failed to delete color"); setTimeout(() => setErrorMessage(""), 3000); }
-  };
-
-  const toggleProductColor = (color: ColorItem) => {
-    setForm(prev => {
-      const exists = prev.colors.some(c => c.hex === color.hexValue);
-      if (exists) {
-        return { ...prev, colors: prev.colors.filter(c => c.hex !== color.hexValue) };
-      }
-      return { ...prev, colors: [...prev.colors, { name: color.name, hex: color.hexValue }] };
-    });
-  };
-
-  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, hex: string) => {
+  const uploadVariantImage = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingColorHex(hex);
+    setUploadingVariantIdx(idx);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -311,11 +272,11 @@ export default function AdminProductsPage() {
         const data = await res.json();
         setForm(prev => ({
           ...prev,
-          colors: prev.colors.map(c => c.hex === hex ? { ...c, image: data.url } : c),
+          colors: prev.colors.map((c, i) => i === idx ? { ...c, image: data.url } : c),
         }));
       }
-    } catch { setErrorMessage("Failed to upload color image"); setTimeout(() => setErrorMessage(""), 3000); }
-    finally { setUploadingColorHex(null); }
+    } catch { setErrorMessage("Failed to upload variant image"); setTimeout(() => setErrorMessage(""), 3000); }
+    finally { setUploadingVariantIdx(null); }
   };
 
   const handleApplyTemplate = (templateId: string) => {
@@ -823,96 +784,73 @@ export default function AdminProductsPage() {
               )}
 
               <div className="pt-4 border-t border-[#F5F2ED]">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[14px] font-medium text-[#1A1A1A]">Color Variants</h3>
-                  <button type="button" onClick={() => setShowColorManager(!showColorManager)} className="text-[11px] text-[#5C4B3D] hover:underline flex items-center gap-1">
-                    <Settings size={11} /> Manage
-                  </button>
-                </div>
-                {availableColors.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {availableColors.map((color) => {
-                      const isSelected = form.colors.some(c => c.hex === color.hexValue);
-                      return (
-                        <button
-                          key={color.id}
-                          type="button"
-                          onClick={() => toggleProductColor(color)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[12px] transition-all ${isSelected ? "border-[#5C4B3D] bg-[#5C4B3D]/5 ring-1 ring-[#5C4B3D]" : "border-[#E8E4DE] hover:border-[#D4C8BE]"}`}
-                          title={color.name}
-                        >
-                          <span className="w-4 h-4 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hexValue }} />
-                          <span className="text-[#1A1A1A]">{color.name}</span>
-                          {isSelected && <Check size={12} className="text-[#5C4B3D]" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-[12px] text-[#999] mb-2">No colors added yet. Click &quot;Manage&quot; to add colors.</p>
-                )}
+                <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-1">Product Color Variants</h3>
+                <p className="text-[12px] text-[#999] mb-3">Add color options with images so customers can see each color on the product page.</p>
+
                 {form.colors.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    <p className="text-[11px] font-medium text-[#757575] uppercase tracking-wider">Color Images (optional)</p>
-                    {form.colors.map((color) => (
-                      <div key={color.hex} className="flex items-center gap-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-sm px-3 py-2">
-                        <span className="w-5 h-5 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hex }} />
-                        <span className="text-[13px] text-[#1A1A1A] min-w-[80px]">{color.name}</span>
+                  <div className="space-y-2 mb-4">
+                    {form.colors.map((color, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md px-3 py-2.5">
+                        <span className="w-7 h-7 rounded-full border-2 border-white shadow flex-shrink-0" style={{ backgroundColor: color.hex }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{color.name}</p>
+                          <p className="text-[11px] text-[#999] font-mono">{color.hex}</p>
+                        </div>
                         {color.image ? (
-                          <>
-                            <img src={color.image} alt={color.name} className="w-10 h-10 object-cover rounded border border-[#E8E4DE] flex-shrink-0" />
-                            <label className="flex items-center gap-1 text-[11px] text-[#5C4B3D] hover:underline cursor-pointer">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <img src={color.image} alt={color.name} className="w-11 h-11 object-cover rounded-md border border-[#E8E4DE]" />
+                            <label className="text-[11px] text-[#5C4B3D] hover:underline cursor-pointer whitespace-nowrap">
                               Change
-                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, color.hex)} disabled={uploadingColorHex === color.hex} />
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
                             </label>
-                            <button type="button" onClick={() => setForm(prev => ({ ...prev, colors: prev.colors.map(c => c.hex === color.hex ? { ...c, image: undefined } : c) }))} className="text-[11px] text-red-500 hover:underline ml-1">Remove</button>
-                          </>
+                            <button type="button" onClick={() => setForm(prev => ({ ...prev, colors: prev.colors.map((c, i) => i === idx ? { ...c, image: undefined } : c) }))} className="text-[11px] text-[#999] hover:text-red-500 transition-colors whitespace-nowrap">Remove img</button>
+                          </div>
                         ) : (
-                          <label className={`flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors ${uploadingColorHex === color.hex ? "opacity-50 pointer-events-none" : "text-[#757575]"}`}>
+                          <label className={`flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingVariantIdx === idx ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
                             <Upload size={12} />
-                            {uploadingColorHex === color.hex ? "Uploading..." : "Add Image"}
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, color.hex)} disabled={uploadingColorHex === color.hex} />
+                            {uploadingVariantIdx === idx ? "Uploading..." : "Upload Image"}
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
                           </label>
                         )}
+                        <button type="button" onClick={() => removeVariant(idx)} className="text-[#999] hover:text-red-500 transition-colors flex-shrink-0 ml-1">
+                          <X size={15} />
+                        </button>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {showColorManager && (
-                  <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
-                    <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Manage Colors</h3>
-                    <div className="space-y-2 mb-3 max-h-[250px] overflow-y-auto">
-                      {availableColors.map((color) => (
-                        <div key={color.id} className="flex items-center gap-2 bg-[#FAFAF8] px-3 py-2 rounded-sm">
-                          {editingColor?.id === color.id ? (
-                            <>
-                              <input type="color" value={editingColor.hexValue} onChange={(e) => setEditingColor({ ...editingColor, hexValue: e.target.value })} className="w-8 h-8 rounded border-0 cursor-pointer p-0" />
-                              <input type="text" value={editingColor.name} onChange={(e) => setEditingColor({ ...editingColor, name: e.target.value })} className="flex-1 h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
-                              <input type="text" value={editingColor.hexValue} onChange={(e) => setEditingColor({ ...editingColor, hexValue: e.target.value })} className="w-[90px] h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white font-mono" />
-                              <button onClick={() => handleUpdateColor(editingColor)} className="text-[11px] text-[#5C4B3D] hover:underline">Save</button>
-                              <button onClick={() => setEditingColor(null)} className="text-[11px] text-[#757575] hover:underline">Cancel</button>
-                            </>
-                          ) : (
-                            <>
-                              <span className="w-6 h-6 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hexValue }} />
-                              <span className="flex-1 text-[13px] text-[#1A1A1A]">{color.name}</span>
-                              <span className="text-[11px] text-[#999] font-mono">{color.hexValue}</span>
-                              <button onClick={() => setEditingColor(color)} className="text-[#757575] hover:text-[#5C4B3D]"><Pencil size={12} /></button>
-                              <button onClick={() => handleDeleteColor(color.id)} className="text-[#757575] hover:text-red-500"><Trash2 size={12} /></button>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="w-9 h-9 rounded border-0 cursor-pointer p-0" />
-                      <input type="text" value={newColorName} onChange={(e) => setNewColorName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddColor()} placeholder="Color name (e.g. Blush Pink)" className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
-                      <input type="text" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} placeholder="#FF0000" className="w-[90px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white font-mono" />
-                      <button onClick={handleAddColor} className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31]">Add</button>
-                    </div>
-                  </div>
-                )}
+                <div className="flex gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
+                  <input
+                    type="color"
+                    value={newVariantHex}
+                    onChange={(e) => setNewVariantHex(e.target.value)}
+                    className="w-9 h-9 rounded-md border border-[#E8E4DE] cursor-pointer p-0.5 bg-white flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    value={newVariantHex}
+                    onChange={(e) => setNewVariantHex(e.target.value)}
+                    placeholder="#000000"
+                    className="w-[88px] h-[36px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white font-mono flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    value={newVariantName}
+                    onChange={(e) => setNewVariantName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addVariant()}
+                    placeholder="Color name (e.g. Dusty Rose)"
+                    className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    disabled={!newVariantName.trim()}
+                    className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 flex items-center gap-1.5"
+                  >
+                    <Plus size={13} /> Add
+                  </button>
+                </div>
               </div>
 
               <div className="pt-4 border-t border-[#F5F2ED]">

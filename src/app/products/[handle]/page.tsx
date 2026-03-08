@@ -182,7 +182,7 @@ export default function ProductDetailPage() {
                   src={selectedColorImage || images[activeImage]}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-all duration-300 ease-in-out"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
@@ -231,13 +231,13 @@ export default function ProductDetailPage() {
 
               {(product as any).colors && (product as any).colors.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-[12px] text-[#757575] mb-2 uppercase tracking-wider">
+                  <p className="text-[12px] text-[#757575] mb-2.5 uppercase tracking-wider font-medium">
                     {selectedColorIdx !== null
-                      ? <><span>Color</span><span className="ml-1 text-[#1A1A1A] font-semibold normal-case">— {(product as any).colors[selectedColorIdx]?.name}</span></>
-                      : "Available Colors"
+                      ? <>Color — <span className="text-[#1A1A1A] normal-case font-semibold">{(product as any).colors[selectedColorIdx]?.name}</span></>
+                      : "Select Color"
                     }
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {(product as any).colors.map((color: { name: string; hex: string; image?: string }, i: number) => (
                       <button
                         key={i}
@@ -251,17 +251,17 @@ export default function ProductDetailPage() {
                             setSelectedColorImage(color.image || null);
                           }
                         }}
-                        className={`group relative w-9 h-9 rounded-full border-2 transition-all cursor-pointer ${
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${
                           selectedColorIdx === i
-                            ? "border-[#5C4B3D] scale-110 shadow-[0_0_0_3px_rgba(92,75,61,0.2)]"
-                            : "border-[#E8E4DE] hover:border-[#5C4B3D] hover:scale-105"
+                            ? "border-[#5C4B3D] bg-[#5C4B3D]/5 shadow-sm font-medium text-[#1A1A1A]"
+                            : "border-[#E8E4DE] hover:border-[#5C4B3D] text-[#555]"
                         }`}
-                        style={{ backgroundColor: color.hex }}
-                        title={color.name}
                       >
-                        <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-[#1A1A1A] text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                          {color.name}
-                        </span>
+                        <span
+                          className={`w-4 h-4 rounded-full flex-shrink-0 border ${selectedColorIdx === i ? "border-[#5C4B3D]/40" : "border-black/10"}`}
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span>{color.name}</span>
                       </button>
                     ))}
                   </div>
