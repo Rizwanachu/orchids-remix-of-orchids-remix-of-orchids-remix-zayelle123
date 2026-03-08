@@ -25,6 +25,7 @@ export async function GET() {
       lowStockThreshold: p.lowStockThreshold,
       shippingCost: Number(p.shippingCost),
       isFreeShipping: p.isFreeShipping,
+      gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     }));
     return NextResponse.json(formatted);
   } catch (error) {

@@ -121,8 +121,8 @@ export async function GET(request: NextRequest) {
       customers: paginated.map((c) => ({
         ...c,
         totalSpend: c.totalSpend.toFixed(2),
-        createdAt: c.lastOrderDate || c.firstOrderDate || new Date(),
-        lastOrderDate: c.lastOrderDate?.toISOString() || null,
+        createdAt: c.lastOrderDate || c.firstOrderDate || new Date().toISOString(),
+        lastOrderDate: c.lastOrderDate ? String(c.lastOrderDate) : null,
       })),
       total,
       page,

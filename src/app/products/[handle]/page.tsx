@@ -67,7 +67,7 @@ export default function ProductDetailPage() {
     }
   };
 
-  const images = [product.image, product.hoverImage];
+  const images = [product.image, product.hoverImage, ...(product.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
   const wishlisted = isInWishlist(product.id);
 
   const handleAddToCart = () => {

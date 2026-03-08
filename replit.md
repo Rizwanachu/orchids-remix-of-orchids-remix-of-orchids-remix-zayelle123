@@ -25,6 +25,11 @@
 - Save button shows loading state and validation errors for missing required fields.
 - Form includes shippingPolicy and returnPolicy text fields (UI only, not yet in DB schema).
 - Products context (`src/lib/products-context.tsx`) properly throws errors on failed API calls.
+- Multi-image gallery support: `gallery` TEXT column in products table stores JSON array of image URLs. Admin form supports upload/browse for gallery images. Product detail page shows all gallery images in the image selector.
+- Collections page shows product count per collection, allows viewing/adding/removing products from collections.
+- New Arrivals admin page has searchable product picker with images, drag-to-reorder functionality.
+- Zayelle Edit admin page has product/collection picker for redirect links.
+- Public products page has category filter chips and sort dropdown (Newest, Price Low-High, Price High-Low, Name A-Z).
 
 ## Admin Panel - Banners
 - Banner image upload limit: 10MB (via `/api/admin/upload`).

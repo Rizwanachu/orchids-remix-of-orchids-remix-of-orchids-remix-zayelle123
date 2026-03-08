@@ -51,6 +51,7 @@ interface ProductFormData {
   compareAt: string;
   image: string;
   hoverImage: string;
+  gallery: string[];
   badge: string;
   description: string;
   details: string;
@@ -74,6 +75,7 @@ const emptyForm: ProductFormData = {
   compareAt: "",
   image: "",
   hoverImage: "",
+  gallery: [],
   badge: "",
   description: "",
   details: "",
@@ -98,6 +100,7 @@ function toFormData(product: Product): ProductFormData {
     compareAt: product.compareAt?.toString() || "",
     image: product.image,
     hoverImage: product.hoverImage,
+    gallery: product.gallery || [],
     badge: product.badge || "",
     description: product.description,
     details: product.details.join("\n"),
@@ -138,12 +141,12 @@ export default function AdminProductsPage() {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [bulkCategoryOpen, setBulkCategoryOpen] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
-  const [showMediaPicker, setShowMediaPicker] = useState<"image" | "hoverImage" | null>(null);
+  const [showMediaPicker, setShowMediaPicker] = useState<"image" | "hoverImage" | "gallery" | null>(null);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | null>(null);
+  const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
 
-  const handleImageUpload = async (file: File, field: "image" | "hoverImage") => {
+  const handleImageUpload = async (file: File, field: "image" | "hoverImage" | "gallery") => {
     setUploadingImage(field);
     try {
       const formData = new FormData();
@@ -154,7 +157,11 @@ export default function AdminProductsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        updateField(field, data.url);
+        if (field === "gallery") {
+          setForm((prev) => ({ ...prev, gallery: [...prev.gallery, data.url] }));
+        } else {
+          updateField(field, data.url);
+        }
       } else {
         const errData = await res.json().catch(() => ({}));
         setErrorMessage(errData.error || "Failed to upload image. Please try again.");
@@ -255,6 +262,7 @@ export default function AdminProductsPage() {
       lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : 10,
       shippingCost: Number(form.shippingCost),
       isFreeShipping: form.isFreeShipping,
+      gallery: form.gallery,
     };
 
     try {
@@ -696,6 +704,69 @@ export default function AdminProductsPage() {
                   )}
                 </div>
               </div>
+
+              <div className="mt-6 pt-6 border-t border-[#F5F2ED]">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-[14px] font-medium text-[#1A1A1A]">Gallery Images</h3>
+                    <p className="text-[11px] text-[#757575] mt-0.5">Add additional images for the product gallery (minimum 3 recommended)</p>
+                  </div>
+                  <span className="text-[12px] text-[#757575]">{form.gallery.length} image{form.gallery.length !== 1 ? "s" : ""}</span>
+                </div>
+                <div className="flex flex-wrap gap-3 mb-3">
+                  {form.gallery.map((url, idx) => (
+                    <div key={idx} className="relative group w-24 h-24 rounded-lg overflow-hidden bg-[#F5F2ED] border border-[#E8E4DE]">
+                      <Image src={url} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="96px" />
+                      <button
+                        type="button"
+                        onClick={() => setForm((prev) => ({ ...prev, gallery: prev.gallery.filter((_, i) => i !== idx) }))}
+                        className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={12} />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] text-center py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {idx + 1}
+                      </div>
+                    </div>
+                  ))}
+                  <label className={`w-24 h-24 rounded-lg border-2 border-dashed border-[#E8E4DE] hover:border-[#5C4B3D] flex flex-col items-center justify-center cursor-pointer transition-colors ${uploadingImage === "gallery" ? "opacity-50 pointer-events-none" : ""}`}>
+                    {uploadingImage === "gallery" ? (
+                      <span className="text-[11px] text-[#757575]">Uploading...</span>
+                    ) : (
+                      <>
+                        <Plus size={20} className="text-[#757575]" />
+                        <span className="text-[10px] text-[#757575] mt-1">Upload</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      multiple
+                      disabled={uploadingImage === "gallery"}
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (!files) return;
+                        for (let i = 0; i < files.length; i++) {
+                          await handleImageUpload(files[i], "gallery");
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaPicker("gallery")}
+                    className="w-24 h-24 rounded-lg border-2 border-dashed border-[#E8E4DE] hover:border-[#5C4B3D] flex flex-col items-center justify-center cursor-pointer transition-colors"
+                  >
+                    <ImageIcon size={20} className="text-[#757575]" />
+                    <span className="text-[10px] text-[#757575] mt-1">Browse</span>
+                  </button>
+                </div>
+                {form.gallery.length < 3 && form.gallery.length > 0 && (
+                  <p className="text-[11px] text-amber-600">Add at least {3 - form.gallery.length} more image{3 - form.gallery.length > 1 ? "s" : ""} for a complete gallery</p>
+                )}
+              </div>
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
@@ -1065,7 +1136,11 @@ export default function AdminProductsPage() {
         open={showMediaPicker !== null}
         onClose={() => setShowMediaPicker(null)}
         onSelect={(url) => {
-          if (showMediaPicker) updateField(showMediaPicker, url);
+          if (showMediaPicker === "gallery") {
+            setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
+          } else if (showMediaPicker) {
+            updateField(showMediaPicker, url);
+          }
         }}
       />
     </div>

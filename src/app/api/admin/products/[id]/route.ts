@@ -34,6 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.lowStockThreshold !== undefined) updateData.lowStockThreshold = body.lowStockThreshold;
     if (body.shippingCost !== undefined) updateData.shippingCost = String(body.shippingCost);
     if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping;
+    if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
     if (body.active !== undefined) updateData.active = body.active;
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
@@ -64,6 +65,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       lowStockThreshold: updated.lowStockThreshold,
       shippingCost: Number(updated.shippingCost),
       isFreeShipping: updated.isFreeShipping,
+      gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
     });
   } catch (error: any) {
     console.error("Error updating product:", error);

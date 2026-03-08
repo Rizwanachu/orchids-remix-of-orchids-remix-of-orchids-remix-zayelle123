@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Plus, Trash2, X, Star, Save, Package } from "lucide-react";
+import { Plus, Trash2, X, Star, Package, GripVertical, Search, ChevronDown } from "lucide-react";
 
 interface ProductOption {
   id: string;
@@ -10,6 +10,7 @@ interface ProductOption {
   image: string;
   price: number;
   handle: string;
+  category?: string;
 }
 
 interface NewArrivalEntry {
@@ -35,11 +36,17 @@ export default function AdminNewArrivalsPage() {
   const [entries, setEntries] = useState<NewArrivalEntry[]>([]);
   const [allProducts, setAllProducts] = useState<ProductOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState("");
-  const [displayOrder, setDisplayOrder] = useState("0");
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [showProductPicker, setShowProductPicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const fetchEntries = useCallback(async () => {
     setLoading(true);
@@ -73,27 +80,46 @@ export default function AdminNewArrivalsPage() {
     fetchProducts();
   }, [fetchEntries, fetchProducts]);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowProductPicker(false);
+        setSearchQuery("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (showProductPicker && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [showProductPicker]);
+
   const showSuccess = (msg: string) => {
     setSuccessMessage(msg);
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  const handleAdd = async () => {
-    if (!selectedProductId) return;
+  const handleAddProduct = async (productId: string) => {
     setSaving(true);
+    setShowProductPicker(false);
+    setSearchQuery("");
     try {
+      const maxOrder = entries.length > 0
+        ? Math.max(...entries.map((e) => e.displayOrder))
+        : -1;
       const res = await fetch("/api/admin/new-arrivals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: parseInt(selectedProductId),
-          displayOrder: parseInt(displayOrder) || 0,
+          productId: parseInt(productId),
+          displayOrder: maxOrder + 1,
         }),
       });
       if (res.ok) {
         showSuccess("Product added to new arrivals");
-        setSelectedProductId("");
-        setDisplayOrder("0");
         fetchEntries();
       } else {
         const err = await res.json();
@@ -134,9 +160,56 @@ export default function AdminNewArrivalsPage() {
     }
   };
 
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = async () => {
+    if (draggedIndex === null || dragOverIndex === null || draggedIndex === dragOverIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reordered = [...entries];
+    const [moved] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dragOverIndex, 0, moved);
+
+    setEntries(reordered);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    const updatePromises = reordered.map((entry, idx) =>
+      fetch(`/api/admin/new-arrivals/${entry.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ displayOrder: idx }),
+      })
+    );
+
+    try {
+      await Promise.all(updatePromises);
+      showSuccess("Order updated");
+      fetchEntries();
+    } catch (err) {
+      console.error("Error reordering:", err);
+      fetchEntries();
+    }
+  };
+
   const existingProductIds = entries.map((e) => e.productId);
   const availableProducts = allProducts.filter(
     (p) => !existingProductIds.includes(parseInt(p.id))
+  );
+
+  const filteredProducts = availableProducts.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -147,7 +220,7 @@ export default function AdminNewArrivalsPage() {
             New Arrivals
           </h1>
           <p className="mt-2 text-[14px] text-[#757575]">
-            Manage which products appear in the New Arrivals section
+            Manage which products appear in the New Arrivals section. Drag to reorder.
           </p>
         </div>
       </div>
@@ -163,59 +236,88 @@ export default function AdminNewArrivalsPage() {
           <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">
             Add Product to New Arrivals
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                Select Product
-              </label>
-              <select
-                value={selectedProductId}
-                onChange={(e) => setSelectedProductId(e.target.value)}
-                className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-              >
-                <option value="">Choose a product...</option>
-                {availableProducts.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} — ₹{p.price.toLocaleString("en-IN")}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                Display Order
-              </label>
-              <input
-                type="number"
-                value={displayOrder}
-                onChange={(e) => setDisplayOrder(e.target.value)}
-                className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                placeholder="0"
-              />
-            </div>
-          </div>
-          <div className="mt-4">
+          <div className="relative" ref={pickerRef}>
             <button
-              onClick={handleAdd}
-              disabled={!selectedProductId || saving}
-              className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-sm text-[13px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setShowProductPicker(!showProductPicker)}
+              disabled={saving}
+              className="w-full flex items-center justify-between h-[46px] px-4 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white hover:bg-[#FAFAF8] transition-colors disabled:opacity-40"
             >
-              <Plus size={14} />
-              {saving ? "Adding..." : "Add to New Arrivals"}
+              <span className="text-[#999]">
+                {saving ? "Adding..." : `Search & select a product to add (${availableProducts.length} available)`}
+              </span>
+              <ChevronDown size={16} className={`text-[#999] transition-transform ${showProductPicker ? "rotate-180" : ""}`} />
             </button>
+
+            {showProductPicker && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#E8E4DE] rounded-lg shadow-lg z-50 max-h-[400px] flex flex-col">
+                <div className="p-3 border-b border-[#F5F2ED]">
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999]" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products by name or category..."
+                      className="w-full h-[38px] pl-9 pr-3 border border-[#E8E4DE] rounded-md text-[13px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    />
+                  </div>
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {filteredProducts.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-[13px] text-[#999]">
+                      {searchQuery ? "No matching products found" : "All products are already in new arrivals"}
+                    </div>
+                  ) : (
+                    filteredProducts.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => handleAddProduct(p.id)}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F5F2ED] transition-colors text-left border-b border-[#F5F2ED] last:border-b-0"
+                      >
+                        <div className="w-[44px] h-[44px] relative rounded-md overflow-hidden bg-[#F5F2ED] flex-shrink-0">
+                          {p.image ? (
+                            <Image src={p.image} alt={p.name} fill className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package size={18} className="text-[#D4C8BE]" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{p.name}</p>
+                          {p.category && (
+                            <p className="text-[11px] text-[#999] mt-0.5">{p.category}</p>
+                          )}
+                        </div>
+                        <span className="text-[13px] font-medium text-[#5C4B3D] flex-shrink-0">
+                          ₹{p.price.toLocaleString("en-IN")}
+                        </span>
+                        <Plus size={16} className="text-[#5C4B3D] flex-shrink-0" />
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <p className="text-[14px] text-[#757575]">{entries.length} products in new arrivals</p>
+          {entries.length > 1 && (
+            <p className="text-[12px] text-[#999] flex items-center gap-1">
+              <GripVertical size={12} /> Drag rows to reorder
+            </p>
+          )}
         </div>
 
         <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden">
-          <div className="hidden md:grid grid-cols-[60px_1fr_100px_100px_80px] gap-4 px-6 py-3 border-b border-[#E8E4DE] bg-[#FAFAF8]">
+          <div className="hidden md:grid grid-cols-[32px_60px_1fr_100px_80px] gap-4 px-6 py-3 border-b border-[#E8E4DE] bg-[#FAFAF8]">
+            <span></span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Image</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Product</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Price</span>
-            <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Order</span>
             <span className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider text-right">Actions</span>
           </div>
 
@@ -230,11 +332,20 @@ export default function AdminNewArrivalsPage() {
               <p className="text-[12px] text-[#999] mt-1">Add products above to feature them</p>
             </div>
           ) : (
-            entries.map((entry) => (
+            entries.map((entry, index) => (
               <div
                 key={entry.id}
-                className="grid grid-cols-[60px_1fr_100px_100px_80px] gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 hover:bg-[#FAFAF8] transition-colors items-center"
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`grid grid-cols-[32px_60px_1fr_100px_80px] gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 transition-all items-center cursor-grab active:cursor-grabbing ${
+                  draggedIndex === index ? "opacity-50 bg-[#F5F2ED]" : "hover:bg-[#FAFAF8]"
+                } ${dragOverIndex === index && draggedIndex !== index ? "border-t-2 border-t-[#5C4B3D]" : ""}`}
               >
+                <div className="flex items-center justify-center text-[#C4B9AD] hover:text-[#757575] transition-colors">
+                  <GripVertical size={16} />
+                </div>
                 <div className="w-[50px] h-[50px] relative rounded-lg overflow-hidden bg-[#F5F2ED]">
                   {entry.product.image ? (
                     <Image
@@ -252,23 +363,20 @@ export default function AdminNewArrivalsPage() {
                 <div>
                   <p className="text-[13px] font-medium text-[#1A1A1A]">{entry.product.name}</p>
                   <p className="text-[11px] text-[#757575]">{entry.product.subtitle}</p>
+                  {entry.product.category && (
+                    <span className="inline-block mt-1 px-2 py-0.5 bg-[#F5F2ED] text-[10px] text-[#757575] rounded-full">
+                      {entry.product.category}
+                    </span>
+                  )}
                 </div>
                 <p className="text-[13px] text-[#1A1A1A]">
                   ₹{entry.product.price.toLocaleString("en-IN")}
+                  {entry.product.compareAt && entry.product.compareAt > entry.product.price && (
+                    <span className="block text-[11px] text-[#999] line-through">
+                      ₹{entry.product.compareAt.toLocaleString("en-IN")}
+                    </span>
+                  )}
                 </p>
-                <div>
-                  <input
-                    type="number"
-                    defaultValue={entry.displayOrder}
-                    onBlur={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (!isNaN(val) && val !== entry.displayOrder) {
-                        handleUpdateOrder(entry.id, val);
-                      }
-                    }}
-                    className="w-[70px] h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] focus:outline-none focus:border-[#5C4B3D] bg-white text-center"
-                  />
-                </div>
                 <div className="flex items-center gap-1 justify-end">
                   {deleteConfirm === entry.id ? (
                     <div className="flex items-center gap-1">

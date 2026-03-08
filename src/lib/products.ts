@@ -10,6 +10,7 @@ export interface Product {
   compareAt?: number;
   image: string;
   hoverImage: string;
+  gallery?: string[];
   badge?: string;
   description: string;
   details: string[];

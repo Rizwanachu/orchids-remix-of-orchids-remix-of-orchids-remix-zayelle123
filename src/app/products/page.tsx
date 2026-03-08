@@ -1,13 +1,15 @@
 "use client";
 
-import React, { Suspense, useMemo } from "react";
+import React, { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, ChevronDown, X } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
+
+type SortOption = "newest" | "price-asc" | "price-desc" | "name-asc";
 
 export default function AllProductsPage() {
   return (
@@ -22,11 +24,43 @@ function AllProductsContent() {
   const { products, loaded, searchProducts } = useProducts();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach((p) => {
+      if (p.category) cats.add(p.category);
+    });
+    return Array.from(cats).sort();
+  }, [products]);
 
   const displayProducts = useMemo(() => {
-    if (query) return searchProducts(query);
-    return products;
-  }, [query, products, searchProducts]);
+    let filtered = query ? searchProducts(query) : [...products];
+
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    switch (sortBy) {
+      case "price-asc":
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case "name-asc":
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "newest":
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [query, products, searchProducts, sortBy, selectedCategory]);
 
   return (
     <>
@@ -64,13 +98,65 @@ function AllProductsContent() {
             </>
           ) : (
           <>
+          {categories.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <button
+                onClick={() => setSelectedCategory("")}
+                className={`px-4 py-1.5 rounded-full text-[13px] border transition-colors ${
+                  !selectedCategory
+                    ? "bg-[#5C4B3D] text-white border-[#5C4B3D]"
+                    : "bg-white text-[#757575] border-[#E0DCD7] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                }`}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(selectedCategory === cat ? "" : cat)}
+                  className={`px-4 py-1.5 rounded-full text-[13px] border transition-colors capitalize ${
+                    selectedCategory === cat
+                      ? "bg-[#5C4B3D] text-white border-[#5C4B3D]"
+                      : "bg-white text-[#757575] border-[#E0DCD7] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-8">
-            <p className="text-[14px] text-[#757575]">{displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}</p>
-            {query && (
-              <a href="/products" className="text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
-                Clear search
-              </a>
-            )}
+            <div className="flex items-center gap-3">
+              <p className="text-[14px] text-[#757575]">{displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}</p>
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory("")}
+                  className="inline-flex items-center gap-1 text-[12px] text-[#5C4B3D] bg-[#F5F2ED] px-2.5 py-1 rounded-full hover:bg-[#E8E4DE] transition-colors capitalize"
+                >
+                  {selectedCategory}
+                  <X size={12} />
+                </button>
+              )}
+              {query && (
+                <a href="/products" className="text-[13px] text-[#5C4B3D] hover:underline underline-offset-4">
+                  Clear search
+                </a>
+              )}
+            </div>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="appearance-none bg-white border border-[#E0DCD7] rounded-lg pl-3 pr-8 py-2 text-[13px] text-[#1A1A1A] cursor-pointer hover:border-[#5C4B3D] transition-colors focus:outline-none focus:border-[#5C4B3D]"
+              >
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#757575] pointer-events-none" />
+            </div>
           </div>
 
           {displayProducts.length === 0 ? (

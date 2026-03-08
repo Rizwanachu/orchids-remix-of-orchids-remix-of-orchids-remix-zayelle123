@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid, ImageIcon, Link2, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
@@ -25,6 +25,20 @@ interface FormData {
   displayOrder: string;
 }
 
+interface CollectionItem {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+interface ProductItem {
+  id: string;
+  name: string;
+  handle: string;
+}
+
+type LinkMode = "picker" | "custom";
+
 const emptyForm: FormData = {
   imageUrl: "",
   title: "",
@@ -45,6 +59,12 @@ export default function AdminZayelleEditPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [collectionsList, setCollectionsList] = useState<CollectionItem[]>([]);
+  const [productsList, setProductsList] = useState<ProductItem[]>([]);
+  const [linkMode, setLinkMode] = useState<LinkMode>("picker");
+  const [pickerType, setPickerType] = useState<"collection" | "product">("collection");
+  const [showPickerDropdown, setShowPickerDropdown] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState("");
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -61,9 +81,29 @@ export default function AdminZayelleEditPage() {
     }
   }, []);
 
+  const fetchPickerData = useCallback(async () => {
+    try {
+      const [colRes, prodRes] = await Promise.all([
+        fetch("/api/admin/collections"),
+        fetch("/api/admin/products"),
+      ]);
+      if (colRes.ok) {
+        const data = await colRes.json();
+        setCollectionsList(data.collections || []);
+      }
+      if (prodRes.ok) {
+        const data = await prodRes.json();
+        setProductsList(data.products || data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching picker data:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+    fetchPickerData();
+  }, [fetchItems, fetchPickerData]);
 
   const showSuccess = (msg: string) => {
     setSuccessMessage(msg);
@@ -264,15 +304,122 @@ export default function AdminZayelleEditPage() {
                 placeholder="Shop Now"
               />
             </div>
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-[#5C4B3D] mb-1">Redirect Link</label>
-              <input
-                type="text"
-                value={form.redirectLink}
-                onChange={(e) => setForm({ ...form, redirectLink: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20"
-                placeholder="/collections/satin"
-              />
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setLinkMode("picker")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${linkMode === "picker" ? "bg-[#5C4B3D] text-white" : "bg-[#FAF9F6] text-[#5C4B3D] hover:bg-[#E8E4DE]"}`}
+                >
+                  <span className="flex items-center gap-1"><Link2 size={12} /> Pick from Store</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLinkMode("custom")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${linkMode === "custom" ? "bg-[#5C4B3D] text-white" : "bg-[#FAF9F6] text-[#5C4B3D] hover:bg-[#E8E4DE]"}`}
+                >
+                  Custom URL
+                </button>
+              </div>
+              {linkMode === "custom" ? (
+                <input
+                  type="text"
+                  value={form.redirectLink}
+                  onChange={(e) => setForm({ ...form, redirectLink: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20"
+                  placeholder="/collections/satin or any URL"
+                />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setPickerType("collection"); setPickerSearch(""); }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${pickerType === "collection" ? "bg-[#E8E4DE] text-[#5C4B3D]" : "text-[#8B7D6B] hover:bg-[#FAF9F6]"}`}
+                    >
+                      Collections ({collectionsList.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setPickerType("product"); setPickerSearch(""); }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${pickerType === "product" ? "bg-[#E8E4DE] text-[#5C4B3D]" : "text-[#8B7D6B] hover:bg-[#FAF9F6]"}`}
+                    >
+                      Products ({productsList.length})
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={pickerSearch}
+                      onChange={(e) => { setPickerSearch(e.target.value); setShowPickerDropdown(true); }}
+                      onFocus={() => setShowPickerDropdown(true)}
+                      className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20"
+                      placeholder={pickerType === "collection" ? "Search collections..." : "Search products..."}
+                    />
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B7D6B] pointer-events-none" />
+                    {showPickerDropdown && (
+                      <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-[#E8E4DE] rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {pickerType === "collection" ? (
+                          collectionsList
+                            .filter((c) => c.title.toLowerCase().includes(pickerSearch.toLowerCase()))
+                            .map((c) => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => {
+                                  setForm({ ...form, redirectLink: `/collections/${c.slug}` });
+                                  setShowPickerDropdown(false);
+                                  setPickerSearch(c.title);
+                                }}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-[#FAF9F6] flex items-center justify-between"
+                              >
+                                <span className="text-[#5C4B3D]">{c.title}</span>
+                                <span className="text-xs text-[#8B7D6B]">/collections/{c.slug}</span>
+                              </button>
+                            ))
+                        ) : (
+                          productsList
+                            .filter((p) => p.name.toLowerCase().includes(pickerSearch.toLowerCase()))
+                            .slice(0, 20)
+                            .map((p) => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => {
+                                  setForm({ ...form, redirectLink: `/products/${p.handle}` });
+                                  setShowPickerDropdown(false);
+                                  setPickerSearch(p.name);
+                                }}
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-[#FAF9F6] flex items-center justify-between"
+                              >
+                                <span className="text-[#5C4B3D]">{p.name}</span>
+                                <span className="text-xs text-[#8B7D6B]">/products/{p.handle}</span>
+                              </button>
+                            ))
+                        )}
+                        {((pickerType === "collection" && collectionsList.filter((c) => c.title.toLowerCase().includes(pickerSearch.toLowerCase())).length === 0) ||
+                          (pickerType === "product" && productsList.filter((p) => p.name.toLowerCase().includes(pickerSearch.toLowerCase())).length === 0)) && (
+                          <div className="px-3 py-2 text-sm text-[#8B7D6B]">No results found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {form.redirectLink && (
+                    <div className="flex items-center gap-2 text-xs text-[#8B7D6B] bg-[#FAF9F6] px-3 py-2 rounded-lg">
+                      <Link2 size={12} />
+                      <span>Selected: <strong className="text-[#5C4B3D]">{form.redirectLink}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => { setForm({ ...form, redirectLink: "" }); setPickerSearch(""); }}
+                        className="ml-auto text-[#8B7D6B] hover:text-red-500"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-[#5C4B3D] mb-1">Display Order</label>

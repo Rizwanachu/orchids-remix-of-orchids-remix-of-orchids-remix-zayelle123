@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, Package, UserPlus, UserMinus } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Collection {
@@ -15,6 +15,16 @@ interface Collection {
   isFeatured: boolean;
   displayOrder: number;
   createdAt: string;
+}
+
+interface Product {
+  id: string;
+  handle: string;
+  name: string;
+  image: string;
+  price: number;
+  category: string;
+  active: boolean | number;
 }
 
 interface CollectionFormData {
@@ -48,6 +58,7 @@ function generateSlug(title: string): string {
 
 export default function AdminCollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -57,9 +68,11 @@ export default function AdminCollectionsPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [viewingCollectionSlug, setViewingCollectionSlug] = useState<string | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState<string | null>(null);
+  const [updatingProduct, setUpdatingProduct] = useState<string | null>(null);
 
   const fetchCollections = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/admin/collections");
       if (res.ok) {
@@ -68,14 +81,37 @@ export default function AdminCollectionsPage() {
       }
     } catch (err) {
       console.error("Error fetching collections:", err);
-    } finally {
-      setLoading(false);
+    }
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/products");
+      if (res.ok) {
+        const data = await res.json();
+        setAllProducts(data);
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
     }
   }, []);
 
   useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchCollections(), fetchProducts()]);
+      setLoading(false);
+    };
+    loadData();
+  }, [fetchCollections, fetchProducts]);
+
+  const getProductsForCollection = (slug: string) => {
+    return allProducts.filter((p) => p.category === slug);
+  };
+
+  const getUnassignedProducts = (slug: string) => {
+    return allProducts.filter((p) => p.category !== slug);
+  };
 
   const showSuccess = (msg: string) => {
     setSuccessMessage(msg);
@@ -193,6 +229,44 @@ export default function AdminCollectionsPage() {
       }
     } catch (err) {
       console.error("Error deleting collection:", err);
+    }
+  };
+
+  const handleAddProductToCollection = async (productId: string, collectionSlug: string) => {
+    setUpdatingProduct(productId);
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: collectionSlug }),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        showSuccess("Product added to collection!");
+      }
+    } catch (err) {
+      console.error("Error adding product to collection:", err);
+    } finally {
+      setUpdatingProduct(null);
+    }
+  };
+
+  const handleRemoveProductFromCollection = async (productId: string) => {
+    setUpdatingProduct(productId);
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: "" }),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        showSuccess("Product removed from collection!");
+      }
+    } catch (err) {
+      console.error("Error removing product from collection:", err);
+    } finally {
+      setUpdatingProduct(null);
     }
   };
 
@@ -358,78 +432,214 @@ export default function AdminCollectionsPage() {
           <p className="text-[13px] text-[#757575]">Create your first collection to get started.</p>
         </div>
       ) : (
-        <div className="bg-white border border-[#E8E4DE] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#E8E4DE] bg-[#FAFAF8]">
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Image</th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Title</th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Slug</th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Subtitle</th>
-                  <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Featured</th>
-                  <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Order</th>
-                  <th className="text-right px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {collections.map((collection) => (
-                  <tr key={collection.id} className="border-b border-[#E8E4DE] last:border-b-0 hover:bg-[#FAFAF8] transition-colors">
-                    <td className="px-4 py-3">
-                      {collection.imageUrl ? (
-                        <div className="relative w-12 h-12 rounded-lg border border-[#E8E4DE] overflow-hidden">
-                          <Image src={collection.imageUrl} alt={collection.title} fill className="object-cover" sizes="48px" />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-[#F5F2ED] flex items-center justify-center">
-                          <FolderOpen size={16} className="text-[#C4B5A5]" />
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-[13px] font-medium text-[#1A1A1A]">{collection.title}</td>
-                    <td className="px-4 py-3 text-[13px] text-[#757575] font-mono">{collection.slug}</td>
-                    <td className="px-4 py-3 text-[13px] text-[#757575] max-w-[200px] truncate">{collection.subtitle}</td>
-                    <td className="px-4 py-3 text-center">
-                      {collection.isFeatured && <Star size={14} className="inline text-amber-500 fill-amber-500" />}
-                    </td>
-                    <td className="px-4 py-3 text-center text-[13px] text-[#757575]">{collection.displayOrder}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleStartEdit(collection)}
-                          className="p-2 text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded-lg transition-colors"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        {deleteConfirm === collection.id ? (
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleDelete(collection.id)}
-                              className="px-2 py-1 text-[11px] font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="px-2 py-1 text-[11px] font-medium text-[#757575] hover:text-[#1A1A1A] transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(collection.id)}
-                            className="p-2 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
+        <div className="space-y-0">
+          <div className="bg-white border border-[#E8E4DE] rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#E8E4DE] bg-[#FAFAF8]">
+                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Image</th>
+                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Title</th>
+                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Slug</th>
+                    <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Products</th>
+                    <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Featured</th>
+                    <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Order</th>
+                    <th className="text-right px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {collections.map((collection) => {
+                    const productCount = getProductsForCollection(collection.slug).length;
+                    return (
+                      <React.Fragment key={collection.id}>
+                        <tr className="border-b border-[#E8E4DE] last:border-b-0 hover:bg-[#FAFAF8] transition-colors">
+                          <td className="px-4 py-3">
+                            {collection.imageUrl ? (
+                              <div className="relative w-12 h-12 rounded-lg border border-[#E8E4DE] overflow-hidden">
+                                <Image src={collection.imageUrl} alt={collection.title} fill className="object-cover" sizes="48px" />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-[#F5F2ED] flex items-center justify-center">
+                                <FolderOpen size={16} className="text-[#C4B5A5]" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="text-[13px] font-medium text-[#1A1A1A]">{collection.title}</div>
+                            {collection.subtitle && (
+                              <div className="text-[11px] text-[#757575] mt-0.5 truncate max-w-[200px]">{collection.subtitle}</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-[13px] text-[#757575] font-mono">{collection.slug}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => setViewingCollectionSlug(viewingCollectionSlug === collection.slug ? null : collection.slug)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F2ED] text-[#5C4B3D] text-[12px] font-medium rounded-full hover:bg-[#E8E4DE] transition-colors"
+                            >
+                              <Package size={12} />
+                              {productCount}
+                              <Eye size={12} />
+                            </button>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {collection.isFeatured && <Star size={14} className="inline text-amber-500 fill-amber-500" />}
+                          </td>
+                          <td className="px-4 py-3 text-center text-[13px] text-[#757575]">{collection.displayOrder}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => {
+                                  setShowAddProduct(showAddProduct === collection.slug ? null : collection.slug);
+                                  setViewingCollectionSlug(collection.slug);
+                                }}
+                                className="p-2 text-[#757575] hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                title="Add product to collection"
+                              >
+                                <UserPlus size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleStartEdit(collection)}
+                                className="p-2 text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded-lg transition-colors"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              {deleteConfirm === collection.id ? (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleDelete(collection.id)}
+                                    className="px-2 py-1 text-[11px] font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
+                                  >
+                                    Confirm
+                                  </button>
+                                  <button
+                                    onClick={() => setDeleteConfirm(null)}
+                                    className="px-2 py-1 text-[11px] font-medium text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setDeleteConfirm(collection.id)}
+                                  className="p-2 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+
+                        {viewingCollectionSlug === collection.slug && (
+                          <tr>
+                            <td colSpan={7} className="px-4 py-4 bg-[#FAFAF8] border-b border-[#E8E4DE]">
+                              {showAddProduct === collection.slug && (
+                                <div className="mb-4 p-4 bg-white border border-[#E8E4DE] rounded-lg">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-[13px] font-semibold text-[#1A1A1A]">Add Product to &quot;{collection.title}&quot;</h4>
+                                    <button
+                                      onClick={() => setShowAddProduct(null)}
+                                      className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  </div>
+                                  {getUnassignedProducts(collection.slug).length === 0 ? (
+                                    <p className="text-[12px] text-[#757575]">All products are already in this collection.</p>
+                                  ) : (
+                                    <div className="max-h-[240px] overflow-y-auto space-y-1">
+                                      {getUnassignedProducts(collection.slug).map((product) => (
+                                        <div
+                                          key={product.id}
+                                          className="flex items-center justify-between p-2 rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                                        >
+                                          <div className="flex items-center gap-3">
+                                            {product.image ? (
+                                              <div className="relative w-8 h-8 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                                <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" />
+                                              </div>
+                                            ) : (
+                                              <div className="w-8 h-8 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                                <Package size={12} className="text-[#C4B5A5]" />
+                                              </div>
+                                            )}
+                                            <div>
+                                              <div className="text-[12px] font-medium text-[#1A1A1A]">{product.name}</div>
+                                              <div className="text-[11px] text-[#757575]">
+                                                ₹{product.price}
+                                                {product.category && <span className="ml-2 text-[#9E8E7E]">in: {product.category}</span>}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <button
+                                            onClick={() => handleAddProductToCollection(product.id, collection.slug)}
+                                            disabled={updatingProduct === product.id}
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[#5C4B3D] text-white text-[11px] font-medium rounded-md hover:bg-[#4A3D31] transition-colors disabled:opacity-50"
+                                          >
+                                            <Plus size={12} />
+                                            {updatingProduct === product.id ? "Adding..." : "Add"}
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              <div>
+                                <h4 className="text-[12px] font-semibold text-[#757575] uppercase tracking-wider mb-3">
+                                  Products in &quot;{collection.title}&quot; ({productCount})
+                                </h4>
+                                {productCount === 0 ? (
+                                  <p className="text-[12px] text-[#757575] italic">No products in this collection yet.</p>
+                                ) : (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                    {getProductsForCollection(collection.slug).map((product) => (
+                                      <div
+                                        key={product.id}
+                                        className="flex items-center justify-between p-2.5 bg-white border border-[#E8E4DE] rounded-lg"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          {product.image ? (
+                                            <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
+                                            </div>
+                                          ) : (
+                                            <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                              <Package size={14} className="text-[#C4B5A5]" />
+                                            </div>
+                                          )}
+                                          <div className="min-w-0">
+                                            <div className="text-[12px] font-medium text-[#1A1A1A] truncate">{product.name}</div>
+                                            <div className="text-[11px] text-[#757575]">₹{product.price}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => handleRemoveProductFromCollection(product.id)}
+                                          disabled={updatingProduct === product.id}
+                                          className="flex-shrink-0 p-1.5 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                                          title="Remove from collection"
+                                        >
+                                          {updatingProduct === product.id ? (
+                                            <div className="w-3.5 h-3.5 border-2 border-[#757575] border-t-transparent rounded-full animate-spin" />
+                                          ) : (
+                                            <UserMinus size={14} />
+                                          )}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

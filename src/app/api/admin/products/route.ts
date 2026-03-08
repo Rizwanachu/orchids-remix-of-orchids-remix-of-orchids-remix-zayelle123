@@ -32,6 +32,7 @@ export async function GET() {
     lowStockThreshold: p.lowStockThreshold,
     shippingCost: Number(p.shippingCost),
     isFreeShipping: p.isFreeShipping,
+    gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     active: p.active,
   }));
   return NextResponse.json(formatted);
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
       lowStockThreshold: body.lowStockThreshold ?? 10,
       shippingCost: body.shippingCost != null ? String(body.shippingCost) : "49",
       isFreeShipping: body.isFreeShipping ?? false,
+      gallery: Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null,
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "product_added", `Added product: ${body.name}`);
@@ -95,6 +97,7 @@ export async function POST(request: NextRequest) {
       lowStockThreshold: newProduct.lowStockThreshold,
       shippingCost: Number(newProduct.shippingCost),
       isFreeShipping: newProduct.isFreeShipping,
+      gallery: (() => { try { return newProduct.gallery ? (typeof newProduct.gallery === 'string' ? JSON.parse(newProduct.gallery) : newProduct.gallery) : []; } catch { return []; } })(),
     });
   } catch (error: any) {
     console.error("Error adding product:", error);
