@@ -20,6 +20,8 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null);
+  const [selectedColorImage, setSelectedColorImage] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
@@ -177,7 +179,7 @@ export default function ProductDetailPage() {
             <div className="space-y-4">
               <div className="relative aspect-square overflow-hidden rounded-[12px] bg-white">
                 <Image
-                  src={images[activeImage]}
+                  src={selectedColorImage || images[activeImage]}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -194,8 +196,8 @@ export default function ProductDetailPage() {
                 {images.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`relative w-20 h-20 rounded-[8px] overflow-hidden border-2 transition-colors ${activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
+                    onClick={() => { setActiveImage(idx); setSelectedColorImage(null); setSelectedColorIdx(null); }}
+                    className={`relative w-20 h-20 rounded-[8px] overflow-hidden border-2 transition-colors ${!selectedColorImage && activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
                   >
                     <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                   </button>
@@ -229,18 +231,38 @@ export default function ProductDetailPage() {
 
               {(product as any).colors && (product as any).colors.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-[12px] text-[#757575] mb-2 uppercase tracking-wider">Available Colors</p>
-                  <div className="flex flex-wrap gap-2">
-                    {(product as any).colors.map((color: { name: string; hex: string }, i: number) => (
-                      <div key={i} className="group relative">
-                        <span
-                          className="block w-8 h-8 rounded-full border-2 border-[#E8E4DE] cursor-default transition-all group-hover:border-[#5C4B3D] group-hover:scale-110"
-                          style={{ backgroundColor: color.hex }}
-                        />
+                  <p className="text-[12px] text-[#757575] mb-2 uppercase tracking-wider">
+                    {selectedColorIdx !== null
+                      ? <><span>Color</span><span className="ml-1 text-[#1A1A1A] font-semibold normal-case">— {(product as any).colors[selectedColorIdx]?.name}</span></>
+                      : "Available Colors"
+                    }
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {(product as any).colors.map((color: { name: string; hex: string; image?: string }, i: number) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          if (selectedColorIdx === i) {
+                            setSelectedColorIdx(null);
+                            setSelectedColorImage(null);
+                          } else {
+                            setSelectedColorIdx(i);
+                            setSelectedColorImage(color.image || null);
+                          }
+                        }}
+                        className={`group relative w-9 h-9 rounded-full border-2 transition-all cursor-pointer ${
+                          selectedColorIdx === i
+                            ? "border-[#5C4B3D] scale-110 shadow-[0_0_0_3px_rgba(92,75,61,0.2)]"
+                            : "border-[#E8E4DE] hover:border-[#5C4B3D] hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color.hex }}
+                        title={color.name}
+                      >
                         <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-[#1A1A1A] text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                           {color.name}
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>

@@ -50,7 +50,7 @@ interface ProductFormData {
   dimension: string;
   material: string;
   careInstructions: string;
-  colors: { name: string; hex: string }[];
+  colors: { name: string; hex: string; image?: string }[];
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -143,6 +143,7 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
+  const [uploadingColorHex, setUploadingColorHex] = useState<string | null>(null);
 
   const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
   const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
@@ -296,6 +297,25 @@ export default function AdminProductsPage() {
       }
       return { ...prev, colors: [...prev.colors, { name: color.name, hex: color.hexValue }] };
     });
+  };
+
+  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, hex: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingColorHex(hex);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        setForm(prev => ({
+          ...prev,
+          colors: prev.colors.map(c => c.hex === hex ? { ...c, image: data.url } : c),
+        }));
+      }
+    } catch { setErrorMessage("Failed to upload color image"); setTimeout(() => setErrorMessage(""), 3000); }
+    finally { setUploadingColorHex(null); }
   };
 
   const handleApplyTemplate = (templateId: string) => {
@@ -832,7 +852,31 @@ export default function AdminProductsPage() {
                   <p className="text-[12px] text-[#999] mb-2">No colors added yet. Click &quot;Manage&quot; to add colors.</p>
                 )}
                 {form.colors.length > 0 && (
-                  <p className="text-[11px] text-[#757575]">{form.colors.length} color{form.colors.length > 1 ? "s" : ""} selected</p>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[11px] font-medium text-[#757575] uppercase tracking-wider">Color Images (optional)</p>
+                    {form.colors.map((color) => (
+                      <div key={color.hex} className="flex items-center gap-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-sm px-3 py-2">
+                        <span className="w-5 h-5 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hex }} />
+                        <span className="text-[13px] text-[#1A1A1A] min-w-[80px]">{color.name}</span>
+                        {color.image ? (
+                          <>
+                            <img src={color.image} alt={color.name} className="w-10 h-10 object-cover rounded border border-[#E8E4DE] flex-shrink-0" />
+                            <label className="flex items-center gap-1 text-[11px] text-[#5C4B3D] hover:underline cursor-pointer">
+                              Change
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, color.hex)} disabled={uploadingColorHex === color.hex} />
+                            </label>
+                            <button type="button" onClick={() => setForm(prev => ({ ...prev, colors: prev.colors.map(c => c.hex === color.hex ? { ...c, image: undefined } : c) }))} className="text-[11px] text-red-500 hover:underline ml-1">Remove</button>
+                          </>
+                        ) : (
+                          <label className={`flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors ${uploadingColorHex === color.hex ? "opacity-50 pointer-events-none" : "text-[#757575]"}`}>
+                            <Upload size={12} />
+                            {uploadingColorHex === color.hex ? "Uploading..." : "Add Image"}
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, color.hex)} disabled={uploadingColorHex === color.hex} />
+                          </label>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
 
                 {showColorManager && (
