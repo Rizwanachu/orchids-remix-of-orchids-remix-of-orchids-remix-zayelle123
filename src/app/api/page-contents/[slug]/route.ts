@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const [page] = await db
       .select()
       .from(pageContents)
-      .where(and(eq(pageContents.slug, slug), eq(pageContents.isPublished, true)));
+      .where(and(eq(pageContents.slug, slug), eq(pageContents.isPublished, 1)));
 
     if (!page) return NextResponse.json({ error: "Page not found" }, { status: 404 });
 

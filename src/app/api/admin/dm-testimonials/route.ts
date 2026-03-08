@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         imageUrl,
         alt: alt || "",
         displayOrder: displayOrder || 0,
-        isActive: isActive !== undefined ? isActive : true,
+        isActive: isActive !== undefined ? (isActive ? 1 : 0) : 1,
       })
       .returning();
 

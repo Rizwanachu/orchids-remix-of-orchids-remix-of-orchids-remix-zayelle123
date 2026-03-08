@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const allProducts = await db.select().from(products).where(eq(products.active, true));
+    const allProducts = await db.select().from(products).where(eq(products.active, 1));
     const formatted = allProducts.map((p) => ({
       id: p.id.toString(),
       handle: p.handle,

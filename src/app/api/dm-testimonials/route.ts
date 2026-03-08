@@ -8,7 +8,7 @@ export async function GET() {
     const list = await db
       .select()
       .from(dmTestimonials)
-      .where(eq(dmTestimonials.isActive, true))
+      .where(eq(dmTestimonials.isActive, 1))
       .orderBy(asc(dmTestimonials.displayOrder));
     return NextResponse.json({ testimonials: list });
   } catch (error) {

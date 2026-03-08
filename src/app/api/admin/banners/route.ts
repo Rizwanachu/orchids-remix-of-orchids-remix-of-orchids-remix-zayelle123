@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       buttonLink: body.buttonLink || "",
       imageUrl: body.imageUrl,
       position: body.position || "hero",
-      isActive: body.isActive ?? true,
+      isActive: body.isActive !== undefined ? (body.isActive ? 1 : 0) : 1,
       titleFont: body.titleFont || "serif",
       titleColor: body.titleColor || "#5C4B3D",
       subtitleColor: body.subtitleColor || "#5C4B3D",

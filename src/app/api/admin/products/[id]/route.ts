@@ -34,10 +34,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.lowStockThreshold !== undefined) updateData.lowStockThreshold = body.lowStockThreshold;
     if (body.shippingCost !== undefined) updateData.shippingCost = String(body.shippingCost);
     if (body.shippingCostKerala !== undefined) updateData.shippingCostKerala = String(body.shippingCostKerala);
-    if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping;
+    if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping ? 1 : 0;
     if (body.colors !== undefined) updateData.colors = Array.isArray(body.colors) ? JSON.stringify(body.colors) : null;
     if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
-    if (body.active !== undefined) updateData.active = body.active;
+    if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
 

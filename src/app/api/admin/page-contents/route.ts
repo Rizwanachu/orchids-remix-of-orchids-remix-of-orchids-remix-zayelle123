@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         content: content ?? "",
         metaTitle: metaTitle ?? "",
         metaDescription: metaDescription ?? "",
-        isPublished: isPublished !== undefined ? isPublished : true,
+        isPublished: isPublished !== undefined ? (isPublished ? 1 : 0) : 1,
       })
       .returning();
 

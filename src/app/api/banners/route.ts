@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const activeBanners = await db.select().from(banners).where(eq(banners.isActive, true));
+    const activeBanners = await db.select().from(banners).where(eq(banners.isActive, 1));
     return NextResponse.json(activeBanners);
   } catch (error: any) {
     console.error("Error fetching banners:", error);

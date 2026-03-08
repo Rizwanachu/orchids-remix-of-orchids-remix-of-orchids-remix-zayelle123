@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         subtitle: subtitle || "",
         description: description || "",
         imageUrl: imageUrl || "",
-        isFeatured: isFeatured || false,
+        isFeatured: isFeatured ? 1 : 0,
         displayOrder: displayOrder || 0,
       })
       .returning();

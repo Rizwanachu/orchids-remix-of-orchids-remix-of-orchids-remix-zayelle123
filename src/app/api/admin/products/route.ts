@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       lowStockThreshold: body.lowStockThreshold ?? 10,
       shippingCost: body.shippingCost != null ? String(body.shippingCost) : "49",
       shippingCostKerala: body.shippingCostKerala != null ? String(body.shippingCostKerala) : "49",
-      isFreeShipping: body.isFreeShipping ?? false,
+      isFreeShipping: body.isFreeShipping ? 1 : 0,
       colors: Array.isArray(body.colors) ? JSON.stringify(body.colors) : null,
       gallery: Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null,
     }).returning();

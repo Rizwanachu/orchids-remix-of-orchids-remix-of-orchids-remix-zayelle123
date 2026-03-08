@@ -8,7 +8,7 @@ export async function GET() {
     const list = await db
       .select()
       .from(giftHampers)
-      .where(eq(giftHampers.isActive, true))
+      .where(eq(giftHampers.isActive, 1))
       .orderBy(asc(giftHampers.displayOrder));
     return NextResponse.json({ hampers: list });
   } catch (error) {

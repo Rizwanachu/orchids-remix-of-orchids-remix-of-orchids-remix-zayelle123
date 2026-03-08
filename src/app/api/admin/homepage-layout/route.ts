@@ -32,12 +32,13 @@ export async function PUT(request: NextRequest) {
 
     for (const section of sections) {
       const { sectionName, label, isVisible, displayOrder } = section;
+      const isVisibleInt = isVisible ? 1 : 0;
       await db
         .insert(homepageSections)
-        .values({ sectionName, label: label || sectionName, isVisible, displayOrder })
+        .values({ sectionName, label: label || sectionName, isVisible: isVisibleInt, displayOrder })
         .onConflictDoUpdate({
           target: homepageSections.sectionName,
-          set: { isVisible, displayOrder },
+          set: { isVisible: isVisibleInt, displayOrder },
         });
     }
 

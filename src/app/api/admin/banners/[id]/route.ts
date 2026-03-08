@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.buttonLink !== undefined) updateData.buttonLink = body.buttonLink;
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.position !== undefined) updateData.position = body.position;
-    if (body.isActive !== undefined) updateData.isActive = body.isActive;
+    if (body.isActive !== undefined) updateData.isActive = body.isActive ? 1 : 0;
     if (body.titleFont !== undefined) updateData.titleFont = body.titleFont;
     if (body.titleColor !== undefined) updateData.titleColor = body.titleColor;
     if (body.subtitleColor !== undefined) updateData.subtitleColor = body.subtitleColor;

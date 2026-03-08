@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         comparePrice: comparePrice ? comparePrice.toString() : null,
         includedProductIds: includedProductIds || [],
         displayOrder: displayOrder || 0,
-        isActive: isActive !== undefined ? isActive : true,
+        isActive: isActive !== undefined ? (isActive ? 1 : 0) : 1,
       })
       .returning();
 

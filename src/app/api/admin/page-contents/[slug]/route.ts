@@ -35,7 +35,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.content !== undefined) updateData.content = body.content;
     if (body.metaTitle !== undefined) updateData.metaTitle = body.metaTitle;
     if (body.metaDescription !== undefined) updateData.metaDescription = body.metaDescription;
-    if (body.isPublished !== undefined) updateData.isPublished = body.isPublished;
+    if (body.isPublished !== undefined) updateData.isPublished = body.isPublished ? 1 : 0;
 
     const [updated] = await db
       .update(pageContents)

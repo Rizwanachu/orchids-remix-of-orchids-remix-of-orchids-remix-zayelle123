@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.alt !== undefined) updateData.alt = body.alt;
     if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
-    if (body.isActive !== undefined) updateData.isActive = body.isActive;
+    if (body.isActive !== undefined) updateData.isActive = body.isActive ? 1 : 0;
 
     const [updated] = await db
       .update(dmTestimonials)
