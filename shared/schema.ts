@@ -88,6 +88,8 @@ export const products = pgTable("products", {
   isFreeShipping: integer("is_free_shipping").notNull().default(0),
   gallery: text("gallery"),
   colors: text("colors"),
+  shippingPolicy: text("shipping_policy").notNull().default(""),
+  returnPolicy: text("return_policy").notNull().default(""),
   active: integer("active").notNull().default(1),
   customHamperEnabled: integer("custom_hamper_enabled").notNull().default(0),
   customHamperTitle: text("custom_hamper_title"),

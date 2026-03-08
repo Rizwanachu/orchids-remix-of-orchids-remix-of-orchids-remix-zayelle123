@@ -58,7 +58,10 @@ const PromoBanners: React.FC = () => {
       subtitle: 'Premium Hijabs at Special Prices',
       buttonText: 'Shop Now',
       href: '/collections/limited-offer',
-      alt: 'Limited Time Offer - Premium Hijabs'
+      alt: 'Limited Time Offer - Premium Hijabs',
+      titleFont: 'serif',
+      titleColor: '#5C4B3D',
+      subtitleColor: '#5C4B3D',
     },
     {
       id: 'under999',
@@ -68,7 +71,10 @@ const PromoBanners: React.FC = () => {
       subtitle: 'Affordable Luxury for Everyday Wear',
       buttonText: 'Explore Collection',
       href: '/collections/under-999',
-      alt: 'Under 999 Collection'
+      alt: 'Under 999 Collection',
+      titleFont: 'serif',
+      titleColor: '#5C4B3D',
+      subtitleColor: '#5C4B3D',
     }
   ];
 

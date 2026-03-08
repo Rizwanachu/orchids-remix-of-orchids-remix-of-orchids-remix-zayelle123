@@ -24,6 +24,8 @@ export interface Product {
   isFreeShipping?: boolean;
   stockQuantity?: number;
   lowStockThreshold?: number;
+  shippingPolicy?: string;
+  returnPolicy?: string;
   customHamperEnabled?: number;
   customHamperTitle?: string;
   customHamperBody?: string;

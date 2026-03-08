@@ -119,10 +119,10 @@ interface OrderEmailData {
   customerEmail: string;
   customerPhone?: string | null;
   shippingAddress?: string | null;
-  totalAmount: string;
+  totalAmount?: string;
   paymentMethod?: string | null;
   paymentStatus?: string;
-  items: Array<{
+  items?: Array<{
     productName: string;
     quantity: number;
     price: string;
@@ -130,6 +130,8 @@ interface OrderEmailData {
   }>;
   couponCode?: string | null;
   discountAmount?: string | null;
+  trackingNumber?: string | null;
+  trackingCarrier?: string | null;
 }
 
 export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCount = 0) {
@@ -153,7 +155,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
   try {
     console.log(`Attempting to send email for Order ${data.orderId} to ${data.customerEmail} (Attempt ${retryCount + 1})`);
     
-    const itemsHtml = data.items.map(item => `
+    const itemsHtml = (data.items || []).map(item => `
       <tr class="product-row">
         <td style="width: 80px; padding-right: 20px; vertical-align: top;">
           <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
@@ -166,8 +168,8 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
       </tr>
     `).join("");
 
-    const subtotal = data.items.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
-    const shipping = 0; 
+    const subtotal = (data.items || []).reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+    const shipping: number = 0;
     const discount = data.discountAmount ? parseFloat(data.discountAmount) : 0;
 
     const content = `
@@ -201,7 +203,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
         </div>
         <div class="total-row grand-total">
           <span class="total-label">Total:</span>
-          <span class="total-value">₹${parseFloat(data.totalAmount).toLocaleString("en-IN")}</span>
+          <span class="total-value">₹${parseFloat(data.totalAmount || "0").toLocaleString("en-IN")}</span>
         </div>
       </div>
 
@@ -227,7 +229,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
 
     // Update DB flag
     if (data.id) {
-      await db.update(orders).set({ emailSent: true }).where(eq(orders.id, data.id));
+      await db.update(orders).set({ emailSent: 1 }).where(eq(orders.id, data.id));
       console.log(`Database updated: emailSent = true for order ${data.orderId}`);
     }
   } catch (error: any) {
@@ -253,7 +255,7 @@ export async function sendShippingNotificationEmail(data: OrderEmailData, retryC
   try {
     console.log(`Attempting to send shipping notification for Order ${data.orderId} to ${data.customerEmail}`);
     
-    const itemsHtml = data.items.map(item => `
+    const itemsHtml = (data.items || []).map(item => `
       <tr class="product-row">
         <td style="width: 80px; padding-right: 20px; vertical-align: top;">
           <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">

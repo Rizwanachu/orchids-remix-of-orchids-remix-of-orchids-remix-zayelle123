@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .from(users)
       .where(ne(users.role, "admin"));
 
-    const registeredMap = new Map<string, { id: number; name: string; phone: string | null; address: string | null; createdAt: Date }>();
+    const registeredMap = new Map<string, { id: number; name: string; phone: string | null; address: string | null; createdAt: string }>();
     for (const u of registeredUsers) {
       registeredMap.set(u.email, { id: u.id, name: u.name, phone: u.phone, address: u.address, createdAt: u.createdAt });
     }
@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
       address: string | null;
       totalOrders: number;
       totalSpend: number;
-      lastOrderDate: Date | null;
-      firstOrderDate: Date | null;
+      lastOrderDate: string | null;
+      firstOrderDate: string | null;
       hasAccount: boolean;
     }>();
 

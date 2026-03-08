@@ -17,7 +17,7 @@ export async function GET() {
       filename: f.filename,
       url: f.url,
       size: f.size,
-      createdAt: typeof f.createdAt === 'string' ? f.createdAt : f.createdAt.toISOString(),
+      createdAt: f.createdAt,
     })));
   } catch (error) {
     console.error("Failed to list media:", error);
