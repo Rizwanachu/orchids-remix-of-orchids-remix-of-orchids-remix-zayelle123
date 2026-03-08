@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       // @ts-ignore - drizzle id filter
       await db.update(themeSettings).set({
         ...body,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       }).where(eq(themeSettings.id, existing[0].id));
     } else {
       await db.insert(themeSettings).values(body);

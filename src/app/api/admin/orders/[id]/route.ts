@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
     if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-    const updateFields: any = { updatedAt: new Date() };
+    const updateFields: any = { updatedAt: new Date().toISOString() };
     if (orderStatus) updateFields.orderStatus = orderStatus;
     if (paymentStatus) updateFields.paymentStatus = paymentStatus;
     if (trackingNumber !== undefined) updateFields.trackingNumber = trackingNumber || null;

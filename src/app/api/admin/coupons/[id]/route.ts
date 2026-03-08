@@ -20,8 +20,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.discountValue !== undefined) updateData.discountValue = String(body.discountValue);
     if (body.minOrderValue !== undefined) updateData.minOrderValue = body.minOrderValue ? String(body.minOrderValue) : null;
     if (body.maxUsage !== undefined) updateData.maxUsage = body.maxUsage;
-    if (body.expiryDate !== undefined) updateData.expiryDate = body.expiryDate ? new Date(body.expiryDate) : null;
-    if (body.active !== undefined) updateData.active = body.active;
+    if (body.expiryDate !== undefined) updateData.expiryDate = body.expiryDate || null;
+    if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
 
     const [updated] = await db
       .update(coupons)

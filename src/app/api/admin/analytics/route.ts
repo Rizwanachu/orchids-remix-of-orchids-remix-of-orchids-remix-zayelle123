@@ -53,14 +53,14 @@ export async function GET(request: NextRequest) {
 
     const dailySales = await db
       .select({
-        date: sql<string>`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`,
+        date: sql<string>`SUBSTRING(${orders.createdAt}, 1, 10)`,
         revenue: sql<string>`COALESCE(SUM(${orders.totalAmount}::numeric), 0)`,
         orders: sql<number>`COUNT(*)::int`,
       })
       .from(orders)
       .where(dailyWhere)
-      .groupBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`)
-      .orderBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`);
+      .groupBy(sql`SUBSTRING(${orders.createdAt}, 1, 10)`)
+      .orderBy(sql`SUBSTRING(${orders.createdAt}, 1, 10)`);
 
     const monthlyFilterConditions = [];
     if (dateFrom) {
@@ -80,14 +80,14 @@ export async function GET(request: NextRequest) {
 
     const monthlySales = await db
       .select({
-        month: sql<string>`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
+        month: sql<string>`SUBSTRING(${orders.createdAt}, 1, 7)`,
         revenue: sql<string>`COALESCE(SUM(${orders.totalAmount}::numeric), 0)`,
         orders: sql<number>`COUNT(*)::int`,
       })
       .from(orders)
       .where(monthlyWhere)
-      .groupBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`)
-      .orderBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`);
+      .groupBy(sql`SUBSTRING(${orders.createdAt}, 1, 7)`)
+      .orderBy(sql`SUBSTRING(${orders.createdAt}, 1, 7)`);
 
     const orderItemConditions = [];
     if (dateFrom || dateTo) {

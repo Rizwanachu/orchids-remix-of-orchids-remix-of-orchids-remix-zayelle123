@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
         discountValue: String(discountValue),
         minOrderValue: minOrderValue ? String(minOrderValue) : null,
         maxUsage: maxUsage || null,
-        expiryDate: expiryDate ? new Date(expiryDate) : null,
-        active: active !== undefined ? active : true,
+        expiryDate: expiryDate || null,
+        active: active !== undefined ? (active ? 1 : 0) : 1,
       })
       .returning();
 

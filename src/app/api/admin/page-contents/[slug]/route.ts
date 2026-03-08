@@ -30,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { slug } = await params;
     const body = await request.json();
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: new Date().toISOString() };
     if (body.title !== undefined) updateData.title = body.title;
     if (body.content !== undefined) updateData.content = body.content;
     if (body.metaTitle !== undefined) updateData.metaTitle = body.metaTitle;

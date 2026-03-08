@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
 
     if (paymentStatus) conditions.push(eq(orders.paymentStatus, paymentStatus as any));
     if (orderStatus) conditions.push(eq(orders.orderStatus, orderStatus as any));
-    if (dateFrom) conditions.push(gte(orders.createdAt, new Date(dateFrom)));
-    if (dateTo) conditions.push(lte(orders.createdAt, new Date(dateTo)));
+    if (dateFrom) conditions.push(gte(orders.createdAt, new Date(dateFrom).toISOString()));
+    if (dateTo) conditions.push(lte(orders.createdAt, new Date(dateTo).toISOString()));
     if (search) {
       conditions.push(
         or(

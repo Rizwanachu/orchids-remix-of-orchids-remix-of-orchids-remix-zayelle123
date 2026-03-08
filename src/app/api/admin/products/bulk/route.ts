@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       const productsList = await db.select().from(products).where(inArray(products.id, numericIds));
       let updatedCount = 0;
       for (const p of productsList) {
-        await db.update(products).set({ active: !p.active }).where(inArray(products.id, [p.id]));
+        await db.update(products).set({ active: p.active === 1 ? 0 : 1 }).where(inArray(products.id, [p.id]));
         updatedCount++;
       }
       await logAdminActivity(admin.id, admin.email, "bulk_product_toggle", `Toggled active status for ${updatedCount} products`);

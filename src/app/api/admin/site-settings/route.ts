@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     if (existing.length > 0) {
       [result] = await db
         .update(siteSettings)
-        .set({ value: value ?? "", updatedAt: new Date() })
+        .set({ value: value ?? "", updatedAt: new Date().toISOString() })
         .where(eq(siteSettings.key, key))
         .returning();
     } else {
