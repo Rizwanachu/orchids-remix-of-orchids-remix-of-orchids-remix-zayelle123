@@ -17,6 +17,7 @@ export interface Product {
   dimension: string;
   material: string;
   careInstructions: string;
+  colors?: { name: string; hex: string }[];
   category: string;
   shippingCost?: number;
   shippingCostKerala?: number;

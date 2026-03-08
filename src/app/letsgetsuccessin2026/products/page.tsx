@@ -17,6 +17,7 @@ import {
     Save,
     ImageIcon,
     Upload,
+    Check,
     CheckSquare,
     Square,
     MinusSquare,
@@ -31,6 +32,8 @@ import MediaPickerModal from "@/components/admin/media-picker-modal";
 interface CategoryItem { id: number; name: string; value: string; displayOrder: number }
 interface BadgeItem { id: number; name: string; value: string; color: string }
 interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
+
+interface ColorItem { id: number; name: string; hexValue: string }
 
 interface ProductFormData {
   name: string;
@@ -47,6 +50,7 @@ interface ProductFormData {
   dimension: string;
   material: string;
   careInstructions: string;
+  colors: { name: string; hex: string }[];
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -72,6 +76,7 @@ const emptyForm: ProductFormData = {
   dimension: "",
   material: "",
   careInstructions: "",
+  colors: [],
   category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -98,6 +103,7 @@ function toFormData(product: Product): ProductFormData {
     dimension: (product as any).dimension || "",
     material: (product as any).material || "",
     careInstructions: (product as any).careInstructions || "",
+    colors: (product as any).colors || [],
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
@@ -154,6 +160,11 @@ export default function AdminProductsPage() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
   const [showTemplateManager, setShowTemplateManager] = useState(false);
+  const [availableColors, setAvailableColors] = useState<ColorItem[]>([]);
+  const [showColorManager, setShowColorManager] = useState(false);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#000000");
+  const [editingColor, setEditingColor] = useState<ColorItem | null>(null);
 
   const fetchCategories = async () => {
     try {
@@ -176,10 +187,18 @@ export default function AdminProductsPage() {
     } catch (e) { console.error("Failed to fetch templates:", e); }
   };
 
+  const fetchColors = async () => {
+    try {
+      const res = await fetch("/api/admin/product-colors");
+      if (res.ok) { const data = await res.json(); setAvailableColors(data); }
+    } catch (e) { console.error("Failed to fetch colors:", e); }
+  };
+
   useEffect(() => {
     fetchCategories();
     fetchBadges();
     fetchTemplates();
+    fetchColors();
   }, []);
 
   const handleAddCategory = async () => {
@@ -239,6 +258,44 @@ export default function AdminProductsPage() {
       const res = await fetch(`/api/admin/badges/${id}`, { method: "DELETE" });
       if (res.ok) await fetchBadges();
     } catch { setErrorMessage("Failed to delete badge"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleAddColor = async () => {
+    if (!newColorName.trim() || !newColorHex.trim()) return;
+    try {
+      const res = await fetch("/api/admin/product-colors", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newColorName.trim(), hexValue: newColorHex.trim() }),
+      });
+      if (res.ok) { setNewColorName(""); setNewColorHex("#000000"); await fetchColors(); }
+    } catch { setErrorMessage("Failed to add color"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleUpdateColor = async (color: ColorItem) => {
+    try {
+      const res = await fetch(`/api/admin/product-colors/${color.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: color.name, hexValue: color.hexValue }),
+      });
+      if (res.ok) { setEditingColor(null); await fetchColors(); }
+    } catch { setErrorMessage("Failed to update color"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const handleDeleteColor = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/product-colors/${id}`, { method: "DELETE" });
+      if (res.ok) await fetchColors();
+    } catch { setErrorMessage("Failed to delete color"); setTimeout(() => setErrorMessage(""), 3000); }
+  };
+
+  const toggleProductColor = (color: ColorItem) => {
+    setForm(prev => {
+      const exists = prev.colors.some(c => c.hex === color.hexValue);
+      if (exists) {
+        return { ...prev, colors: prev.colors.filter(c => c.hex !== color.hexValue) };
+      }
+      return { ...prev, colors: [...prev.colors, { name: color.name, hex: color.hexValue }] };
+    });
   };
 
   const handleApplyTemplate = (templateId: string) => {
@@ -429,6 +486,7 @@ export default function AdminProductsPage() {
       shippingCost: Number(form.shippingCost),
       shippingCostKerala: Number(form.shippingCostKerala),
       isFreeShipping: form.isFreeShipping,
+      colors: form.colors,
       gallery: form.gallery,
     };
 
@@ -743,6 +801,75 @@ export default function AdminProductsPage() {
                   </div>
                 </div>
               )}
+
+              <div className="pt-4 border-t border-[#F5F2ED]">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[14px] font-medium text-[#1A1A1A]">Color Variants</h3>
+                  <button type="button" onClick={() => setShowColorManager(!showColorManager)} className="text-[11px] text-[#5C4B3D] hover:underline flex items-center gap-1">
+                    <Settings size={11} /> Manage
+                  </button>
+                </div>
+                {availableColors.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {availableColors.map((color) => {
+                      const isSelected = form.colors.some(c => c.hex === color.hexValue);
+                      return (
+                        <button
+                          key={color.id}
+                          type="button"
+                          onClick={() => toggleProductColor(color)}
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[12px] transition-all ${isSelected ? "border-[#5C4B3D] bg-[#5C4B3D]/5 ring-1 ring-[#5C4B3D]" : "border-[#E8E4DE] hover:border-[#D4C8BE]"}`}
+                          title={color.name}
+                        >
+                          <span className="w-4 h-4 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hexValue }} />
+                          <span className="text-[#1A1A1A]">{color.name}</span>
+                          {isSelected && <Check size={12} className="text-[#5C4B3D]" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-[12px] text-[#999] mb-2">No colors added yet. Click &quot;Manage&quot; to add colors.</p>
+                )}
+                {form.colors.length > 0 && (
+                  <p className="text-[11px] text-[#757575]">{form.colors.length} color{form.colors.length > 1 ? "s" : ""} selected</p>
+                )}
+
+                {showColorManager && (
+                  <div className="mt-4 pt-4 border-t border-[#F5F2ED]">
+                    <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Manage Colors</h3>
+                    <div className="space-y-2 mb-3 max-h-[250px] overflow-y-auto">
+                      {availableColors.map((color) => (
+                        <div key={color.id} className="flex items-center gap-2 bg-[#FAFAF8] px-3 py-2 rounded-sm">
+                          {editingColor?.id === color.id ? (
+                            <>
+                              <input type="color" value={editingColor.hexValue} onChange={(e) => setEditingColor({ ...editingColor, hexValue: e.target.value })} className="w-8 h-8 rounded border-0 cursor-pointer p-0" />
+                              <input type="text" value={editingColor.name} onChange={(e) => setEditingColor({ ...editingColor, name: e.target.value })} className="flex-1 h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                              <input type="text" value={editingColor.hexValue} onChange={(e) => setEditingColor({ ...editingColor, hexValue: e.target.value })} className="w-[90px] h-[32px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white font-mono" />
+                              <button onClick={() => handleUpdateColor(editingColor)} className="text-[11px] text-[#5C4B3D] hover:underline">Save</button>
+                              <button onClick={() => setEditingColor(null)} className="text-[11px] text-[#757575] hover:underline">Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="w-6 h-6 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hexValue }} />
+                              <span className="flex-1 text-[13px] text-[#1A1A1A]">{color.name}</span>
+                              <span className="text-[11px] text-[#999] font-mono">{color.hexValue}</span>
+                              <button onClick={() => setEditingColor(color)} className="text-[#757575] hover:text-[#5C4B3D]"><Pencil size={12} /></button>
+                              <button onClick={() => handleDeleteColor(color.id)} className="text-[#757575] hover:text-red-500"><Trash2 size={12} /></button>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="w-9 h-9 rounded border-0 cursor-pointer p-0" />
+                      <input type="text" value={newColorName} onChange={(e) => setNewColorName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddColor()} placeholder="Color name (e.g. Blush Pink)" className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white" />
+                      <input type="text" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} placeholder="#FF0000" className="w-[90px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white font-mono" />
+                      <button onClick={handleAddColor} className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31]">Add</button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="pt-4 border-t border-[#F5F2ED]">
                 <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-3">Shipping Options</h3>

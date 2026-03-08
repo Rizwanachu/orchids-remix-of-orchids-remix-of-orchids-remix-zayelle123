@@ -81,6 +81,7 @@ export const products = sqliteTable("products", {
   shippingCostKerala: numeric("shipping_cost_kerala", { precision: 10, scale: 2 }).notNull().default("49"),
   isFreeShipping: integer("is_free_shipping").notNull().default(0),
   gallery: text("gallery"),
+  colors: text("colors"),
   active: integer("active").notNull().default(1),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
@@ -261,6 +262,13 @@ export const productTemplates = sqliteTable("product_templates", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const productColors = sqliteTable("product_colors", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+  hexValue: text("hex_value").notNull(),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -288,3 +296,4 @@ export type Media = typeof media.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Badge = typeof badges.$inferSelect;
 export type ProductTemplate = typeof productTemplates.$inferSelect;
+export type ProductColor = typeof productColors.$inferSelect;

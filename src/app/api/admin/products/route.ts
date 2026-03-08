@@ -33,6 +33,7 @@ export async function GET() {
     shippingCost: Number(p.shippingCost),
     shippingCostKerala: Number(p.shippingCostKerala),
     isFreeShipping: p.isFreeShipping,
+    colors: (() => { try { return p.colors ? (typeof p.colors === 'string' ? JSON.parse(p.colors) : p.colors) : []; } catch { return []; } })(),
     gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
     active: p.active,
   }));
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
       shippingCost: body.shippingCost != null ? String(body.shippingCost) : "49",
       shippingCostKerala: body.shippingCostKerala != null ? String(body.shippingCostKerala) : "49",
       isFreeShipping: body.isFreeShipping ?? false,
+      colors: Array.isArray(body.colors) ? JSON.stringify(body.colors) : null,
       gallery: Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null,
     }).returning();
 
@@ -100,6 +102,7 @@ export async function POST(request: NextRequest) {
       shippingCost: Number(newProduct.shippingCost),
       shippingCostKerala: Number(newProduct.shippingCostKerala),
       isFreeShipping: newProduct.isFreeShipping,
+      colors: (() => { try { return newProduct.colors ? (typeof newProduct.colors === 'string' ? JSON.parse(newProduct.colors) : newProduct.colors) : []; } catch { return []; } })(),
       gallery: (() => { try { return newProduct.gallery ? (typeof newProduct.gallery === 'string' ? JSON.parse(newProduct.gallery) : newProduct.gallery) : []; } catch { return []; } })(),
     });
   } catch (error: any) {

@@ -227,6 +227,25 @@ export default function ProductDetailPage() {
                     )}
                   </div>
 
+              {(product as any).colors && (product as any).colors.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[12px] text-[#757575] mb-2 uppercase tracking-wider">Available Colors</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(product as any).colors.map((color: { name: string; hex: string }, i: number) => (
+                      <div key={i} className="group relative">
+                        <span
+                          className="block w-8 h-8 rounded-full border-2 border-[#E8E4DE] cursor-default transition-all group-hover:border-[#5C4B3D] group-hover:scale-110"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-[#1A1A1A] text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          {color.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="w-full h-px bg-[#E8E4DE] my-6" />
 
               {/* Quantity + Add to Cart */}

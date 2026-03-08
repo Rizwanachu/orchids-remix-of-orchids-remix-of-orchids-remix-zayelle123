@@ -36,6 +36,7 @@
 - **Dynamic Badges**: Badges stored in `badges` table. Admin can add/edit/delete badges inline via "Manage" button on badge dropdown. API: `/api/admin/badges` (CRUD). Default badges (New, Sale, Bestseller, Gift) seeded on first access.
 - **Product Templates**: Saved in `product_templates` table. Admin can save current product details (description, details, dimension, material, careInstructions, shippingPolicy, returnPolicy) as a named template. "Load Template" dropdown auto-fills these fields. Templates manageable (edit/delete) via "Manage Templates" panel. API: `/api/admin/product-templates` (CRUD).
 - **Kerala / Outside Kerala Shipping**: Products have two shipping cost fields: `shippingCostKerala` (default 49) and `shippingCost` (outside Kerala). Admin form shows both fields side by side. Checkout page dynamically switches shipping cost based on selected state — uses Kerala rate when state is "Kerala", outside Kerala rate otherwise. Shipping label shows which rate is applied.
+- **Product Colors**: Global color pool stored in `product_colors` table (id, name, hexValue). Products store selected colors as JSON array of `{name, hex}` in `colors` TEXT column. Admin form has a "Color Variants" section with clickable swatch selector + "Manage" panel for CRUD. Product detail page shows color swatches with hover tooltips. API: `/api/admin/product-colors` (GET/POST), `/api/admin/product-colors/[id]` (PATCH/DELETE).
 
 ## Admin Panel - Banners
 - Banner image upload limit: 10MB (via `/api/admin/upload`).
