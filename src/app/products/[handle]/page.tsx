@@ -192,12 +192,12 @@ export default function ProductDetailPage() {
                   </span>
                 )}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => { setActiveImage(idx); setSelectedColorImage(null); setSelectedColorIdx(null); }}
-                    className={`relative w-20 h-20 rounded-[8px] overflow-hidden border-2 transition-colors ${!selectedColorImage && activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-[8px] overflow-hidden border-2 transition-colors ${!selectedColorImage && activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
                   >
                     <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                   </button>

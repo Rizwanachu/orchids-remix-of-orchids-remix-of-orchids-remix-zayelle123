@@ -15,7 +15,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <div 
-      className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
+      className="embla__slide flex-[0_0_80%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -99,6 +99,7 @@ export default function NewArrivalsCarousel() {
     align: "start",
     slidesToScroll: 1,
     breakpoints: {
+      "(min-width: 640px)": { slidesToScroll: 2 },
       "(min-width: 1024px)": { slidesToScroll: 4 }
     }
   }, [Autoplay({ delay: 4000, stopOnInteraction: false })]);
@@ -125,7 +126,9 @@ export default function NewArrivalsCarousel() {
 
   useEffect(() => {
     const updateSlidesPerView = () => {
-      setSlidesPerView(window.innerWidth >= 1024 ? 4 : 1);
+      if (window.innerWidth >= 1024) setSlidesPerView(4);
+      else if (window.innerWidth >= 640) setSlidesPerView(2);
+      else setSlidesPerView(1);
     };
     updateSlidesPerView();
     window.addEventListener("resize", updateSlidesPerView);

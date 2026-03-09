@@ -170,7 +170,7 @@ function AllProductsContent() {
             </>
           ) : (
           <>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
             <div className="flex items-center gap-3 flex-wrap">
               <p className="text-[14px] text-[#757575]">{displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}</p>
 
@@ -292,7 +292,7 @@ function AllProductsContent() {
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex flex-wrap gap-2 mt-3">
                     {[
                       { label: "Under ₹500", min: "", max: "500" },
                       { label: "₹500 – ₹1000", min: "500", max: "1000" },

@@ -72,12 +72,12 @@ const HeroSection = () => {
   return (
     <section className="relative w-full overflow-hidden bg-[#FDFCF8]">
       <div className="container mx-auto px-5 sm:px-8">
-        <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-20">
+        <div className="relative flex flex-col lg:flex-row items-center justify-between py-8 sm:py-12 lg:py-20">
           
-          <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0">
+          <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-6 lg:mb-0">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <h1 
-                className="font-sans text-[48px] md:text-[60px] leading-[1.05] font-semibold mb-6 tracking-tight uppercase"
+                className="font-sans text-[36px] sm:text-[48px] md:text-[60px] leading-[1.05] font-semibold mb-4 sm:mb-6 tracking-tight uppercase"
                 style={{ color: themeSettings.heroTitleColor }}
               >
                 {titleParts[0]}
@@ -90,14 +90,14 @@ const HeroSection = () => {
               </h1>
 
               <p 
-                className="font-sans text-[18px] md:text-[20px] font-medium max-w-[480px] mb-3"
+                className="font-sans text-[15px] sm:text-[18px] md:text-[20px] font-medium max-w-[480px] mb-3"
                 style={{ color: themeSettings.primaryColor }}
               >
                 {subtitle}
               </p>
               
               <p 
-                className="font-sans text-[15px] md:text-[16px] max-w-[480px] mb-10 leading-relaxed text-[#757575]"
+                className="font-sans text-[14px] sm:text-[15px] md:text-[16px] max-w-[480px] mb-8 sm:mb-10 leading-relaxed text-[#757575]"
               >
                 {description}
               </p>
@@ -105,7 +105,7 @@ const HeroSection = () => {
               <div className="flex flex-wrap gap-4">
                 <a 
                   href={buttonLink}
-                  className="inline-flex items-center justify-center bg-[#524436] text-[#FDFCF8] px-10 py-4 font-medium text-[13px] transition-premium hover:opacity-90 uppercase tracking-widest"
+                  className="inline-flex items-center justify-center bg-[#524436] text-[#FDFCF8] px-8 sm:px-10 py-3.5 sm:py-4 font-medium text-[12px] sm:text-[13px] transition-premium hover:opacity-90 uppercase tracking-widest"
                 >
                   {buttonText}
                 </a>
@@ -113,7 +113,7 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <div className="relative w-full lg:w-1/2 h-[500px] md:h-[600px] lg:h-[700px] flex justify-end">
+          <div className="relative w-full lg:w-1/2 h-[300px] sm:h-[420px] md:h-[550px] lg:h-[700px] flex justify-end">
             <div className="relative w-full h-full">
               <div className="relative w-full h-full overflow-hidden rounded-[40px] md:rounded-[80px] shadow-soft">
                 <Image

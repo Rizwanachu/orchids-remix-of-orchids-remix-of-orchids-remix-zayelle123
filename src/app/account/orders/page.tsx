@@ -183,7 +183,7 @@ export default function MyOrdersPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-3 border-t border-[#F5F2ED]">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-[#F5F2ED]">
                     <div className="flex items-center gap-2 text-[14px] text-[#757575]">
                       <Package size={16} />
                       <span>{totalItems(order.items || [])} item{totalItems(order.items || []) > 1 ? "s" : ""}</span>

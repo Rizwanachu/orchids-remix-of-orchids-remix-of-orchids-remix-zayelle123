@@ -146,24 +146,24 @@ const PromoBanners: React.FC = () => {
                 />
               </div>
 
-              <div className="absolute inset-0 p-10 md:p-14 pointer-events-none flex flex-col justify-between">
+              <div className="absolute inset-0 p-6 sm:p-10 md:p-14 pointer-events-none flex flex-col justify-between">
                 <div className="flex flex-col">
                   <h2 
-                    className={`${banner.titleFont === 'sans' ? 'font-sans' : 'font-serif'} text-[42px] leading-[1] md:text-[64px] lg:text-[72px] select-none flex flex-col uppercase tracking-tight`}
+                    className={`${banner.titleFont === 'sans' ? 'font-sans' : 'font-serif'} text-[32px] sm:text-[42px] leading-[1] md:text-[64px] lg:text-[72px] select-none flex flex-col uppercase tracking-tight`}
                     style={{ color: banner.titleColor }}
                   >
                     <span className="block">{banner.titleLine1}</span>
                     {banner.titleLine2 && <span className="block">{banner.titleLine2}</span>}
                   </h2>
                   <p 
-                    className="text-[16px] md:text-[18px] mt-4 max-w-[280px]"
+                    className="text-[14px] sm:text-[16px] md:text-[18px] mt-3 sm:mt-4 max-w-[280px]"
                     style={{ color: banner.subtitleColor }}
                   >
                     {banner.subtitle}
                   </p>
                 </div>
                 <div className="pointer-events-auto">
-                  <span className="inline-block bg-[#5C4B3D] text-white text-[12px] uppercase tracking-widest px-8 py-3 rounded-[8px] transition-colors hover:bg-[#4A3D32]">
+                  <span className="inline-block bg-[#5C4B3D] text-white text-[11px] sm:text-[12px] uppercase tracking-widest px-6 sm:px-8 py-2.5 sm:py-3 rounded-[8px] transition-colors hover:bg-[#4A3D32]">
                     {banner.buttonText}
                   </span>
                 </div>

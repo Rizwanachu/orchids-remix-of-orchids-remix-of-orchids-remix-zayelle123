@@ -421,7 +421,7 @@ function CheckoutContent() {
               <section>
                 <h2 className="text-[18px] font-serif text-[#1A1A1A] mb-4">Shipping Address</h2>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <input
                         type="text"
@@ -456,7 +456,7 @@ function CheckoutContent() {
                     />
                     {errors.address && <p className="text-[12px] text-red-500 mt-1">{errors.address}</p>}
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <input
                         type="text"

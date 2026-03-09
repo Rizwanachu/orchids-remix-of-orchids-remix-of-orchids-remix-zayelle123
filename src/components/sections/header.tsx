@@ -99,7 +99,7 @@ const Header = () => {
 
       <header id="page-header" className="border-b border-[#E8E4DE]">
         <div className="container mx-auto px-5 lg:px-8">
-          <div className="flex items-center justify-between py-6">
+          <div className="flex items-center justify-between py-4 lg:py-6">
             
             <div className="hidden lg:flex flex-1 max-w-[300px] relative">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
