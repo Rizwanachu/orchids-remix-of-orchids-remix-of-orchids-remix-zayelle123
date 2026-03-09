@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       hoverImage: body.hoverImage || body.image,
       badge: body.badge || null,
       description: body.description || "",
-      details: body.details || [],
+      details: Array.isArray(body.details) ? body.details.join("\n") : (body.details || ""),
       dimension: body.dimension || "",
       material: body.material || "",
       careInstructions: body.careInstructions || "",
