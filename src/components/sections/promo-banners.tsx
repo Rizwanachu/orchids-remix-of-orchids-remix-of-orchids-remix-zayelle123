@@ -15,6 +15,8 @@ interface BannerData {
   titleFont?: string;
   titleColor?: string;
   subtitleColor?: string;
+  titleFontSizeDesktop?: string;
+  titleFontSizeMobile?: string;
 }
 
 const PromoBanners: React.FC = () => {
@@ -62,6 +64,8 @@ const PromoBanners: React.FC = () => {
       titleFont: 'serif',
       titleColor: '#5C4B3D',
       subtitleColor: '#5C4B3D',
+      titleFontSizeDesktop: '64px',
+      titleFontSizeMobile: '32px',
     },
     {
       id: 'under999',
@@ -75,6 +79,8 @@ const PromoBanners: React.FC = () => {
       titleFont: 'serif',
       titleColor: '#5C4B3D',
       subtitleColor: '#5C4B3D',
+      titleFontSizeDesktop: '64px',
+      titleFontSizeMobile: '32px',
     }
   ];
 
@@ -107,6 +113,8 @@ const PromoBanners: React.FC = () => {
           titleFont: b.titleFont || 'serif',
           titleColor: b.titleColor || '#5C4B3D',
           subtitleColor: b.subtitleColor || '#5C4B3D',
+          titleFontSizeDesktop: b.titleFontSizeDesktop || '64px',
+          titleFontSizeMobile: b.titleFontSizeMobile || '32px',
         };
       })
     : fallbackBanners;
@@ -135,6 +143,10 @@ const PromoBanners: React.FC = () => {
               href={banner.href}
               className="group relative block aspect-square overflow-hidden rounded-[12px] transform transition-premium hover:shadow-soft"
             >
+              <style>{`
+                .banner-title-${banner.id} { font-size: ${banner.titleFontSizeMobile}; }
+                @media (min-width: 768px) { .banner-title-${banner.id} { font-size: ${banner.titleFontSizeDesktop}; } }
+              `}</style>
               <div className="absolute inset-0 w-full h-full">
                 <Image
                   src={banner.image}
@@ -149,7 +161,7 @@ const PromoBanners: React.FC = () => {
               <div className="absolute inset-0 p-6 sm:p-10 md:p-14 pointer-events-none flex flex-col justify-between">
                 <div className="flex flex-col">
                   <h2 
-                    className={`${banner.titleFont === 'sans' ? 'font-sans' : 'font-serif'} text-[32px] sm:text-[42px] leading-[1] md:text-[64px] lg:text-[72px] select-none flex flex-col uppercase tracking-tight`}
+                    className={`banner-title-${banner.id} ${banner.titleFont === 'sans' ? 'font-sans' : 'font-serif'} leading-[1] select-none flex flex-col uppercase tracking-tight`}
                     style={{ color: banner.titleColor }}
                   >
                     <span className="block">{banner.titleLine1}</span>

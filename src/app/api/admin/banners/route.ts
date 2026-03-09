@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
       titleFont: body.titleFont || "serif",
       titleColor: body.titleColor || "#5C4B3D",
       subtitleColor: body.subtitleColor || "#5C4B3D",
+      titleFontSizeDesktop: body.titleFontSizeDesktop || "64px",
+      titleFontSizeMobile: body.titleFontSizeMobile || "32px",
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "banner_created", `Created banner: ${body.title}`);

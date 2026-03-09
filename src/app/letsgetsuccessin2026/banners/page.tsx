@@ -38,6 +38,8 @@ interface Banner {
   titleFont: string;
   titleColor: string;
   subtitleColor: string;
+  titleFontSizeDesktop: string;
+  titleFontSizeMobile: string;
   createdAt: string;
   productIds: string[];
 }
@@ -53,6 +55,8 @@ const emptyForm = {
   titleFont: "serif",
   titleColor: "#5C4B3D",
   subtitleColor: "#5C4B3D",
+  titleFontSizeDesktop: "64px",
+  titleFontSizeMobile: "32px",
 };
 
 export default function BannersPage() {
@@ -228,6 +232,8 @@ export default function BannersPage() {
       titleFont: banner.titleFont || "serif",
       titleColor: banner.titleColor || "#5C4B3D",
       subtitleColor: banner.subtitleColor || "#5C4B3D",
+      titleFontSizeDesktop: banner.titleFontSizeDesktop || "64px",
+      titleFontSizeMobile: banner.titleFontSizeMobile || "32px",
     });
     setEditingId(banner.id);
     setErrorMessage("");
@@ -510,6 +516,48 @@ export default function BannersPage() {
                     }
                     className="flex-1 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
                   />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Title Size — Desktop
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="20"
+                    max="120"
+                    step="2"
+                    value={parseInt(form.titleFontSizeDesktop) || 64}
+                    onChange={(e) =>
+                      setForm({ ...form, titleFontSizeDesktop: `${e.target.value}px` })
+                    }
+                    className="flex-1 accent-[#5C4B3D]"
+                  />
+                  <span className="w-14 text-center px-2 py-1 border border-[#E8E4DE] rounded-lg text-[13px] text-[#1A1A1A] font-medium">
+                    {form.titleFontSizeDesktop}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Title Size — Mobile
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="16"
+                    max="80"
+                    step="2"
+                    value={parseInt(form.titleFontSizeMobile) || 32}
+                    onChange={(e) =>
+                      setForm({ ...form, titleFontSizeMobile: `${e.target.value}px` })
+                    }
+                    className="flex-1 accent-[#5C4B3D]"
+                  />
+                  <span className="w-14 text-center px-2 py-1 border border-[#E8E4DE] rounded-lg text-[13px] text-[#1A1A1A] font-medium">
+                    {form.titleFontSizeMobile}
+                  </span>
                 </div>
               </div>
             </div>

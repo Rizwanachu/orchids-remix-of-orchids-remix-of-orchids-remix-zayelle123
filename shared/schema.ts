@@ -151,6 +151,8 @@ export const banners = pgTable("banners", {
   titleFont: text("title_font").notNull().default("serif"),
   titleColor: text("title_color").notNull().default("#5C4B3D"),
   subtitleColor: text("subtitle_color").notNull().default("#5C4B3D"),
+  titleFontSizeDesktop: text("title_font_size_desktop").notNull().default("64px"),
+  titleFontSizeMobile: text("title_font_size_mobile").notNull().default("32px"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   productIds: text("product_ids").default("[]"),
 });
