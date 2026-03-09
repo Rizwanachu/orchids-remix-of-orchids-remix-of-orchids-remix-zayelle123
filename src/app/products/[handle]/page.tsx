@@ -397,14 +397,39 @@ export default function ProductDetailPage() {
                     <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Description</span>
                     <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "description" ? "rotate-180" : ""}`} />
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "description" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
-                    <p className="text-[14px] text-[#555] leading-relaxed">{product.description}</p>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "description" ? "max-h-[2000px] pb-4" : "max-h-0"}`}>
+                    {(() => {
+                      const descLines = (product.description || "").split("\n").map(l => l.trim()).filter(Boolean);
+                      const bulletLines = descLines.filter(l => /^[-•*]/.test(l));
+                      const nonBulletLines = descLines.filter(l => !/^[-•*]/.test(l));
+                      return (
+                        <>
+                          {nonBulletLines.length > 0 && (
+                            <div className="space-y-1.5">
+                              {nonBulletLines.map((line, i) => (
+                                <p key={i} className="text-[14px] text-[#555] leading-relaxed">{line}</p>
+                              ))}
+                            </div>
+                          )}
+                          {bulletLines.length > 0 && (
+                            <ul className={`space-y-1.5 ${nonBulletLines.length > 0 ? "mt-3" : ""}`}>
+                              {bulletLines.map((line, i) => (
+                                <li key={i} className="text-[13px] text-[#555] flex items-start gap-2">
+                                  <span className="text-[#5C4B3D] mt-0.5 flex-shrink-0">•</span>
+                                  <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </>
+                      );
+                    })()}
                     {product.details.length > 0 && (
                       <ul className="mt-3 space-y-1.5">
                         {product.details.map((detail, idx) => (
                           <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
-                            <span className="text-[#5C4B3D] mt-0.5">•</span>
-                            {detail}
+                            <span className="text-[#5C4B3D] mt-0.5 flex-shrink-0">•</span>
+                            <span>{detail}</span>
                           </li>
                         ))}
                       </ul>
