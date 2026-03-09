@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import Header from "@/components/sections/header";
@@ -24,8 +24,50 @@ export default function CollectionPage() {
   const { addItem, toggleWishlist, isInWishlist } = useCart();
   const { products: allProducts, loaded } = useProducts();
 
-  const title = collectionTitles[slug] || slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-  const products = allProducts.filter((p) => p.category === slug);
+  const [zayelleTitle, setZayelleTitle] = useState<string | null>(null);
+  const [zayelleProductIds, setZayelleProductIds] = useState<string[] | null>(null);
+  const [zayelleLoading, setZayelleLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    setZayelleLoading(true);
+    fetch("/api/zayelle-edit")
+      .then((r) => r.json())
+      .then((items: any[]) => {
+        const match = items.find(
+          (item) => item.redirectLink === `/collections/${slug}` || item.redirect_link === `/collections/${slug}`
+        );
+        if (match) {
+          setZayelleTitle(match.title || null);
+          const ids = (() => {
+            try {
+              const raw = match.productIds ?? match.product_ids;
+              return Array.isArray(raw) ? raw.map(String) : JSON.parse(raw || "[]").map(String);
+            } catch {
+              return [];
+            }
+          })();
+          setZayelleProductIds(ids);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setZayelleLoading(false));
+  }, [slug]);
+
+  const title =
+    zayelleTitle ||
+    collectionTitles[slug] ||
+    slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+  const byCategory = allProducts.filter((p) => p.category === slug);
+  const products =
+    byCategory.length > 0
+      ? byCategory
+      : zayelleProductIds !== null
+      ? allProducts.filter((p) => zayelleProductIds.includes(String(p.id)))
+      : [];
+
+  const pageLoading = !loaded || zayelleLoading;
 
   return (
     <>
@@ -47,7 +89,7 @@ export default function CollectionPage() {
         </div>
 
         <div className="container px-4 md:px-8 py-12 md:py-16">
-          {!loaded ? (
+          {pageLoading ? (
             <>
               <p className="text-[14px] text-[#757575] mb-8">Loading products...</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
