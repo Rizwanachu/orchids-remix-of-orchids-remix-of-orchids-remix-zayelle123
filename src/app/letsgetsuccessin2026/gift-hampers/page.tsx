@@ -78,7 +78,8 @@ export default function AdminGiftHampersPage() {
       const res = await fetch("/api/admin/products");
       if (res.ok) {
         const data = await res.json();
-        setProducts(data.products || []);
+        const list = Array.isArray(data) ? data : (data.products || []);
+        setProducts(list.map((p: any) => ({ id: Number(p.id), name: p.name, image: p.image })));
       }
     } catch (err) {
       console.error("Error fetching products:", err);

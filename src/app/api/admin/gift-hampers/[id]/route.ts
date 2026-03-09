@@ -19,7 +19,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.description !== undefined) updateData.description = body.description;
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.price !== undefined) updateData.price = body.price.toString();
-    if (body.includedProductIds !== undefined) updateData.includedProductIds = body.includedProductIds;
+    if (body.includedProductIds !== undefined) updateData.includedProductIds = JSON.stringify(Array.isArray(body.includedProductIds) ? body.includedProductIds.map(Number) : []);
     if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
     if (body.isActive !== undefined) updateData.isActive = body.isActive ? 1 : 0;
     if (body.comparePrice !== undefined) updateData.comparePrice = body.comparePrice ? body.comparePrice.toString() : null;

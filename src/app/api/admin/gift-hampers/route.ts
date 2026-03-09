@@ -5,13 +5,24 @@ import { verifyAdmin } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-logger";
 import { asc } from "drizzle-orm";
 
+function parseHamper(h: any) {
+  return {
+    ...h,
+    includedProductIds: (() => {
+      if (!h.includedProductIds) return [];
+      if (Array.isArray(h.includedProductIds)) return h.includedProductIds.map(Number);
+      try { return JSON.parse(h.includedProductIds).map(Number); } catch { return []; }
+    })(),
+  };
+}
+
 export async function GET() {
   const admin = await verifyAdmin();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const list = await db.select().from(giftHampers).orderBy(asc(giftHampers.displayOrder));
-    return NextResponse.json({ hampers: list });
+    return NextResponse.json({ hampers: list.map(parseHamper) });
   } catch (error) {
     console.error("Error fetching gift hampers:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -38,7 +49,7 @@ export async function POST(request: NextRequest) {
         imageUrl: imageUrl || "",
         price: price.toString(),
         comparePrice: comparePrice ? comparePrice.toString() : null,
-        includedProductIds: includedProductIds || [],
+        includedProductIds: JSON.stringify(Array.isArray(includedProductIds) ? includedProductIds.map(Number) : []),
         displayOrder: displayOrder || 0,
         isActive: isActive !== undefined ? (isActive ? 1 : 0) : 1,
       })
