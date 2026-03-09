@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, X, Gift, Save, Upload, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { Plus, Pencil, Trash2, X, Gift, Save, Upload, ImageIcon, Eye, Package, UserPlus, UserMinus } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Product {
   id: number;
   name: string;
   image: string;
+  price: number;
 }
 
 interface GiftHamper {
@@ -29,7 +31,6 @@ interface HamperFormData {
   imageUrl: string;
   price: string;
   comparePrice: string;
-  includedProductIds: number[];
   displayOrder: string;
   isActive: boolean;
 }
@@ -40,14 +41,13 @@ const emptyForm: HamperFormData = {
   imageUrl: "",
   price: "",
   comparePrice: "",
-  includedProductIds: [],
   displayOrder: "0",
   isActive: true,
 };
 
 export default function AdminGiftHampersPage() {
   const [hampers, setHampers] = useState<GiftHamper[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -57,19 +57,19 @@ export default function AdminGiftHampersPage() {
   const [uploading, setUploading] = useState(false);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [viewingHamperId, setViewingHamperId] = useState<number | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState<number | null>(null);
+  const [updatingProduct, setUpdatingProduct] = useState<string | null>(null);
 
   const fetchHampers = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/admin/gift-hampers");
       if (res.ok) {
         const data = await res.json();
-        setHampers(data.hampers);
+        setHampers(data.hampers || []);
       }
     } catch (err) {
       console.error("Error fetching gift hampers:", err);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -79,7 +79,12 @@ export default function AdminGiftHampersPage() {
       if (res.ok) {
         const data = await res.json();
         const list = Array.isArray(data) ? data : (data.products || []);
-        setProducts(list.map((p: any) => ({ id: Number(p.id), name: p.name, image: p.image })));
+        setAllProducts(list.map((p: { id: string | number; name: string; image: string; price: number }) => ({
+          id: Number(p.id),
+          name: p.name,
+          image: p.image,
+          price: p.price,
+        })));
       }
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -87,8 +92,12 @@ export default function AdminGiftHampersPage() {
   }, []);
 
   useEffect(() => {
-    fetchHampers();
-    fetchProducts();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchHampers(), fetchProducts()]);
+      setLoading(false);
+    };
+    loadData();
   }, [fetchHampers, fetchProducts]);
 
   const showSuccess = (msg: string) => {
@@ -111,7 +120,6 @@ export default function AdminGiftHampersPage() {
       imageUrl: hamper.imageUrl,
       price: hamper.price,
       comparePrice: hamper.comparePrice || "",
-      includedProductIds: hamper.includedProductIds || [],
       displayOrder: hamper.displayOrder.toString(),
       isActive: hamper.isActive,
     });
@@ -142,19 +150,9 @@ export default function AdminGiftHampersPage() {
     }
   };
 
-  const handleToggleProduct = (productId: number) => {
-    setForm((f) => {
-      const ids = f.includedProductIds.includes(productId)
-        ? f.includedProductIds.filter((id) => id !== productId)
-        : [...f.includedProductIds, productId];
-      return { ...f, includedProductIds: ids };
-    });
-  };
-
   const handleSave = async () => {
     if (!form.title || !form.price) return;
     setSaving(true);
-
     try {
       const body = {
         title: form.title,
@@ -162,7 +160,6 @@ export default function AdminGiftHampersPage() {
         imageUrl: form.imageUrl,
         price: parseFloat(form.price),
         comparePrice: form.comparePrice ? parseFloat(form.comparePrice) : null,
-        includedProductIds: form.includedProductIds,
         displayOrder: parseInt(form.displayOrder) || 0,
         isActive: form.isActive,
       };
@@ -183,7 +180,7 @@ export default function AdminGiftHampersPage() {
       }
 
       if (res.ok) {
-        showSuccess(editingId ? "Gift hamper updated successfully" : "Gift hamper created successfully");
+        showSuccess(editingId ? "Gift hamper updated!" : "Gift hamper created!");
         handleCancel();
         fetchHampers();
       }
@@ -198,8 +195,9 @@ export default function AdminGiftHampersPage() {
     try {
       const res = await fetch(`/api/admin/gift-hampers/${id}`, { method: "DELETE" });
       if (res.ok) {
-        showSuccess("Gift hamper deleted successfully");
+        showSuccess("Gift hamper deleted!");
         setDeleteConfirm(null);
+        if (viewingHamperId === id) setViewingHamperId(null);
         fetchHampers();
       }
     } catch (err) {
@@ -207,340 +205,444 @@ export default function AdminGiftHampersPage() {
     }
   };
 
-  const handleToggleActive = async (hamper: GiftHamper) => {
+  const getProductsInHamper = (hamper: GiftHamper) => {
+    const ids = hamper.includedProductIds || [];
+    return allProducts.filter((p) => ids.includes(p.id));
+  };
+
+  const getProductsNotInHamper = (hamper: GiftHamper) => {
+    const ids = hamper.includedProductIds || [];
+    return allProducts.filter((p) => !ids.includes(p.id));
+  };
+
+  const handleAddProductToHamper = async (hamper: GiftHamper, productId: number) => {
+    setUpdatingProduct(`${hamper.id}-${productId}`);
     try {
+      const currentIds = hamper.includedProductIds || [];
+      const newIds = [...currentIds, productId];
       const res = await fetch(`/api/admin/gift-hampers/${hamper.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !hamper.isActive }),
+        body: JSON.stringify({ includedProductIds: newIds }),
       });
       if (res.ok) {
-        showSuccess(`Gift hamper ${hamper.isActive ? "deactivated" : "activated"}`);
-        fetchHampers();
+        await fetchHampers();
+        showSuccess("Product added to hamper!");
       }
     } catch (err) {
-      console.error("Error toggling gift hamper:", err);
+      console.error("Error adding product to hamper:", err);
+    } finally {
+      setUpdatingProduct(null);
     }
   };
 
-  const getProductName = (id: number) => {
-    const product = products.find((p) => p.id === id);
-    return product?.name || `Product #${id}`;
+  const handleRemoveProductFromHamper = async (hamper: GiftHamper, productId: number) => {
+    setUpdatingProduct(`${hamper.id}-${productId}`);
+    try {
+      const newIds = (hamper.includedProductIds || []).filter((id) => id !== productId);
+      const res = await fetch(`/api/admin/gift-hampers/${hamper.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ includedProductIds: newIds }),
+      });
+      if (res.ok) {
+        await fetchHampers();
+        showSuccess("Product removed from hamper!");
+      }
+    } catch (err) {
+      console.error("Error removing product from hamper:", err);
+    } finally {
+      setUpdatingProduct(null);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6]">
-      <div className="bg-[#F5F2ED] py-10 md:py-14">
-        <div className="container px-4 md:px-8">
-          <h1 className="text-[32px] md:text-[40px] font-serif text-[#1A1A1A] tracking-tight">
-            Gift Hampers
-          </h1>
-          <p className="mt-2 text-[14px] text-[#757575]">
-            Manage gift hamper bundles
-          </p>
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#5C4B3D] rounded-xl flex items-center justify-center">
+            <Gift size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-[22px] font-serif font-semibold text-[#1A1A1A]">Gift Hampers</h1>
+            <p className="text-[13px] text-[#757575]">Manage your gift hamper bundles</p>
+          </div>
         </div>
+        <button
+          onClick={handleStartAdd}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#5C4B3D] text-white text-[13px] font-medium rounded-lg hover:bg-[#4A3D31] transition-colors"
+        >
+          <Plus size={16} />
+          Add Hamper
+        </button>
       </div>
 
-      <div className="container px-4 md:px-8 py-8 md:py-12">
-        {successMessage && (
-          <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-sm text-[13px] text-green-700">
-            {successMessage}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-[14px] text-[#757575]">{hampers.length} hampers</p>
-          <button
-            onClick={handleStartAdd}
-            className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-sm text-[13px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] transition-colors"
-          >
-            <Plus size={14} />
-            Create Hamper
-          </button>
+      {successMessage && (
+        <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-[13px] rounded-lg">
+          {successMessage}
         </div>
+      )}
 
-        {showForm && (
-          <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6 mb-6">
-            <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">
-              {editingId ? "Edit Gift Hamper" : "Create New Gift Hamper"}
+      {showForm && (
+        <div className="mb-8 bg-white border border-[#E8E4DE] rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-[16px] font-serif font-semibold text-[#1A1A1A]">
+              {editingId ? "Edit Gift Hamper" : "Add Gift Hamper"}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Title *
+            <button onClick={handleCancel} className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors">
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Title *</label>
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+                placeholder="e.g. Luxury Hijab Gift Set"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Price (₹) *</label>
+              <input
+                type="number"
+                step="any"
+                value={form.price}
+                onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+                placeholder="2999"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Compare Price (₹)</label>
+              <input
+                type="number"
+                step="any"
+                value={form.comparePrice}
+                onChange={(e) => setForm((f) => ({ ...f, comparePrice: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+                placeholder="3999"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Display Order</label>
+              <input
+                type="number"
+                value={form.displayOrder}
+                onChange={(e) => setForm((f) => ({ ...f, displayOrder: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Description</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D] resize-none"
+                rows={3}
+                placeholder="Describe the gift hamper..."
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">Image</label>
+              <div className="flex items-center gap-3 flex-wrap">
+                <label className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] cursor-pointer hover:bg-[#F5F2ED] transition-colors">
+                  <Upload size={14} />
+                  {uploading ? "Uploading..." : "Upload Image"}
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                  placeholder="e.g. Luxury Gift Set"
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Price (Rs.) *
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={form.price}
-                  onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                  placeholder="2999"
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Compare Price (₹)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={form.comparePrice}
-                  onChange={(e) => setForm((f) => ({ ...f, comparePrice: e.target.value }))}
-                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                  placeholder="3999"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white min-h-[80px]"
-                  placeholder="Describe the gift hamper..."
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Image
-                </label>
-                <div className="flex items-center gap-3">
-                  {form.imageUrl && (
-                    <img src={form.imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded border border-[#E8E4DE]" />
-                  )}
-                  <label className="flex items-center gap-2 cursor-pointer bg-[#F5F2ED] px-4 py-2 rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#EDE8E0] transition-colors">
-                    <Upload size={14} />
-                    {uploading ? "Uploading..." : "Upload Image"}
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowMediaPicker(true)}
-                    className="flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
-                  >
-                    <ImageIcon size={14} />
-                    Browse Media
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white mt-2"
-                  placeholder="Or paste image URL"
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Display Order
-                </label>
-                <input
-                  type="number"
-                  value={form.displayOrder}
-                  onChange={(e) => setForm((f) => ({ ...f, displayOrder: e.target.value }))}
-                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                  placeholder="0"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div
-                    className={`w-10 h-5 rounded-full relative transition-colors ${form.isActive ? "bg-[#5C4B3D]" : "bg-[#D4C8BE]"}`}
-                    onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
-                  >
-                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.isActive ? "left-5" : "left-0.5"}`} />
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="flex items-center gap-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+                >
+                  <ImageIcon size={14} />
+                  Browse Media
+                </button>
+                {form.imageUrl && (
+                  <div className="relative w-10 h-10 rounded border border-[#E8E4DE] overflow-hidden">
+                    <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" />
                   </div>
-                  <span className="text-[13px] text-[#1A1A1A]">{form.isActive ? "Active" : "Inactive"}</span>
-                </label>
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Included Products
-                </label>
-                <div className="border border-[#E8E4DE] rounded-sm max-h-[200px] overflow-y-auto">
-                  {products.length === 0 ? (
-                    <p className="p-3 text-[13px] text-[#757575]">No products available</p>
-                  ) : (
-                    products.map((product) => (
-                      <label
-                        key={product.id}
-                        className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[#FAFAF8] border-b border-[#F5F2ED] last:border-b-0 ${
-                          form.includedProductIds.includes(product.id) ? "bg-[#F5F2ED]" : ""
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={form.includedProductIds.includes(product.id)}
-                          onChange={() => handleToggleProduct(product.id)}
-                          className="accent-[#5C4B3D]"
-                        />
-                        {product.image && (
-                          <img src={product.image} alt={product.name} className="w-8 h-8 object-cover rounded" />
-                        )}
-                        <span className="text-[13px] text-[#1A1A1A]">{product.name}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
-                {form.includedProductIds.length > 0 && (
-                  <p className="mt-1 text-[12px] text-[#757575]">{form.includedProductIds.length} products selected</p>
                 )}
               </div>
+              <input
+                type="text"
+                value={form.imageUrl}
+                onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                className="w-full mt-2 px-3 py-2 border border-[#E8E4DE] rounded-lg text-[13px] focus:outline-none focus:border-[#5C4B3D]"
+                placeholder="Or paste image URL"
+              />
             </div>
-            <div className="flex items-center gap-3 mt-6">
-              <button
-                onClick={handleSave}
-                disabled={!form.title || !form.price || saving}
-                className="flex items-center gap-2 bg-[#5C4B3D] text-white px-6 py-3 rounded-sm text-[13px] font-medium uppercase tracking-wider hover:bg-[#4A3C31] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Save size={14} />
-                {saving ? "Saving..." : editingId ? "Update Hamper" : "Create Hamper"}
-              </button>
-              <button
-                onClick={handleCancel}
-                className="flex items-center gap-2 border border-[#E8E4DE] text-[#757575] px-6 py-3 rounded-sm text-[13px] font-medium uppercase tracking-wider hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="flex items-center gap-3 self-end pb-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isActive}
+                  onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+                  className="w-4 h-4 rounded border-[#E8E4DE] text-[#5C4B3D] focus:ring-[#5C4B3D]"
+                />
+                <span className="text-[13px] text-[#1A1A1A] font-medium">Active (visible on store)</span>
+              </label>
             </div>
           </div>
-        )}
 
-        <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden">
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-[14px] text-[#757575]">Loading...</p>
-            </div>
-          ) : hampers.length === 0 ? (
-            <div className="text-center py-12">
-              <Gift size={40} className="text-[#D4C8BE] mx-auto mb-3" />
-              <p className="text-[14px] text-[#757575]">No gift hampers yet</p>
-            </div>
-          ) : (
-            hampers.map((hamper) => (
-              <div
-                key={hamper.id}
-                className="flex flex-col md:flex-row md:items-center gap-4 px-6 py-4 border-b border-[#F5F2ED] last:border-b-0 hover:bg-[#FAFAF8] transition-colors"
-              >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  {hamper.imageUrl ? (
-                    <img src={hamper.imageUrl} alt={hamper.title} className="w-14 h-14 object-cover rounded border border-[#E8E4DE] flex-shrink-0" />
-                  ) : (
-                    <div className="w-14 h-14 bg-[#F5F2ED] rounded border border-[#E8E4DE] flex items-center justify-center flex-shrink-0">
-                      <ImageIcon size={20} className="text-[#D4C8BE]" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-[14px] font-semibold text-[#1A1A1A] truncate">{hamper.title}</p>
-                    {hamper.description && (
-                      <p className="text-[12px] text-[#757575] truncate max-w-[300px]">{hamper.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-6 flex-shrink-0">
-                  <div className="text-center">
-                    <p className="text-[11px] text-[#757575] uppercase tracking-wider">Price</p>
-                    <p className="text-[14px] font-semibold text-[#1A1A1A]">
-                      Rs. {parseFloat(hamper.price).toLocaleString("en-IN")}
-                      {hamper.comparePrice && parseFloat(hamper.comparePrice) > parseFloat(hamper.price) && (
-                        <span className="ml-2 text-[12px] text-[#757575] line-through font-normal">Rs. {parseFloat(hamper.comparePrice).toLocaleString("en-IN")}</span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[11px] text-[#757575] uppercase tracking-wider">Products</p>
-                    <p className="text-[14px] text-[#1A1A1A]">{hamper.includedProductIds?.length || 0}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[11px] text-[#757575] uppercase tracking-wider">Order</p>
-                    <p className="text-[14px] text-[#1A1A1A]">{hamper.displayOrder}</p>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => handleToggleActive(hamper)}
-                      className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium rounded-full cursor-pointer ${
-                        hamper.isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-                      }`}
-                    >
-                      {hamper.isActive ? "Active" : "Inactive"}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleStartEdit(hamper)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F5F2ED] text-[#757575] hover:text-[#5C4B3D] transition-colors"
-                      title="Edit hamper"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    {deleteConfirm === hamper.id ? (
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleDelete(hamper.id)}
-                          className="px-2 py-1 text-[11px] bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                        >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(null)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F5F2ED] text-[#757575] transition-colors"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setDeleteConfirm(hamper.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-[#757575] hover:text-red-600 transition-colors"
-                        title="Delete hamper"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[#E8E4DE]">
+            <button
+              onClick={handleSave}
+              disabled={saving || !form.title || !form.price}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#5C4B3D] text-white text-[13px] font-medium rounded-lg hover:bg-[#4A3D31] transition-colors disabled:opacity-50"
+            >
+              <Save size={14} />
+              {saving ? "Saving..." : editingId ? "Update Hamper" : "Create Hamper"}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2.5 text-[#757575] text-[13px] font-medium rounded-lg hover:bg-[#F5F2ED] transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
+      )}
 
-        {hampers.length > 0 && hampers.some((h) => (h.includedProductIds?.length || 0) > 0) && (
-          <div className="mt-6 bg-white border border-[#E8E4DE] rounded-[12px] p-6">
-            <h3 className="text-[14px] font-semibold text-[#1A1A1A] mb-3">Included Products Detail</h3>
-            {hampers
-              .filter((h) => (h.includedProductIds?.length || 0) > 0)
-              .map((hamper) => (
-                <div key={hamper.id} className="mb-4 last:mb-0">
-                  <p className="text-[13px] font-medium text-[#5C4B3D] mb-1">{hamper.title}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {hamper.includedProductIds?.map((pid) => (
-                      <span
-                        key={pid}
-                        className="inline-block px-2 py-0.5 bg-[#F5F2ED] text-[12px] text-[#1A1A1A] rounded"
-                      >
-                        {getProductName(pid)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+      {loading ? (
+        <div className="bg-white border border-[#E8E4DE] rounded-xl p-12 text-center">
+          <div className="w-8 h-8 border-2 border-[#5C4B3D] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-[13px] text-[#757575]">Loading gift hampers...</p>
+        </div>
+      ) : hampers.length === 0 ? (
+        <div className="bg-white border border-[#E8E4DE] rounded-xl p-12 text-center">
+          <Gift size={40} className="mx-auto text-[#C4B5A5] mb-3" />
+          <p className="text-[15px] font-medium text-[#1A1A1A] mb-1">No gift hampers yet</p>
+          <p className="text-[13px] text-[#757575]">Create your first hamper to get started.</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-[#E8E4DE] rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#E8E4DE] bg-[#FAFAF8]">
+                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Image</th>
+                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Title</th>
+                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Price</th>
+                  <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Products</th>
+                  <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Order</th>
+                  <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Status</th>
+                  <th className="text-right px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hampers.map((hamper) => {
+                  const productCount = (hamper.includedProductIds || []).length;
+                  const isViewing = viewingHamperId === hamper.id;
+                  return (
+                    <React.Fragment key={hamper.id}>
+                      <tr className="border-b border-[#E8E4DE] last:border-b-0 hover:bg-[#FAFAF8] transition-colors">
+                        <td className="px-4 py-3">
+                          {hamper.imageUrl ? (
+                            <div className="relative w-12 h-12 rounded-lg border border-[#E8E4DE] overflow-hidden">
+                              <Image src={hamper.imageUrl} alt={hamper.title} fill className="object-cover" sizes="48px" />
+                            </div>
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-[#F5F2ED] flex items-center justify-center">
+                              <Gift size={16} className="text-[#C4B5A5]" />
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-[13px] font-medium text-[#1A1A1A]">{hamper.title}</div>
+                          {hamper.description && (
+                            <div className="text-[11px] text-[#757575] mt-0.5 truncate max-w-[200px]">{hamper.description}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-[13px] font-medium text-[#1A1A1A]">
+                            ₹{parseFloat(hamper.price).toLocaleString("en-IN")}
+                          </div>
+                          {hamper.comparePrice && parseFloat(hamper.comparePrice) > parseFloat(hamper.price) && (
+                            <div className="text-[11px] text-[#757575] line-through">
+                              ₹{parseFloat(hamper.comparePrice).toLocaleString("en-IN")}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => setViewingHamperId(isViewing ? null : hamper.id)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F2ED] text-[#5C4B3D] text-[12px] font-medium rounded-full hover:bg-[#E8E4DE] transition-colors"
+                          >
+                            <Package size={12} />
+                            {productCount}
+                            <Eye size={12} />
+                          </button>
+                        </td>
+                        <td className="px-4 py-3 text-center text-[13px] text-[#757575]">{hamper.displayOrder}</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider font-medium rounded-full ${
+                            hamper.isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                          }`}>
+                            {hamper.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => {
+                                setShowAddProduct(showAddProduct === hamper.id ? null : hamper.id);
+                                setViewingHamperId(hamper.id);
+                              }}
+                              className="p-2 text-[#757575] hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="Add product to hamper"
+                            >
+                              <UserPlus size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleStartEdit(hamper)}
+                              className="p-2 text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED] rounded-lg transition-colors"
+                              title="Edit hamper"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            {deleteConfirm === hamper.id ? (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleDelete(hamper.id)}
+                                  className="px-2 py-1 text-[11px] font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="px-2 py-1 text-[11px] font-medium text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setDeleteConfirm(hamper.id)}
+                                className="p-2 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete hamper"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+
+                      {isViewing && (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-4 bg-[#FAFAF8] border-b border-[#E8E4DE]">
+                            {showAddProduct === hamper.id && (
+                              <div className="mb-4 p-4 bg-white border border-[#E8E4DE] rounded-lg">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="text-[13px] font-semibold text-[#1A1A1A]">Add Product to &quot;{hamper.title}&quot;</h4>
+                                  <button
+                                    onClick={() => setShowAddProduct(null)}
+                                    className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                                {getProductsNotInHamper(hamper).length === 0 ? (
+                                  <p className="text-[12px] text-[#757575]">All products are already in this hamper.</p>
+                                ) : (
+                                  <div className="max-h-[240px] overflow-y-auto space-y-1">
+                                    {getProductsNotInHamper(hamper).map((product) => (
+                                      <div
+                                        key={product.id}
+                                        className="flex items-center justify-between p-2 rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          {product.image ? (
+                                            <div className="relative w-8 h-8 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" />
+                                            </div>
+                                          ) : (
+                                            <div className="w-8 h-8 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                              <Package size={12} className="text-[#C4B5A5]" />
+                                            </div>
+                                          )}
+                                          <div>
+                                            <div className="text-[12px] font-medium text-[#1A1A1A]">{product.name}</div>
+                                            <div className="text-[11px] text-[#757575]">₹{product.price}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => handleAddProductToHamper(hamper, product.id)}
+                                          disabled={updatingProduct === `${hamper.id}-${product.id}`}
+                                          className="flex items-center gap-1 px-2.5 py-1 bg-[#5C4B3D] text-white text-[11px] font-medium rounded-md hover:bg-[#4A3D31] transition-colors disabled:opacity-50"
+                                        >
+                                          <Plus size={12} />
+                                          {updatingProduct === `${hamper.id}-${product.id}` ? "Adding..." : "Add"}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div>
+                              <h4 className="text-[12px] font-semibold text-[#757575] uppercase tracking-wider mb-3">
+                                Products in &quot;{hamper.title}&quot; ({productCount})
+                              </h4>
+                              {productCount === 0 ? (
+                                <p className="text-[12px] text-[#757575] italic">No products in this hamper yet.</p>
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                  {getProductsInHamper(hamper).map((product) => (
+                                    <div
+                                      key={product.id}
+                                      className="flex items-center justify-between p-2.5 bg-white border border-[#E8E4DE] rounded-lg"
+                                    >
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        {product.image ? (
+                                          <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
+                                            <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
+                                          </div>
+                                        ) : (
+                                          <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
+                                            <Package size={14} className="text-[#C4B5A5]" />
+                                          </div>
+                                        )}
+                                        <div className="min-w-0">
+                                          <div className="text-[12px] font-medium text-[#1A1A1A] truncate">{product.name}</div>
+                                          <div className="text-[11px] text-[#757575]">₹{product.price}</div>
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => handleRemoveProductFromHamper(hamper, product.id)}
+                                        disabled={updatingProduct === `${hamper.id}-${product.id}`}
+                                        className="flex-shrink-0 p-1.5 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                                        title="Remove from hamper"
+                                      >
+                                        {updatingProduct === `${hamper.id}-${product.id}` ? (
+                                          <div className="w-3.5 h-3.5 border-2 border-[#757575] border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                          <UserMinus size={14} />
+                                        )}
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
       <MediaPickerModal
         open={showMediaPicker}
         onClose={() => setShowMediaPicker(false)}
