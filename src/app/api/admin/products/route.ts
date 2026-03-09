@@ -23,7 +23,14 @@ export async function GET() {
     hoverImage: p.hoverImage || p.image,
     badge: p.badge || undefined,
     description: p.description,
-    details: p.details ? p.details.split("\n").filter((d: string) => d.trim()) : [],
+    details: (() => {
+      if (!p.details) return [];
+      const byNewline = p.details.split("\n").map((d: string) => d.trim()).filter(Boolean);
+      if (byNewline.length > 1) return byNewline;
+      const byComma = p.details.split(/,(?=[A-Z])/).map((d: string) => d.trim()).filter(Boolean);
+      if (byComma.length > 1) return byComma;
+      return byNewline;
+    })(),
     dimension: p.dimension || "",
     material: p.material || "",
     careInstructions: p.careInstructions || "",

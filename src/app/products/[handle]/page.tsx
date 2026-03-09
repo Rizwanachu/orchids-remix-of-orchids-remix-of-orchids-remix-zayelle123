@@ -425,10 +425,10 @@ export default function ProductDetailPage() {
                       );
                     })()}
                     {product.details.length > 0 && (
-                      <ul className="mt-3 space-y-1.5">
+                      <ul className={`space-y-2 ${(product.description || "").trim() ? "mt-4" : ""}`}>
                         {product.details.map((detail, idx) => (
-                          <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
-                            <span className="text-[#5C4B3D] mt-0.5 flex-shrink-0">•</span>
+                          <li key={idx} className="text-[14px] text-[#444] flex items-start gap-2.5 leading-relaxed">
+                            <span className="text-[#333] mt-[5px] flex-shrink-0 text-[8px]">●</span>
                             <span>{detail}</span>
                           </li>
                         ))}
