@@ -1,17 +1,70 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import { useProducts } from "@/lib/products-context";
+
+interface Product {
+  id: number | string;
+  handle: string;
+  name: string;
+  subtitle: string;
+  price: number;
+  compareAt?: number;
+  image: string;
+  hoverImage?: string;
+  badge?: string;
+  category?: string;
+}
 
 export default function GiftHampersPage() {
   const { addItem, toggleWishlist, isInWishlist } = useCart();
-  const { products, loaded } = useProducts();
-  const giftHampers = products.filter((p) => p.category === "gift-hampers");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [hampersRes, productsRes] = await Promise.all([
+          fetch("/api/gift-hampers"),
+          fetch("/api/products"),
+        ]);
+
+        if (!hampersRes.ok || !productsRes.ok) return;
+
+        const hampersData = await hampersRes.json();
+        const productsData = await productsRes.json();
+
+        const allProducts: Product[] = Array.isArray(productsData)
+          ? productsData
+          : productsData.products || [];
+
+        const hampers: { includedProductIds: number[] }[] = hampersData.hampers || [];
+
+        const orderedIds: number[] = [];
+        for (const hamper of hampers) {
+          for (const id of hamper.includedProductIds || []) {
+            if (!orderedIds.includes(id)) orderedIds.push(id);
+          }
+        }
+
+        const filtered = orderedIds
+          .map((id) => allProducts.find((p) => Number(p.id) === Number(id)))
+          .filter(Boolean) as Product[];
+
+        setProducts(filtered);
+      } catch (err) {
+        console.error("Error loading gift hampers:", err);
+      } finally {
+        setLoaded(true);
+      }
+    };
+
+    load();
+  }, []);
 
   return (
     <>
@@ -45,24 +98,29 @@ export default function GiftHampersPage() {
                 </div>
               ))}
             </div>
-          ) : giftHampers.length === 0 ? (
+          ) : products.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[18px] font-serif text-[#1A1A1A] mb-2">No gift hampers available</p>
               <p className="text-[14px] text-[#757575] mb-6">Check back soon for curated gift sets</p>
-              <a href="/products" className="inline-block bg-[#5C4B3D] text-white px-6 py-3 rounded-sm text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors">
+              <a
+                href="/products"
+                className="inline-block bg-[#5C4B3D] text-white px-6 py-3 rounded-sm text-[13px] uppercase tracking-wider hover:bg-[#4A3C31] transition-colors"
+              >
                 View All Products
               </a>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-8">
-                <p className="text-[14px] text-[#757575]">{giftHampers.length} product{giftHampers.length !== 1 ? "s" : ""}</p>
+                <p className="text-[14px] text-[#757575]">
+                  {products.length} product{products.length !== 1 ? "s" : ""}
+                </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
-                {giftHampers.map((product) => {
-                  const wishlisted = isInWishlist(product.id);
+                {products.map((product) => {
+                  const wishlisted = isInWishlist(Number(product.id));
                   return (
-                    <div key={product.id} className="group flex flex-col">
+                    <div key={String(product.id)} className="group flex flex-col">
                       <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
                         <a href={`/products/${product.handle}`} className="block w-full h-full">
                           <Image
@@ -78,15 +136,28 @@ export default function GiftHampersPage() {
                         </span>
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => toggleWishlist(product.id)}
-                            className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-[#F5F2ED] text-[#757575]"}`}
+                            onClick={() => toggleWishlist(Number(product.id))}
+                            className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                              wishlisted
+                                ? "bg-red-50 text-red-500"
+                                : "bg-white hover:bg-[#F5F2ED] text-[#757575]"
+                            }`}
                           >
                             <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
                           </button>
                         </div>
                         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                           <button
-                            onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+                            onClick={() =>
+                              addItem({
+                                id: Number(product.id),
+                                handle: product.handle,
+                                name: product.name,
+                                subtitle: product.subtitle,
+                                price: product.price,
+                                image: product.image,
+                              })
+                            }
                             className="w-full bg-white/90 backdrop-blur-sm text-[#1A1A1A] py-2.5 rounded-[8px] font-medium text-[12px] flex items-center justify-center gap-1.5 hover:bg-[#5C4B3D] hover:text-white transition-colors"
                           >
                             <ShoppingCart size={14} />
@@ -96,15 +167,22 @@ export default function GiftHampersPage() {
                       </div>
                       <div className="mt-3">
                         <h3 className="text-[14px] font-medium text-[#1A1A1A] line-clamp-1">
-                          <a href={`/products/${product.handle}`} className="hover:text-[#5C4B3D] transition-colors">
+                          <a
+                            href={`/products/${product.handle}`}
+                            className="hover:text-[#5C4B3D] transition-colors"
+                          >
                             {product.name}
                           </a>
                         </h3>
                         <p className="text-[12px] text-[#757575] mt-0.5">{product.subtitle}</p>
                         <div className="flex flex-col gap-0.5 mt-1">
-                          <span className="text-[15px] font-semibold text-[#1A1A1A]">₹{product.price.toLocaleString("en-IN")}.00</span>
+                          <span className="text-[15px] font-semibold text-[#1A1A1A]">
+                            ₹{product.price.toLocaleString("en-IN")}.00
+                          </span>
                           {product.compareAt && product.compareAt > product.price && (
-                            <span className="text-[13px] text-[#757575] line-through">₹{product.compareAt.toLocaleString("en-IN")}.00</span>
+                            <span className="text-[13px] text-[#757575] line-through">
+                              ₹{product.compareAt.toLocaleString("en-IN")}.00
+                            </span>
                           )}
                         </div>
                       </div>
