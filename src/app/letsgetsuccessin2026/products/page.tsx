@@ -1109,30 +1109,6 @@ export default function AdminProductsPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                    Dimension
-                  </label>
-                  <input
-                    type="text"
-                    value={form.dimension}
-                    onChange={(e) => updateField("dimension", e.target.value)}
-                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                    placeholder="e.g. 180cm x 70cm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                    Material
-                  </label>
-                  <input
-                    type="text"
-                    value={form.material}
-                    onChange={(e) => updateField("material", e.target.value)}
-                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                    placeholder="e.g. Premium Chiffon"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
                     Care Instructions (one per line)
                   </label>
                   <textarea

@@ -424,48 +424,30 @@ export default function ProductDetailPage() {
                         </>
                       );
                     })()}
-                    {product.details.length > 0 && (
-                      <ul className={`space-y-2 ${(product.description || "").trim() ? "mt-4" : ""}`}>
-                        {product.details.map((detail, idx) => (
-                          <li key={idx} className="text-[14px] text-[#444] flex items-start gap-2.5 leading-relaxed">
-                            <span className="text-[#333] mt-[5px] flex-shrink-0 text-[8px]">●</span>
-                            <span>{detail}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                 </div>
 
+                {product.details.length > 0 && (
                 <div className="border-b border-[#E8E4DE]">
                   <button
-                    onClick={() => setOpenAccordion(openAccordion === "dimension" ? null : "dimension")}
+                    onClick={() => setOpenAccordion(openAccordion === "productDetails" ? null : "productDetails")}
                     className="w-full flex items-center justify-between py-4 text-left"
                   >
-                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Dimension</span>
-                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "dimension" ? "rotate-180" : ""}`} />
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Product Details</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "productDetails" ? "rotate-180" : ""}`} />
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "dimension" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
-                    <p className="text-[14px] text-[#555] leading-relaxed">
-                      {product.dimension || "180cm x 70cm"}
-                    </p>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "productDetails" ? "max-h-[2000px] pb-4" : "max-h-0"}`}>
+                    <ul className="space-y-2">
+                      {product.details.map((detail, idx) => (
+                        <li key={idx} className="text-[14px] text-[#444] flex items-start gap-2.5 leading-relaxed">
+                          <span className="text-[#333] mt-[5px] flex-shrink-0 text-[8px]">●</span>
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-
-                <div className="border-b border-[#E8E4DE]">
-                  <button
-                    onClick={() => setOpenAccordion(openAccordion === "material" ? null : "material")}
-                    className="w-full flex items-center justify-between py-4 text-left"
-                  >
-                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Material</span>
-                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "material" ? "rotate-180" : ""}`} />
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "material" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
-                    <p className="text-[14px] text-[#555] leading-relaxed">
-                      {product.material || "Premium Chiffon"}
-                    </p>
-                  </div>
-                </div>
+                )}
 
                 <div className="border-b border-[#E8E4DE]">
                   <button
