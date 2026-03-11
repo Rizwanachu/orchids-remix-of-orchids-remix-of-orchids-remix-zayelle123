@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, ShoppingCart, ChevronDown, X, SlidersHorizontal, Filter } from "lucide-react";
+import { Heart, ChevronDown, X, SlidersHorizontal, Filter } from "lucide-react";
+import AddToCartButton from "@/components/ui/add-to-cart-button";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 
@@ -427,13 +428,9 @@ function AllProductsContent() {
                         </button>
                       </div>
                       <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                        <button
-                          onClick={() => addItem({ id: card.productId, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
-                          className="w-full bg-white/90 backdrop-blur-sm text-[#1A1A1A] py-2.5 rounded-[8px] font-medium text-[12px] flex items-center justify-center gap-1.5 hover:bg-[#5C4B3D] hover:text-white transition-colors"
-                        >
-                          <ShoppingCart size={14} />
-                          Add to Cart
-                        </button>
+                        <AddToCartButton
+                          onAdd={() => addItem({ id: card.productId, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
+                        />
                       </div>
                     </div>
                     <div className="mt-3">

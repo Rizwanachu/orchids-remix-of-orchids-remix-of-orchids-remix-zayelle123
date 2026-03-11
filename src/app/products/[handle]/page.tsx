@@ -309,10 +309,14 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-[#5C4B3D] text-white py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors"
+                  className={`flex-1 py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 ${
+                    addedToCart
+                      ? "bg-[#2D6A4F] text-white scale-95"
+                      : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
+                  }`}
                 >
-                  <ShoppingCart size={16} />
-                  {addedToCart ? "Added!" : "Add to Cart"}
+                  {addedToCart ? <Check size={16} /> : <ShoppingCart size={16} />}
+                  {addedToCart ? "Added to Cart!" : "Add to Cart"}
                 </button>
 
                 <button

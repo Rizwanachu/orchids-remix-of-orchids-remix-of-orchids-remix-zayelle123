@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart } from "lucide-react";
+import AddToCartButton from "@/components/ui/add-to-cart-button";
 import { useCart } from "@/lib/cart-context";
 
 interface Product {
@@ -147,22 +148,9 @@ export default function GiftHampersPage() {
                           </button>
                         </div>
                         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                          <button
-                            onClick={() =>
-                              addItem({
-                                id: Number(product.id),
-                                handle: product.handle,
-                                name: product.name,
-                                subtitle: product.subtitle,
-                                price: product.price,
-                                image: product.image,
-                              })
-                            }
-                            className="w-full bg-white/90 backdrop-blur-sm text-[#1A1A1A] py-2.5 rounded-[8px] font-medium text-[12px] flex items-center justify-center gap-1.5 hover:bg-[#5C4B3D] hover:text-white transition-colors"
-                          >
-                            <ShoppingCart size={14} />
-                            Add to Cart
-                          </button>
+                          <AddToCartButton
+                            onAdd={() => addItem({ id: Number(product.id), handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+                          />
                         </div>
                       </div>
                       <div className="mt-3">

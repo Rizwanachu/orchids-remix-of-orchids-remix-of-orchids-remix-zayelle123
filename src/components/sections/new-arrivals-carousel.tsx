@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Heart, Search, ShoppingCart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Search } from "lucide-react";
 import { Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
+import AddToCartButton from "@/components/ui/add-to-cart-button";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -53,13 +54,10 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
-            <button
-              onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
-              className="w-full bg-white/90 backdrop-blur-sm text-foreground py-3 rounded-[8px] font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all duration-300 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
-            >
-              <ShoppingCart size={16} />
-              <span>Add to Cart</span>
-            </button>
+            <AddToCartButton
+              onAdd={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+              className="py-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
+            />
           </div>
         </div>
 
