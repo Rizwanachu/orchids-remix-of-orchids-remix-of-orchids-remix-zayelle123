@@ -117,7 +117,7 @@ const CuratedGrid = () => {
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
 
               <div className="absolute bottom-0 left-0 right-0 z-10 px-6 pb-7">
-                <div className="bg-[#E8D9C5]/85 backdrop-blur-sm px-5 py-3 mb-4 inline-block">
+                <div className="bg-[#E8D9C5]/50 backdrop-blur-sm px-5 py-3 mb-4 inline-block">
                   <h3 className="font-serif text-[26px] md:text-[30px] text-[#1A1A1A] leading-tight">
                     {item.title}
                   </h3>
