@@ -178,6 +178,8 @@ export default function AdminProductsPage() {
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
+  const [newVariantImage, setNewVariantImage] = useState<string | null>(null);
+  const [uploadingNewVariant, setUploadingNewVariant] = useState(false);
   const [saveVariantColor, setSaveVariantColor] = useState(false);
   const [uploadingVariantIdx, setUploadingVariantIdx] = useState<number | null>(null);
   const [savedColors, setSavedColors] = useState<{ name: string; hex: string }[]>(() => {
@@ -289,11 +291,28 @@ export default function AdminProductsPage() {
   const addVariant = () => {
     const name = newVariantName.trim();
     if (!name) return;
-    setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex }] }));
+    setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex, ...(newVariantImage ? { image: newVariantImage } : {}) }] }));
     if (saveVariantColor) handleSaveColor(name, newVariantHex);
     setNewVariantName("");
     setNewVariantHex("#000000");
+    setNewVariantImage(null);
     setSaveVariantColor(false);
+  };
+
+  const uploadNewVariantImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingNewVariant(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        setNewVariantImage(data.url);
+      }
+    } catch { setErrorMessage("Failed to upload image"); setTimeout(() => setErrorMessage(""), 3000); }
+    finally { setUploadingNewVariant(false); e.target.value = ""; }
   };
 
   const removeVariant = (idx: number) => {
@@ -969,6 +988,18 @@ export default function AdminProductsPage() {
                     placeholder="Color name (e.g. Dusty Rose)"
                     className="flex-1 min-w-[140px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
                   />
+                  {newVariantImage ? (
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <img src={newVariantImage} alt="variant" className="w-9 h-9 object-cover rounded-md border border-[#E8E4DE]" />
+                      <button type="button" onClick={() => setNewVariantImage(null)} className="text-[11px] text-[#999] hover:text-red-500 transition-colors leading-none">×</button>
+                    </div>
+                  ) : (
+                    <label className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingNewVariant ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
+                      <Upload size={12} />
+                      {uploadingNewVariant ? "Uploading…" : "Image"}
+                      <input type="file" accept="image/*" className="hidden" onChange={uploadNewVariantImage} disabled={uploadingNewVariant} />
+                    </label>
+                  )}
                   <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 select-none">
                     <input
                       type="checkbox"
@@ -981,7 +1012,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     onClick={addVariant}
-                    disabled={!newVariantName.trim()}
+                    disabled={!newVariantName.trim() || uploadingNewVariant}
                     className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 flex items-center gap-1.5"
                   >
                     <Plus size={13} /> Add
