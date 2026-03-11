@@ -29,6 +29,22 @@ export default function ProductDetailPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
 
+  // Pre-select color from URL ?color=slug param
+  useEffect(() => {
+    if (!product) return;
+    const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string }> | undefined;
+    if (!colors || colors.length === 0) return;
+    const colorParam = new URLSearchParams(window.location.search).get("color");
+    if (!colorParam) return;
+    const idx = colors.findIndex(
+      (c) => c.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") === colorParam
+    );
+    if (idx !== -1) {
+      setSelectedColorIdx(idx);
+      setSelectedColorImage(colors[idx].image || null);
+    }
+  }, [product]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (shareRef.current && !shareRef.current.contains(e.target as Node)) {

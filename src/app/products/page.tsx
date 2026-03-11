@@ -9,6 +9,66 @@ import { Heart, ShoppingCart, ChevronDown, X, SlidersHorizontal, Filter } from "
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 
+type ColorInfo = { name: string; hex: string; image?: string };
+
+type VariantCard = {
+  key: string;
+  productId: number;
+  handle: string;
+  name: string;
+  image: string;
+  badge?: string | null;
+  price: number;
+  compareAt?: number;
+  subtitle: string;
+  colorName?: string;
+  href: string;
+};
+
+function colorToSlug(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+function expandToVariantCards(products: any[]): VariantCard[] {
+  const cards: VariantCard[] = [];
+  for (const p of products) {
+    const colors = (p.colors ?? []) as ColorInfo[];
+    if (colors.length > 0) {
+      for (const color of colors) {
+        const slug = colorToSlug(color.name);
+        cards.push({
+          key: `${p.id}-${slug}`,
+          productId: p.id,
+          handle: p.handle,
+          name: p.name,
+          image: color.image || p.image,
+          badge: p.badge,
+          price: p.price,
+          compareAt: p.compareAt,
+          subtitle: color.name,
+          colorName: color.name,
+          href: `/products/${p.handle}?color=${slug}`,
+        });
+      }
+    } else {
+      cards.push({
+        key: String(p.id),
+        productId: p.id,
+        handle: p.handle,
+        name: p.name,
+        image: p.image,
+        badge: p.badge,
+        price: p.price,
+        compareAt: p.compareAt,
+        subtitle: p.subtitle,
+        colorName: undefined,
+        href: `/products/${p.handle}`,
+      });
+    }
+  }
+  return cards;
+}
+
 type SortOption = "newest" | "price-asc" | "price-desc" | "name-asc";
 
 interface CollectionInfo {
@@ -107,6 +167,8 @@ function AllProductsContent() {
 
     return filtered;
   }, [query, products, searchProducts, sortBy, selectedCategory, priceMin, priceMax]);
+
+  const displayCards = useMemo(() => expandToVariantCards(displayProducts), [displayProducts]);
 
   const clearAllFilters = () => {
     setSelectedCategory("");
@@ -337,28 +399,28 @@ function AllProductsContent() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
-              {displayProducts.map((product) => {
-                const wishlisted = isInWishlist(product.id);
+              {displayCards.map((card) => {
+                const wishlisted = isInWishlist(card.productId);
                 return (
-                  <div key={product.id} className="group flex flex-col">
+                  <div key={card.key} className="group flex flex-col">
                     <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
-                      <a href={`/products/${product.handle}`} className="block w-full h-full">
+                      <a href={card.href} className="block w-full h-full">
                         <Image
-                          src={product.image}
-                          alt={product.name}
+                          src={card.image}
+                          alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       </a>
-                      {product.badge && (
-                        <span className={`absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-wider font-medium rounded-full ${product.badge === "Sale" ? "bg-[#991B1B] text-white" : "bg-[#5C4B3D] text-white"}`}>
-                          {product.badge}
+                      {card.badge && (
+                        <span className={`absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-wider font-medium rounded-full ${card.badge === "Sale" ? "bg-[#991B1B] text-white" : "bg-[#5C4B3D] text-white"}`}>
+                          {card.badge}
                         </span>
                       )}
                       <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          onClick={() => toggleWishlist(product.id)}
+                          onClick={() => toggleWishlist(card.productId)}
                           className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-[#F5F2ED] text-[#757575]"}`}
                         >
                           <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
@@ -366,7 +428,7 @@ function AllProductsContent() {
                       </div>
                       <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                         <button
-                          onClick={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
+                          onClick={() => addItem({ id: card.productId, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
                           className="w-full bg-white/90 backdrop-blur-sm text-[#1A1A1A] py-2.5 rounded-[8px] font-medium text-[12px] flex items-center justify-center gap-1.5 hover:bg-[#5C4B3D] hover:text-white transition-colors"
                         >
                           <ShoppingCart size={14} />
@@ -376,17 +438,21 @@ function AllProductsContent() {
                     </div>
                     <div className="mt-3">
                       <h3 className="text-[14px] font-medium text-[#1A1A1A] line-clamp-1">
-                        <a href={`/products/${product.handle}`} className="hover:text-[#5C4B3D] transition-colors">
-                          {product.name}
+                        <a href={card.href} className="hover:text-[#5C4B3D] transition-colors">
+                          {card.name}
                         </a>
                       </h3>
-                      <p className="text-[12px] text-[#757575] mt-0.5">{product.subtitle}</p>
+                      {card.colorName ? (
+                        <p className="text-[12px] text-[#757575] mt-0.5">{card.colorName}</p>
+                      ) : (
+                        <p className="text-[12px] text-[#757575] mt-0.5">{card.subtitle}</p>
+                      )}
                       <div className="flex flex-col gap-0.5 mt-1">
-                          <span className="text-[15px] font-semibold text-[#1A1A1A]">₹{product.price.toLocaleString("en-IN")}.00</span>
-                          {product.compareAt && product.compareAt > product.price && (
-                            <span className="text-[13px] text-[#757575] line-through">₹{product.compareAt.toLocaleString("en-IN")}.00</span>
-                          )}
-                        </div>
+                        <span className="text-[15px] font-semibold text-[#1A1A1A]">₹{card.price.toLocaleString("en-IN")}.00</span>
+                        {card.compareAt && card.compareAt > card.price && (
+                          <span className="text-[13px] text-[#757575] line-through">₹{card.compareAt.toLocaleString("en-IN")}.00</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
