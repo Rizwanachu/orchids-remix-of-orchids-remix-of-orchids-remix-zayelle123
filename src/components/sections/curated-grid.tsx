@@ -116,14 +116,16 @@ const CuratedGrid = () => {
               
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
 
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-center w-full px-4">
-                <div className="inline-block bg-[#E8E4DE]/90 backdrop-blur-sm px-6 py-4 rounded-sm shadow-sm">
-                  <h3 className="font-serif italic text-[22px] md:text-[24px] text-[#1A1A1A] mb-3">
+              <div className="absolute bottom-0 left-0 right-0 z-10 px-6 pb-7">
+                <div className="bg-[#E8D9C5]/85 backdrop-blur-sm px-5 py-3 mb-4 inline-block">
+                  <h3 className="font-serif text-[26px] md:text-[30px] text-[#1A1A1A] leading-tight">
                     {item.title}
                   </h3>
+                </div>
+                <div>
                   <a 
                     href={item.redirectLink} 
-                    className="inline-block bg-[#5C4B3D] text-white text-[12px] uppercase tracking-widest px-8 py-3 transition-colors hover:bg-[#4A3D32]"
+                    className="inline-block bg-[#5C4B3D] text-white text-[13px] font-medium px-6 py-2.5 rounded-full transition-colors hover:bg-[#4A3D32]"
                   >
                     {item.buttonText}
                   </a>
