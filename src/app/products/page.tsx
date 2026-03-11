@@ -41,7 +41,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
           productId: p.id,
           handle: p.handle,
           name: p.name,
-          image: color.image || p.image,
+          image: (color.images?.[0] ?? color.image) || p.image,
           badge: p.badge,
           price: p.price,
           compareAt: p.compareAt,

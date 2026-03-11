@@ -32,7 +32,7 @@ export default function ProductDetailPage() {
   // Pre-select color from URL ?color=slug param
   useEffect(() => {
     if (!product) return;
-    const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string }> | undefined;
+    const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }> | undefined;
     if (!colors || colors.length === 0) return;
     const colorParam = new URLSearchParams(window.location.search).get("color");
     if (!colorParam) return;
@@ -41,7 +41,8 @@ export default function ProductDetailPage() {
     );
     if (idx !== -1) {
       setSelectedColorIdx(idx);
-      setSelectedColorImage(colors[idx].image || null);
+      const c = colors[idx];
+      setSelectedColorImage((c.images?.[0] ?? c.image) || null);
     }
   }, [product]);
 
@@ -254,7 +255,7 @@ export default function ProductDetailPage() {
                     }
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {(product as any).colors.map((color: { name: string; hex: string; image?: string }, i: number) => (
+                    {(product as any).colors.map((color: { name: string; hex: string; image?: string; images?: string[] }, i: number) => (
                       <button
                         key={i}
                         type="button"
@@ -264,7 +265,7 @@ export default function ProductDetailPage() {
                             setSelectedColorImage(null);
                           } else {
                             setSelectedColorIdx(i);
-                            setSelectedColorImage(color.image || null);
+                            setSelectedColorImage((color.images?.[0] ?? color.image) || null);
                           }
                         }}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${

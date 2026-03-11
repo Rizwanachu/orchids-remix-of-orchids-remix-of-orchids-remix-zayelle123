@@ -50,7 +50,7 @@ interface ProductFormData {
   dimension: string;
   material: string;
   careInstructions: string;
-  colors: { name: string; hex: string; image?: string }[];
+  colors: { name: string; hex: string; image?: string; images?: string[] }[];
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -178,8 +178,8 @@ export default function AdminProductsPage() {
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
-  const [newVariantImage, setNewVariantImage] = useState<string | null>(null);
-  const [uploadingNewVariant, setUploadingNewVariant] = useState(false);
+  const [newVariantImages, setNewVariantImages] = useState<string[]>([]);
+  const [uploadingNewVariantSlot, setUploadingNewVariantSlot] = useState(false);
   const [saveVariantColor, setSaveVariantColor] = useState(false);
   const [uploadingVariantIdx, setUploadingVariantIdx] = useState<number | null>(null);
   const [savedColors, setSavedColors] = useState<{ name: string; hex: string }[]>(() => {
@@ -288,31 +288,35 @@ export default function AdminProductsPage() {
     persistSavedColors(savedColors.filter(c => c.hex.toLowerCase() !== hex.toLowerCase()));
   };
 
+  const getColorImages = (c: { image?: string; images?: string[] }) =>
+    c.images && c.images.length > 0 ? c.images : c.image ? [c.image] : [];
+
   const addVariant = () => {
     const name = newVariantName.trim();
     if (!name) return;
-    setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex, ...(newVariantImage ? { image: newVariantImage } : {}) }] }));
+    setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex, ...(newVariantImages.length > 0 ? { images: newVariantImages } : {}) }] }));
     if (saveVariantColor) handleSaveColor(name, newVariantHex);
     setNewVariantName("");
     setNewVariantHex("#000000");
-    setNewVariantImage(null);
+    setNewVariantImages([]);
     setSaveVariantColor(false);
   };
 
   const uploadNewVariantImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (newVariantImages.length >= 3) return;
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingNewVariant(true);
+    setUploadingNewVariantSlot(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
-        setNewVariantImage(data.url);
+        setNewVariantImages(prev => [...prev, data.url].slice(0, 3));
       }
     } catch { setErrorMessage("Failed to upload image"); setTimeout(() => setErrorMessage(""), 3000); }
-    finally { setUploadingNewVariant(false); e.target.value = ""; }
+    finally { setUploadingNewVariantSlot(false); e.target.value = ""; }
   };
 
   const removeVariant = (idx: number) => {
@@ -331,11 +335,26 @@ export default function AdminProductsPage() {
         const data = await res.json();
         setForm(prev => ({
           ...prev,
-          colors: prev.colors.map((c, i) => i === idx ? { ...c, image: data.url } : c),
+          colors: prev.colors.map((c, i) => {
+            if (i !== idx) return c;
+            const existing = getColorImages(c);
+            return { ...c, images: [...existing, data.url].slice(0, 3), image: undefined };
+          }),
         }));
       }
     } catch { setErrorMessage("Failed to upload variant image"); setTimeout(() => setErrorMessage(""), 3000); }
-    finally { setUploadingVariantIdx(null); }
+    finally { setUploadingVariantIdx(null); e.target.value = ""; }
+  };
+
+  const removeVariantImage = (variantIdx: number, imgIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      colors: prev.colors.map((c, i) => {
+        if (i !== variantIdx) return c;
+        const imgs = getColorImages(c).filter((_, j) => j !== imgIdx);
+        return { ...c, images: imgs, image: undefined };
+      }),
+    }));
   };
 
   const handleApplyTemplate = (templateId: string) => {
@@ -942,22 +961,30 @@ export default function AdminProductsPage() {
                             Save color
                           </button>
                         )}
-                        {color.image ? (
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <img src={color.image} alt={color.name} className="w-11 h-11 object-cover rounded-md border border-[#E8E4DE]" />
-                            <label className="text-[11px] text-[#5C4B3D] hover:underline cursor-pointer whitespace-nowrap">
-                              Change
-                              <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
-                            </label>
-                            <button type="button" onClick={() => setForm(prev => ({ ...prev, colors: prev.colors.map((c, i) => i === idx ? { ...c, image: undefined } : c) }))} className="text-[11px] text-[#999] hover:text-red-500 transition-colors whitespace-nowrap">Remove img</button>
-                          </div>
-                        ) : (
-                          <label className={`flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingVariantIdx === idx ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
-                            <Upload size={12} />
-                            {uploadingVariantIdx === idx ? "Uploading..." : "Upload Image"}
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
-                          </label>
-                        )}
+                        {(() => {
+                          const imgs = getColorImages(color);
+                          return (
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {imgs.map((src, imgIdx) => (
+                                <div key={imgIdx} className="relative group/img flex-shrink-0">
+                                  <img src={src} alt={`${color.name} ${imgIdx + 1}`} className="w-10 h-10 object-cover rounded-md border border-[#E8E4DE]" />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeVariantImage(idx, imgIdx)}
+                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity leading-none"
+                                  >×</button>
+                                </div>
+                              ))}
+                              {imgs.length < 3 && (
+                                <label className={`flex items-center gap-1 text-[11px] px-2 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingVariantIdx === idx ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
+                                  <Upload size={11} />
+                                  {uploadingVariantIdx === idx ? "…" : imgs.length === 0 ? "Add image" : "+"}
+                                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
+                                </label>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <button type="button" onClick={() => removeVariant(idx)} className="text-[#999] hover:text-red-500 transition-colors flex-shrink-0 ml-1">
                           <X size={15} />
                         </button>
@@ -988,18 +1015,25 @@ export default function AdminProductsPage() {
                     placeholder="Color name (e.g. Dusty Rose)"
                     className="flex-1 min-w-[140px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
                   />
-                  {newVariantImage ? (
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <img src={newVariantImage} alt="variant" className="w-9 h-9 object-cover rounded-md border border-[#E8E4DE]" />
-                      <button type="button" onClick={() => setNewVariantImage(null)} className="text-[11px] text-[#999] hover:text-red-500 transition-colors leading-none">×</button>
-                    </div>
-                  ) : (
-                    <label className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingNewVariant ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
-                      <Upload size={12} />
-                      {uploadingNewVariant ? "Uploading…" : "Image"}
-                      <input type="file" accept="image/*" className="hidden" onChange={uploadNewVariantImage} disabled={uploadingNewVariant} />
-                    </label>
-                  )}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {newVariantImages.map((src, i) => (
+                      <div key={i} className="relative group/nimg flex-shrink-0">
+                        <img src={src} alt={`img ${i + 1}`} className="w-9 h-9 object-cover rounded-md border border-[#E8E4DE]" />
+                        <button
+                          type="button"
+                          onClick={() => setNewVariantImages(prev => prev.filter((_, j) => j !== i))}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover/nimg:opacity-100 transition-opacity leading-none"
+                        >×</button>
+                      </div>
+                    ))}
+                    {newVariantImages.length < 3 && (
+                      <label className={`flex items-center gap-1 text-[12px] px-2.5 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingNewVariantSlot ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
+                        <Upload size={12} />
+                        {uploadingNewVariantSlot ? "…" : newVariantImages.length === 0 ? "Image" : "+"}
+                        <input type="file" accept="image/*" className="hidden" onChange={uploadNewVariantImage} disabled={uploadingNewVariantSlot} />
+                      </label>
+                    )}
+                  </div>
                   <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 select-none">
                     <input
                       type="checkbox"
@@ -1012,7 +1046,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     onClick={addVariant}
-                    disabled={!newVariantName.trim() || uploadingNewVariant}
+                    disabled={!newVariantName.trim() || uploadingNewVariantSlot}
                     className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 flex items-center gap-1.5"
                   >
                     <Plus size={13} /> Add
