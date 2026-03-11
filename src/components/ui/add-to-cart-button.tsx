@@ -30,7 +30,7 @@ export default function AddToCartButton({ onAdd, size = "sm", className }: AddTo
         onClick={handleClick}
         className={`flex items-center justify-center gap-2 transition-all duration-200 ${
           added
-            ? "bg-[#2D6A4F] text-white scale-95"
+            ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
             : animating
             ? "scale-95 opacity-80"
             : ""
@@ -47,7 +47,7 @@ export default function AddToCartButton({ onAdd, size = "sm", className }: AddTo
       onClick={handleClick}
       className={`w-full py-2.5 rounded-[8px] font-medium text-[12px] flex items-center justify-center gap-1.5 transition-all duration-200 ${
         added
-          ? "bg-[#2D6A4F] text-white scale-95"
+          ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
           : animating
           ? "scale-95 opacity-80"
           : "bg-white/90 backdrop-blur-sm text-[#1A1A1A] hover:bg-[#5C4B3D] hover:text-white"

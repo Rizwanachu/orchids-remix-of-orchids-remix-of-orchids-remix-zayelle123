@@ -311,7 +311,7 @@ export default function ProductDetailPage() {
                   onClick={handleAddToCart}
                   className={`flex-1 py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 ${
                     addedToCart
-                      ? "bg-[#2D6A4F] text-white scale-95"
+                      ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
                       : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
                   }`}
                 >
