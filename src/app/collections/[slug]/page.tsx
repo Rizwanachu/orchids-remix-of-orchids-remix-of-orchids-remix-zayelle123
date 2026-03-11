@@ -45,7 +45,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
           badge: p.badge,
           price: p.price,
           compareAt: p.compareAt,
-          subtitle: color.name,
+          subtitle: p.subtitle,
           colorName: color.name,
           href: `/products/${p.handle}?color=${slug}`,
         });
@@ -211,14 +211,10 @@ export default function CollectionPage() {
                       <div className="mt-3">
                         <h3 className="text-[14px] font-medium text-[#1A1A1A] line-clamp-1">
                           <a href={card.href} className="hover:text-[#5C4B3D] transition-colors">
-                            {card.name}
+                            {card.colorName ? `${card.name} - ${card.colorName}` : card.name}
                           </a>
                         </h3>
-                        {card.colorName ? (
-                          <p className="text-[12px] text-[#757575] mt-0.5">{card.colorName}</p>
-                        ) : (
-                          <p className="text-[12px] text-[#757575] mt-0.5">{card.subtitle}</p>
-                        )}
+                        <p className="text-[12px] text-[#757575] mt-0.5">{card.subtitle}</p>
                         <div className="flex flex-col gap-0.5 mt-1">
                           <span className="text-[15px] font-semibold text-[#1A1A1A]">₹{card.price.toLocaleString("en-IN")}.00</span>
                           {card.compareAt && card.compareAt > card.price && (
