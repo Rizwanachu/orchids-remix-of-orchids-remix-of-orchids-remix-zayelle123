@@ -178,7 +178,12 @@ export default function AdminProductsPage() {
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
+  const [saveVariantColor, setSaveVariantColor] = useState(false);
   const [uploadingVariantIdx, setUploadingVariantIdx] = useState<number | null>(null);
+  const [savedColors, setSavedColors] = useState<{ name: string; hex: string }[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem("zayelle_saved_colors") || "[]"); } catch { return []; }
+  });
 
   const fetchCategories = async () => {
     try {
@@ -266,12 +271,29 @@ export default function AdminProductsPage() {
     } catch { setErrorMessage("Failed to delete badge"); setTimeout(() => setErrorMessage(""), 3000); }
   };
 
+  const persistSavedColors = (colors: { name: string; hex: string }[]) => {
+    localStorage.setItem("zayelle_saved_colors", JSON.stringify(colors));
+    setSavedColors(colors);
+  };
+
+  const handleSaveColor = (name: string, hex: string) => {
+    const already = savedColors.some(c => c.hex.toLowerCase() === hex.toLowerCase());
+    if (already) return;
+    persistSavedColors([...savedColors, { name, hex }]);
+  };
+
+  const handleDeleteSavedColor = (hex: string) => {
+    persistSavedColors(savedColors.filter(c => c.hex.toLowerCase() !== hex.toLowerCase()));
+  };
+
   const addVariant = () => {
     const name = newVariantName.trim();
     if (!name) return;
     setForm(prev => ({ ...prev, colors: [...prev.colors, { name, hex: newVariantHex }] }));
+    if (saveVariantColor) handleSaveColor(name, newVariantHex);
     setNewVariantName("");
     setNewVariantHex("#000000");
+    setSaveVariantColor(false);
   };
 
   const removeVariant = (idx: number) => {
@@ -853,6 +875,35 @@ export default function AdminProductsPage() {
                 <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-1">Product Color Variants</h3>
                 <p className="text-[12px] text-[#999] mb-3">Add color options with images so customers can see each color on the product page.</p>
 
+                {savedColors.length > 0 && (
+                  <div className="mb-4 p-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md">
+                    <p className="text-[11px] font-semibold text-[#757575] uppercase tracking-wider mb-2">Saved Colors — click to select</p>
+                    <div className="flex flex-wrap gap-2">
+                      {savedColors.map((sc) => (
+                        <div key={sc.hex} className="relative group">
+                          <button
+                            type="button"
+                            onClick={() => { setNewVariantHex(sc.hex); setNewVariantName(sc.name); }}
+                            title={`${sc.name} (${sc.hex})`}
+                            className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 border border-[#E8E4DE] rounded-full bg-white hover:border-[#5C4B3D] transition-colors text-left"
+                          >
+                            <span className="w-5 h-5 rounded-full border border-white shadow-sm flex-shrink-0" style={{ backgroundColor: sc.hex }} />
+                            <span className="text-[12px] text-[#1A1A1A] font-medium leading-none">{sc.name}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSavedColor(sc.hex)}
+                            title="Remove from saved"
+                            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {form.colors.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {form.colors.map((color, idx) => (
@@ -862,6 +913,16 @@ export default function AdminProductsPage() {
                           <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{color.name}</p>
                           <p className="text-[11px] text-[#999] font-mono">{color.hex}</p>
                         </div>
+                        {!savedColors.some(sc => sc.hex.toLowerCase() === color.hex.toLowerCase()) && (
+                          <button
+                            type="button"
+                            onClick={() => handleSaveColor(color.name, color.hex)}
+                            title="Save this color for future use"
+                            className="text-[11px] text-[#5C4B3D] hover:underline flex-shrink-0 whitespace-nowrap"
+                          >
+                            Save color
+                          </button>
+                        )}
                         {color.image ? (
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <img src={color.image} alt={color.name} className="w-11 h-11 object-cover rounded-md border border-[#E8E4DE]" />
@@ -886,7 +947,7 @@ export default function AdminProductsPage() {
                   </div>
                 )}
 
-                <div className="flex gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
+                <div className="flex flex-wrap gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
                   <input
                     type="color"
                     value={newVariantHex}
@@ -906,8 +967,17 @@ export default function AdminProductsPage() {
                     onChange={(e) => setNewVariantName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addVariant()}
                     placeholder="Color name (e.g. Dusty Rose)"
-                    className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                    className="flex-1 min-w-[140px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
                   />
+                  <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 select-none">
+                    <input
+                      type="checkbox"
+                      checked={saveVariantColor}
+                      onChange={(e) => setSaveVariantColor(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded border-[#E8E4DE] text-[#5C4B3D] focus:ring-[#5C4B3D]"
+                    />
+                    <span className="text-[12px] text-[#757575]">Save color</span>
+                  </label>
                   <button
                     type="button"
                     onClick={addVariant}
