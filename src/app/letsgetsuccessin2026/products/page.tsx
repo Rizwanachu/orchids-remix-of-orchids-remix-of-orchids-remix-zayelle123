@@ -29,6 +29,7 @@ import {
     BookmarkPlus,
   } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
+import ImageCropModal from "@/components/admin/image-crop-modal";
 
 interface CategoryItem { id: number; name: string; value: string; displayOrder: number }
 interface BadgeItem { id: number; name: string; value: string; color: string }
@@ -159,6 +160,7 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
+  const [cropState, setCropState] = useState<{ file: File; field: "image" | "hoverImage" | "gallery" } | null>(null);
 
   const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
   const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
@@ -1320,7 +1322,7 @@ export default function AdminProductsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          handleImageUpload(file, "image");
+                          setCropState({ file, field: "image" });
                           e.target.value = "";
                         }}
                       />
@@ -1363,7 +1365,7 @@ export default function AdminProductsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          handleImageUpload(file, "hoverImage");
+                          setCropState({ file, field: "hoverImage" });
                           e.target.value = "";
                         }}
                       />
@@ -1422,14 +1424,11 @@ export default function AdminProductsPage() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      multiple
                       disabled={uploadingImage === "gallery"}
-                      onChange={async (e) => {
-                        const files = e.target.files;
-                        if (!files) return;
-                        for (let i = 0; i < files.length; i++) {
-                          await handleImageUpload(files[i], "gallery");
-                        }
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setCropState({ file, field: "gallery" });
                         e.target.value = "";
                       }}
                     />
@@ -1870,6 +1869,17 @@ export default function AdminProductsPage() {
           }
         }}
       />
+      {cropState && (
+        <ImageCropModal
+          file={cropState.file}
+          onConfirm={(croppedFile) => {
+            const field = cropState.field;
+            setCropState(null);
+            handleImageUpload(croppedFile, field);
+          }}
+          onCancel={() => setCropState(null)}
+        />
+      )}
     </div>
   );
 }
