@@ -240,7 +240,7 @@ function AllProductsContent() {
           <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
             <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-[14px] text-[#757575]">{displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}</p>
+              <p className="text-[14px] text-[#757575]">{displayCards.length} product{displayCards.length !== 1 ? "s" : ""}</p>
 
               {selectedCategory && (
                 <button
