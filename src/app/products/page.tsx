@@ -18,6 +18,7 @@ type VariantCard = {
   handle: string;
   name: string;
   image: string;
+  hoverImage?: string;
   badge?: string | null;
   price: number;
   compareAt?: number;
@@ -37,12 +38,15 @@ function expandToVariantCards(products: any[]): VariantCard[] {
     if (colors.length > 0) {
       for (const color of colors) {
         const slug = colorToSlug(color.name);
+        const mainImg = (color.images?.[0] ?? color.image) || p.image;
+        const hoverImg = color.images?.[1] || p.hoverImage || undefined;
         cards.push({
           key: `${p.id}-${slug}`,
           productId: p.id,
           handle: p.handle,
           name: p.name,
-          image: (color.images?.[0] ?? color.image) || p.image,
+          image: mainImg,
+          hoverImage: hoverImg,
           badge: p.badge,
           price: p.price,
           compareAt: p.compareAt,
@@ -58,6 +62,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
         handle: p.handle,
         name: p.name,
         image: p.image,
+        hoverImage: p.hoverImage || undefined,
         badge: p.badge,
         price: p.price,
         compareAt: p.compareAt,
@@ -410,9 +415,18 @@ function AllProductsContent() {
                           src={card.image}
                           alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className={`object-cover transition-all duration-500 ${card.hoverImage ? "group-hover:opacity-0" : "group-hover:scale-105"}`}
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
+                        {card.hoverImage && (
+                          <Image
+                            src={card.hoverImage}
+                            alt={`${card.colorName ? `${card.name} — ${card.colorName}` : card.name} hover`}
+                            fill
+                            className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          />
+                        )}
                       </a>
                       {card.badge && (
                         <span className={`absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-wider font-medium rounded-full ${card.badge === "Sale" ? "bg-[#991B1B] text-white" : "bg-[#5C4B3D] text-white"}`}>

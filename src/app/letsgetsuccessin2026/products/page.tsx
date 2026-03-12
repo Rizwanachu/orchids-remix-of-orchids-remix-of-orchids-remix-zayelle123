@@ -160,7 +160,7 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
-  const [cropState, setCropState] = useState<{ file: File; field: "image" | "hoverImage" | "gallery" } | null>(null);
+  const [cropState, setCropState] = useState<{ file: File; onUpload: (file: File) => void } | null>(null);
 
   const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
   const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
@@ -304,48 +304,60 @@ export default function AdminProductsPage() {
     setSaveVariantColor(false);
   };
 
-  const uploadNewVariantImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadNewVariantImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (newVariantImages.length >= 3) return;
     const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingNewVariantSlot(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (res.ok) {
-        const data = await res.json();
-        setNewVariantImages(prev => [...prev, data.url].slice(0, 3));
-      }
-    } catch { setErrorMessage("Failed to upload image"); setTimeout(() => setErrorMessage(""), 3000); }
-    finally { setUploadingNewVariantSlot(false); e.target.value = ""; }
+    if (!file) { return; }
+    e.target.value = "";
+    setCropState({
+      file,
+      onUpload: async (croppedFile) => {
+        setUploadingNewVariantSlot(true);
+        try {
+          const formData = new FormData();
+          formData.append("file", croppedFile);
+          const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+          if (res.ok) {
+            const data = await res.json();
+            setNewVariantImages(prev => [...prev, data.url].slice(0, 3));
+          }
+        } catch { setErrorMessage("Failed to upload image"); setTimeout(() => setErrorMessage(""), 3000); }
+        finally { setUploadingNewVariantSlot(false); }
+      },
+    });
   };
 
   const removeVariant = (idx: number) => {
     setForm(prev => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }));
   };
 
-  const uploadVariantImage = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  const uploadVariantImage = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingVariantIdx(idx);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (res.ok) {
-        const data = await res.json();
-        setForm(prev => ({
-          ...prev,
-          colors: prev.colors.map((c, i) => {
-            if (i !== idx) return c;
-            const existing = getColorImages(c);
-            return { ...c, images: [...existing, data.url].slice(0, 3), image: undefined };
-          }),
-        }));
-      }
-    } catch { setErrorMessage("Failed to upload variant image"); setTimeout(() => setErrorMessage(""), 3000); }
-    finally { setUploadingVariantIdx(null); e.target.value = ""; }
+    e.target.value = "";
+    setCropState({
+      file,
+      onUpload: async (croppedFile) => {
+        setUploadingVariantIdx(idx);
+        try {
+          const formData = new FormData();
+          formData.append("file", croppedFile);
+          const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+          if (res.ok) {
+            const data = await res.json();
+            setForm(prev => ({
+              ...prev,
+              colors: prev.colors.map((c, i) => {
+                if (i !== idx) return c;
+                const existing = getColorImages(c);
+                return { ...c, images: [...existing, data.url].slice(0, 3), image: undefined };
+              }),
+            }));
+          }
+        } catch { setErrorMessage("Failed to upload variant image"); setTimeout(() => setErrorMessage(""), 3000); }
+        finally { setUploadingVariantIdx(null); }
+      },
+    });
   };
 
   const removeVariantImage = (variantIdx: number, imgIdx: number) => {
@@ -1322,7 +1334,7 @@ export default function AdminProductsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          setCropState({ file, field: "image" });
+                          setCropState({ file, onUpload: (f) => handleImageUpload(f, "image") });
                           e.target.value = "";
                         }}
                       />
@@ -1365,7 +1377,7 @@ export default function AdminProductsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          setCropState({ file, field: "hoverImage" });
+                          setCropState({ file, onUpload: (f) => handleImageUpload(f, "hoverImage") });
                           e.target.value = "";
                         }}
                       />
@@ -1428,7 +1440,7 @@ export default function AdminProductsPage() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
-                        setCropState({ file, field: "gallery" });
+                        setCropState({ file, onUpload: (f) => handleImageUpload(f, "gallery") });
                         e.target.value = "";
                       }}
                     />
@@ -1873,9 +1885,9 @@ export default function AdminProductsPage() {
         <ImageCropModal
           file={cropState.file}
           onConfirm={(croppedFile) => {
-            const field = cropState.field;
+            const { onUpload } = cropState;
             setCropState(null);
-            handleImageUpload(croppedFile, field);
+            onUpload(croppedFile);
           }}
           onCancel={() => setCropState(null)}
         />

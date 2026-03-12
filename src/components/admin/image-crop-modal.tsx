@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop";
+import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop, convertToPixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { X, CropIcon } from "lucide-react";
 
@@ -47,13 +47,13 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
 
   const onImageLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
-      const { naturalWidth, naturalHeight } = e.currentTarget;
+      const { naturalWidth, naturalHeight, width, height } = e.currentTarget;
       const aspect = selectedAspect.value;
-      if (aspect) {
-        setCrop(centerAspectCrop(naturalWidth, naturalHeight, aspect));
-      } else {
-        setCrop({ unit: "%", x: 5, y: 5, width: 90, height: 90 });
-      }
+      const initialCrop: Crop = aspect
+        ? centerAspectCrop(naturalWidth, naturalHeight, aspect)
+        : { unit: "%", x: 5, y: 5, width: 90, height: 90 };
+      setCrop(initialCrop);
+      setCompletedCrop(convertToPixelCrop(initialCrop, width, height));
     },
     [selectedAspect]
   );
@@ -61,12 +61,12 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
   const handleAspectChange = (option: AspectOption) => {
     setSelectedAspect(option);
     if (!imgRef.current) return;
-    const { naturalWidth, naturalHeight } = imgRef.current;
-    if (option.value) {
-      setCrop(centerAspectCrop(naturalWidth, naturalHeight, option.value));
-    } else {
-      setCrop({ unit: "%", x: 5, y: 5, width: 90, height: 90 });
-    }
+    const { naturalWidth, naturalHeight, width, height } = imgRef.current;
+    const newCrop: Crop = option.value
+      ? centerAspectCrop(naturalWidth, naturalHeight, option.value)
+      : { unit: "%", x: 5, y: 5, width: 90, height: 90 };
+    setCrop(newCrop);
+    setCompletedCrop(convertToPixelCrop(newCrop, width, height));
   };
 
   const getCroppedBlob = (): Promise<Blob> => {
