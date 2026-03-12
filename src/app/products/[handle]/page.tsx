@@ -106,6 +106,7 @@ export default function ProductDetailPage() {
     }
   };
 
+  const isOutOfStock = (product as any).stockQuantity === 0;
   const baseImages = [product.image, product.hoverImage, ...(product.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx) as string[];
   const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }> | undefined;
   const selectedColor = selectedColorIdx !== null ? colors?.[selectedColorIdx] : null;
@@ -207,7 +208,12 @@ export default function ProductDetailPage() {
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
-                {product.badge && (
+                {isOutOfStock && (
+                  <span className="absolute top-4 left-4 px-3 py-1.5 text-[11px] uppercase tracking-wider font-medium rounded-full bg-[#757575] text-white">
+                    Out of Stock
+                  </span>
+                )}
+                {!isOutOfStock && product.badge && (
                   <span className={`absolute top-4 left-4 px-3 py-1.5 text-[11px] uppercase tracking-wider font-medium rounded-full ${product.badge === "Sale" ? "bg-[#991B1B] text-white" : "bg-[#5C4B3D] text-white"}`}>
                     {product.badge}
                   </span>
@@ -291,6 +297,15 @@ export default function ProductDetailPage() {
               <div className="w-full h-px bg-[#E8E4DE] my-6" />
 
               {/* Quantity + Add to Cart */}
+              {isOutOfStock ? (
+                <div className="mt-8 space-y-3">
+                  <div className="w-full py-3 px-8 rounded-sm bg-[#F5F2ED] border border-[#E8E4DE] text-[#757575] text-[13px] font-medium uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed">
+                    <ShoppingCart size={16} />
+                    Out of Stock
+                  </div>
+                  <p className="text-[12px] text-[#757575] text-center">This item is currently unavailable. Check back later.</p>
+                </div>
+              ) : (
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <div className="flex items-center border border-[#E8E4DE] rounded-sm">
                   <button
@@ -395,7 +410,9 @@ export default function ProductDetailPage() {
                   )}
                 </div>
               </div>
+              )}
 
+              {!isOutOfStock && (
               <button
                 onClick={handleBuyItNow}
                 disabled={isRedirecting}
@@ -410,6 +427,7 @@ export default function ProductDetailPage() {
                   "Buy It Now"
                 )}
               </button>
+              )}
 
               {/* Accordion Sections */}
               <div className="mt-8 border-t border-[#E8E4DE]">

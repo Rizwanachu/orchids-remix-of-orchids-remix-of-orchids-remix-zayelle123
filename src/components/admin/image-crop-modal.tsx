@@ -94,7 +94,7 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
       canvas.toBlob((blob) => {
         if (blob) resolve(blob);
         else reject("Canvas is empty");
-      }, file.type || "image/jpeg", 0.95);
+      }, file.type === "image/jpeg" ? "image/jpeg" : "image/png", 1);
     });
   };
 

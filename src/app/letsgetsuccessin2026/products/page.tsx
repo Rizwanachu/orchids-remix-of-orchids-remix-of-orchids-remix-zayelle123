@@ -1278,6 +1278,19 @@ export default function AdminProductsPage() {
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
               <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">Inventory</h2>
+              <div className="mb-4 flex items-center justify-between p-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md">
+                <div>
+                  <p className="text-[13px] font-medium text-[#1A1A1A]">Out of Stock</p>
+                  <p className="text-[11px] text-[#757575] mt-0.5">Customers will see "Out of Stock" and cannot purchase</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateField("stockQuantity", Number(form.stockQuantity) === 0 ? "100" : "0")}
+                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${Number(form.stockQuantity) === 0 ? "bg-red-500" : "bg-[#E8E4DE]"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${Number(form.stockQuantity) === 0 ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
