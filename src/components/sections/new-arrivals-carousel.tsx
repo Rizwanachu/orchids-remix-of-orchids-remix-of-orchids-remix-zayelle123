@@ -24,7 +24,7 @@ const ProductCard = ({ product }: { product: CarouselProduct }) => {
 
   return (
     <div 
-      className="embla__slide flex-[0_0_80%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
+      className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
