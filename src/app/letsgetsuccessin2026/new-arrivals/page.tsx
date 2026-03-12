@@ -4,18 +4,32 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Plus, Trash2, X, Star, Package, GripVertical, Search, ChevronDown } from "lucide-react";
 
+interface ColorInfo {
+  name: string;
+  hex: string;
+  image?: string;
+  images?: string[];
+}
+
 interface ProductOption {
   id: string;
   name: string;
+  displayLabel: string;
   image: string;
   price: number;
   handle: string;
   category?: string;
+  colorSlug?: string;
+  colorName?: string;
+  colorHex?: string;
 }
 
 interface NewArrivalEntry {
   id: number;
   productId: number;
+  colorSlug?: string | null;
+  colorName?: string | null;
+  colorHex?: string | null;
   displayOrder: number;
   createdAt: string;
   product: {
@@ -30,6 +44,10 @@ interface NewArrivalEntry {
     badge?: string;
     category: string;
   };
+}
+
+function colorToSlug(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
 export default function AdminNewArrivalsPage() {
@@ -68,7 +86,44 @@ export default function AdminNewArrivalsPage() {
       const res = await fetch("/api/admin/products");
       if (res.ok) {
         const data = await res.json();
-        setAllProducts(data);
+        const expanded: ProductOption[] = [];
+        for (const p of data) {
+          let colors: ColorInfo[] = [];
+          try {
+            if (Array.isArray(p.colors)) colors = p.colors;
+            else if (p.colors) colors = JSON.parse(p.colors);
+          } catch { colors = []; }
+
+          if (Array.isArray(colors) && colors.length > 0) {
+            for (const color of colors) {
+              const slug = colorToSlug(color.name);
+              const colorImage = color.images?.[0] ?? color.image ?? p.image;
+              expanded.push({
+                id: p.id,
+                name: p.name,
+                displayLabel: `${p.name} — ${color.name}`,
+                image: colorImage || p.image,
+                price: p.price,
+                handle: p.handle,
+                category: p.category,
+                colorSlug: slug,
+                colorName: color.name,
+                colorHex: color.hex,
+              });
+            }
+          } else {
+            expanded.push({
+              id: p.id,
+              name: p.name,
+              displayLabel: p.name,
+              image: p.image,
+              price: p.price,
+              handle: p.handle,
+              category: p.category,
+            });
+          }
+        }
+        setAllProducts(expanded);
       }
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -102,7 +157,7 @@ export default function AdminNewArrivalsPage() {
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  const handleAddProduct = async (productId: string) => {
+  const handleAddProduct = async (option: ProductOption) => {
     setSaving(true);
     setShowProductPicker(false);
     setSearchQuery("");
@@ -114,7 +169,8 @@ export default function AdminNewArrivalsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: parseInt(productId),
+          productId: parseInt(option.id),
+          colorSlug: option.colorSlug || null,
           displayOrder: maxOrder + 1,
         }),
       });
@@ -129,21 +185,6 @@ export default function AdminNewArrivalsPage() {
       console.error("Error adding new arrival:", err);
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleUpdateOrder = async (id: number, newOrder: number) => {
-    try {
-      const res = await fetch(`/api/admin/new-arrivals/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayOrder: newOrder }),
-      });
-      if (res.ok) {
-        fetchEntries();
-      }
-    } catch (err) {
-      console.error("Error updating order:", err);
     }
   };
 
@@ -202,13 +243,15 @@ export default function AdminNewArrivalsPage() {
     }
   };
 
-  const existingProductIds = entries.map((e) => e.productId);
+  const existingKeys = new Set(
+    entries.map((e) => `${e.productId}::${e.colorSlug || ""}`)
+  );
   const availableProducts = allProducts.filter(
-    (p) => !existingProductIds.includes(parseInt(p.id))
+    (p) => !existingKeys.has(`${p.id}::${p.colorSlug || ""}`)
   );
 
   const filteredProducts = availableProducts.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.displayLabel.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -258,7 +301,7 @@ export default function AdminNewArrivalsPage() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products by name or category..."
+                      placeholder="Search products by name, color, or category..."
                       className="w-full h-[38px] pl-9 pr-3 border border-[#E8E4DE] rounded-md text-[13px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                     />
                   </div>
@@ -269,15 +312,15 @@ export default function AdminNewArrivalsPage() {
                       {searchQuery ? "No matching products found" : "All products are already in new arrivals"}
                     </div>
                   ) : (
-                    filteredProducts.map((p) => (
+                    filteredProducts.map((p, idx) => (
                       <button
-                        key={p.id}
-                        onClick={() => handleAddProduct(p.id)}
+                        key={`${p.id}-${p.colorSlug || "base"}-${idx}`}
+                        onClick={() => handleAddProduct(p)}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F5F2ED] transition-colors text-left border-b border-[#F5F2ED] last:border-b-0"
                       >
                         <div className="w-[44px] h-[44px] relative rounded-md overflow-hidden bg-[#F5F2ED] flex-shrink-0">
                           {p.image ? (
-                            <Image src={p.image} alt={p.name} fill className="object-cover" />
+                            <Image src={p.image} alt={p.displayLabel} fill className="object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package size={18} className="text-[#D4C8BE]" />
@@ -286,9 +329,19 @@ export default function AdminNewArrivalsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{p.name}</p>
-                          {p.category && (
-                            <p className="text-[11px] text-[#999] mt-0.5">{p.category}</p>
-                          )}
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {p.colorHex && (
+                              <span
+                                className="inline-block w-3 h-3 rounded-full border border-black/10 flex-shrink-0"
+                                style={{ backgroundColor: p.colorHex }}
+                              />
+                            )}
+                            {p.colorName ? (
+                              <p className="text-[11px] text-[#5C4B3D]">{p.colorName}</p>
+                            ) : p.category ? (
+                              <p className="text-[11px] text-[#999]">{p.category}</p>
+                            ) : null}
+                          </div>
                         </div>
                         <span className="text-[13px] font-medium text-[#5C4B3D] flex-shrink-0">
                           ₹{p.price.toLocaleString("en-IN")}
@@ -362,7 +415,18 @@ export default function AdminNewArrivalsPage() {
                 </div>
                 <div>
                   <p className="text-[13px] font-medium text-[#1A1A1A]">{entry.product.name}</p>
-                  <p className="text-[11px] text-[#757575]">{entry.product.subtitle}</p>
+                  {entry.colorName && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      {entry.colorHex && (
+                        <span
+                          className="inline-block w-3 h-3 rounded-full border border-black/10 flex-shrink-0"
+                          style={{ backgroundColor: entry.colorHex }}
+                        />
+                      )}
+                      <p className="text-[11px] text-[#5C4B3D]">{entry.colorName}</p>
+                    </div>
+                  )}
+                  <p className="text-[11px] text-[#757575] mt-0.5">{entry.product.subtitle}</p>
                   {entry.product.category && (
                     <span className="inline-block mt-1 px-2 py-0.5 bg-[#F5F2ED] text-[10px] text-[#757575] rounded-full">
                       {entry.product.category}

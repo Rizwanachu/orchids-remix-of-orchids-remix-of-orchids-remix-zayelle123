@@ -124,6 +124,7 @@ export const collections = pgTable("collections", {
 export const newArrivals = pgTable("new_arrivals", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id).notNull(),
+  colorSlug: text("color_slug"),
   displayOrder: integer("display_order").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });

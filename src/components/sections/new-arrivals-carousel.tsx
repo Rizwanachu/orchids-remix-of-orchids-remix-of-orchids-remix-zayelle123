@@ -9,10 +9,18 @@ import AddToCartButton from "@/components/ui/add-to-cart-button";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
-const ProductCard = ({ product }: { product: Product }) => {
+type CarouselProduct = Product & { colorSlug?: string | null; colorName?: string | null };
+
+const ProductCard = ({ product }: { product: CarouselProduct }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addItem, toggleWishlist, isInWishlist } = useCart();
   const wishlisted = isInWishlist(product.id);
+  const productUrl = product.colorSlug
+    ? `/products/${product.handle}?color=${product.colorSlug}`
+    : `/products/${product.handle}`;
+  const displayName = product.colorName
+    ? product.name.replace(/ — .*$/, "")
+    : product.name;
 
   return (
     <div 
@@ -22,7 +30,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     >
       <div className="group flex flex-col items-center text-center mb-8">
         <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
-          <a href={`/products/${product.handle}`} className="block w-full h-full">
+          <a href={productUrl} className="block w-full h-full">
             <Image
               src={product.image}
               alt={product.name}
@@ -48,7 +56,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             >
               <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
             </button>
-            <a href={`/products/${product.handle}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
+            <a href={productUrl} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-primary hover:text-white transition-colors">
               <Search size={18} />
             </a>
           </div>
@@ -63,10 +71,13 @@ const ProductCard = ({ product }: { product: Product }) => {
 
         <div className="mt-4 flex flex-col gap-1 w-full px-2">
           <h3 className="text-[14px] font-normal text-foreground capitalize tracking-tight line-clamp-1">
-            <a href={`/products/${product.handle}`} className="hover:text-primary transition-colors">
-              {product.name}
+            <a href={productUrl} className="hover:text-primary transition-colors">
+              {displayName}
             </a>
           </h3>
+          {product.colorName && (
+            <p className="text-[11px] text-[#999] mt-0.5">{product.colorName}</p>
+          )}
           <p className="text-[12px] text-[#757575]">{product.subtitle}</p>
           <div className="flex flex-col gap-0.5 mt-1">
             <span className="text-[16px] font-semibold text-foreground">
@@ -85,7 +96,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 };
 
 export default function NewArrivalsCarousel() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<CarouselProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [sectionTitle, setSectionTitle] = useState("New Arrivals");
   const [sectionSubtitle, setSectionSubtitle] = useState("Designed for comfort. Crafted for elegance.");
