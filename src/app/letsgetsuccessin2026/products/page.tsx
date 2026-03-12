@@ -27,6 +27,7 @@ import {
     Settings,
     FileText,
     BookmarkPlus,
+    GripVertical,
   } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 import ImageCropModal from "@/components/admin/image-crop-modal";
@@ -164,6 +165,9 @@ export default function AdminProductsPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState<"image" | "hoverImage" | "gallery" | null>(null);
   const [cropState, setCropState] = useState<{ file: File; onUpload: (file: File) => void } | null>(null);
+
+  const [dragColorIdx, setDragColorIdx] = useState<number | null>(null);
+  const [dragOverColorIdx, setDragOverColorIdx] = useState<number | null>(null);
 
   const [dynamicCategories, setDynamicCategories] = useState<CategoryItem[]>([]);
   const [dynamicBadges, setDynamicBadges] = useState<BadgeItem[]>([]);
@@ -989,7 +993,33 @@ export default function AdminProductsPage() {
                 {form.colors.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {form.colors.map((color, idx) => (
-                      <div key={idx} className="flex items-center gap-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md px-3 py-2.5">
+                      <div
+                        key={idx}
+                        draggable
+                        onDragStart={() => setDragColorIdx(idx)}
+                        onDragOver={(e) => { e.preventDefault(); setDragOverColorIdx(idx); }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          if (dragColorIdx === null || dragColorIdx === idx) return;
+                          setForm(prev => {
+                            const next = [...prev.colors];
+                            const [moved] = next.splice(dragColorIdx, 1);
+                            next.splice(idx, 0, moved);
+                            return { ...prev, colors: next };
+                          });
+                          setDragColorIdx(null);
+                          setDragOverColorIdx(null);
+                        }}
+                        onDragEnd={() => { setDragColorIdx(null); setDragOverColorIdx(null); }}
+                        className={`flex items-center gap-3 bg-[#FAFAF8] border rounded-md px-3 py-2.5 transition-all select-none ${
+                          dragColorIdx === idx
+                            ? "opacity-40 border-[#5C4B3D] border-dashed"
+                            : dragOverColorIdx === idx
+                            ? "border-[#5C4B3D] bg-[#5C4B3D]/5 shadow-sm"
+                            : "border-[#E8E4DE]"
+                        }`}
+                      >
+                        <GripVertical size={16} className="text-[#C4B9B0] flex-shrink-0 cursor-grab active:cursor-grabbing" />
                         <span className="w-7 h-7 rounded-full border-2 border-white shadow flex-shrink-0" style={{ backgroundColor: color.hex }} />
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{color.name}</p>
