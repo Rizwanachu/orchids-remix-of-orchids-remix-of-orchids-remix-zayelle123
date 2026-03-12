@@ -170,7 +170,7 @@ export default function CollectionPage() {
             </>
           ) : cards.length > 0 ? (
             <>
-              <p className="text-[14px] text-[#757575] mb-8">{filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}</p>
+              <p className="text-[14px] text-[#757575] mb-8">{cards.length} {cards.length === 1 ? "product" : "products"}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
                 {cards.map((card) => {
                   const wishlisted = isInWishlist(card.productId);
