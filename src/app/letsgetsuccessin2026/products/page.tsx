@@ -728,6 +728,7 @@ export default function AdminProductsPage() {
 
   if (isAdding || editingProduct) {
     return (
+      <>
       <div className="min-h-screen bg-[#FAF9F6]">
         <div className="bg-[#F5F2ED] py-8">
           <div className="container px-4 md:px-8 max-w-[900px] mx-auto">
@@ -1575,6 +1576,29 @@ export default function AdminProductsPage() {
           </div>
         </div>
       </div>
+      <MediaPickerModal
+        open={showMediaPicker !== null}
+        onClose={() => setShowMediaPicker(null)}
+        onSelect={(url) => {
+          if (showMediaPicker === "gallery") {
+            setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
+          } else if (showMediaPicker) {
+            updateField(showMediaPicker, url);
+          }
+        }}
+      />
+      {cropState && (
+        <ImageCropModal
+          file={cropState.file}
+          onConfirm={(croppedFile) => {
+            const { onUpload } = cropState;
+            setCropState(null);
+            onUpload(croppedFile);
+          }}
+          onCancel={() => setCropState(null)}
+        />
+      )}
+      </>
     );
   }
 
