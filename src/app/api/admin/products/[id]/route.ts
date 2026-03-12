@@ -38,6 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.shippingCostKerala !== undefined) updateData.shippingCostKerala = String(body.shippingCostKerala);
     if (body.isFreeShipping !== undefined) updateData.isFreeShipping = body.isFreeShipping ? 1 : 0;
     if (body.colors !== undefined) updateData.colors = Array.isArray(body.colors) ? JSON.stringify(body.colors) : null;
+    if (body.colorSwatchStyle !== undefined) updateData.colorSwatchStyle = body.colorSwatchStyle || "pills";
     if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
     if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
     if (body.customHamperEnabled !== undefined) updateData.customHamperEnabled = body.customHamperEnabled ? 1 : 0;
@@ -78,6 +79,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       shippingCostKerala: Number(updated.shippingCostKerala),
       isFreeShipping: updated.isFreeShipping,
       colors: (() => { try { return updated.colors ? (typeof updated.colors === 'string' ? JSON.parse(updated.colors) : updated.colors) : []; } catch { return []; } })(),
+      colorSwatchStyle: updated.colorSwatchStyle || "pills",
       gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
       customHamperEnabled: updated.customHamperEnabled ?? 0,
       customHamperTitle: updated.customHamperTitle || "",

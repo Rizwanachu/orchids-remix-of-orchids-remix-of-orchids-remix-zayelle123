@@ -52,6 +52,7 @@ interface ProductFormData {
   material: string;
   careInstructions: string;
   colors: { name: string; hex: string; image?: string; images?: string[] }[];
+  colorSwatchStyle: "pills" | "dots" | "squares";
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -83,6 +84,7 @@ const emptyForm: ProductFormData = {
   material: "",
   careInstructions: "",
   colors: [],
+  colorSwatchStyle: "pills",
   category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -115,6 +117,7 @@ function toFormData(product: Product): ProductFormData {
     material: (product as any).material || "",
     careInstructions: (product as any).careInstructions || "",
     colors: (product as any).colors || [],
+    colorSwatchStyle: (product as any).colorSwatchStyle || "pills",
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
@@ -560,6 +563,7 @@ export default function AdminProductsPage() {
       shippingCostKerala: Number(form.shippingCostKerala),
       isFreeShipping: form.isFreeShipping,
       colors: form.colors,
+      colorSwatchStyle: form.colorSwatchStyle,
       gallery: form.gallery,
       customHamperEnabled: form.customHamperEnabled ? 1 : 0,
       customHamperTitle: form.customHamperTitle,
@@ -927,6 +931,31 @@ export default function AdminProductsPage() {
               <div className="pt-4 border-t border-[#F5F2ED]">
                 <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-1">Product Color Variants</h3>
                 <p className="text-[12px] text-[#999] mb-3">Add color options with images so customers can see each color on the product page.</p>
+
+                <div className="mb-4">
+                  <p className="text-[12px] font-medium text-[#1A1A1A] mb-2">Swatch Display Style</p>
+                  <div className="flex gap-2">
+                    {([
+                      { value: "pills", label: "Pills", desc: "● Name" },
+                      { value: "dots", label: "Dots", desc: "●●●" },
+                      { value: "squares", label: "Squares", desc: "■■■" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, colorSwatchStyle: opt.value }))}
+                        className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-md border-2 transition-all text-[12px] font-medium ${
+                          form.colorSwatchStyle === opt.value
+                            ? "border-[#5C4B3D] bg-[#5C4B3D]/5 text-[#5C4B3D]"
+                            : "border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D]"
+                        }`}
+                      >
+                        <span className="text-[15px] tracking-widest">{opt.desc}</span>
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 {savedColors.length > 0 && (
                   <div className="mb-4 p-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md">

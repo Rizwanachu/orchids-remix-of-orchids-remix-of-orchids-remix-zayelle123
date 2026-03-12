@@ -264,33 +264,76 @@ export default function ProductDetailPage() {
                       : "Select Color"
                     }
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {(product as any).colors.map((color: { name: string; hex: string; image?: string; images?: string[] }, i: number) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => {
-                          if (selectedColorIdx === i) {
-                            setSelectedColorIdx(null);
-                          } else {
-                            setSelectedColorIdx(i);
-                          }
-                          setActiveImage(0);
-                        }}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${
-                          selectedColorIdx === i
-                            ? "border-[#5C4B3D] bg-[#5C4B3D]/5 shadow-sm font-medium text-[#1A1A1A]"
-                            : "border-[#E8E4DE] hover:border-[#5C4B3D] text-[#555]"
-                        }`}
-                      >
-                        <span
-                          className={`w-4 h-4 rounded-full flex-shrink-0 border ${selectedColorIdx === i ? "border-[#5C4B3D]/40" : "border-black/10"}`}
-                          style={{ backgroundColor: color.hex }}
-                        />
-                        <span>{color.name}</span>
-                      </button>
-                    ))}
-                  </div>
+                  {(() => {
+                    const swatchStyle = (product as any).colorSwatchStyle || "pills";
+                    const colorList = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }>;
+                    const handleColorClick = (i: number) => {
+                      setSelectedColorIdx(selectedColorIdx === i ? null : i);
+                      setActiveImage(0);
+                    };
+                    if (swatchStyle === "dots") {
+                      return (
+                        <div className="flex flex-wrap gap-3">
+                          {colorList.map((color, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              title={color.name}
+                              onClick={() => handleColorClick(i)}
+                              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                                selectedColorIdx === i
+                                  ? "border-[#5C4B3D] scale-110 shadow-md"
+                                  : "border-transparent hover:border-[#5C4B3D] hover:scale-105"
+                              }`}
+                              style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
+                            />
+                          ))}
+                        </div>
+                      );
+                    }
+                    if (swatchStyle === "squares") {
+                      return (
+                        <div className="flex flex-wrap gap-2">
+                          {colorList.map((color, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              title={color.name}
+                              onClick={() => handleColorClick(i)}
+                              className={`w-9 h-9 rounded-[4px] border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                                selectedColorIdx === i
+                                  ? "border-[#5C4B3D] scale-105 shadow-md"
+                                  : "border-transparent hover:border-[#5C4B3D]"
+                              }`}
+                              style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
+                            />
+                          ))}
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        {colorList.map((color, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleColorClick(i)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${
+                              selectedColorIdx === i
+                                ? "border-[#5C4B3D] bg-[#5C4B3D]/5 shadow-sm font-medium text-[#1A1A1A]"
+                                : "border-[#E8E4DE] hover:border-[#5C4B3D] text-[#555]"
+                            }`}
+                          >
+                            <span
+                              className={`w-4 h-4 rounded-full flex-shrink-0 border ${selectedColorIdx === i ? "border-[#5C4B3D]/40" : "border-black/10"}`}
+                              style={{ backgroundColor: color.hex }}
+                            />
+                            <span>{color.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
