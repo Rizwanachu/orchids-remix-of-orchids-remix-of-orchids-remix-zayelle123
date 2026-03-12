@@ -21,7 +21,6 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null);
-  const [selectedColorImage, setSelectedColorImage] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
@@ -41,8 +40,7 @@ export default function ProductDetailPage() {
     );
     if (idx !== -1) {
       setSelectedColorIdx(idx);
-      const c = colors[idx];
-      setSelectedColorImage((c.images?.[0] ?? c.image) || null);
+      setActiveImage(0);
     }
   }, [product]);
 
@@ -108,7 +106,13 @@ export default function ProductDetailPage() {
     }
   };
 
-  const images = [product.image, product.hoverImage, ...(product.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+  const baseImages = [product.image, product.hoverImage, ...(product.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx) as string[];
+  const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }> | undefined;
+  const selectedColor = selectedColorIdx !== null ? colors?.[selectedColorIdx] : null;
+  const colorImages = selectedColor
+    ? ([...(selectedColor.images ?? []), selectedColor.image].filter(Boolean) as string[]).filter((img, idx, arr) => arr.indexOf(img) === idx)
+    : [];
+  const displayImages = colorImages.length > 0 ? colorImages : baseImages;
   const wishlisted = isInWishlist(product.id);
 
   const handleAddToCart = () => {
@@ -196,7 +200,7 @@ export default function ProductDetailPage() {
             <div className="space-y-4">
               <div className="relative aspect-square overflow-hidden rounded-[12px] bg-white">
                 <Image
-                  src={selectedColorImage || images[activeImage]}
+                  src={displayImages[Math.min(activeImage, displayImages.length - 1)] || baseImages[0]}
                   alt={product.name}
                   fill
                   className="object-cover transition-all duration-300 ease-in-out"
@@ -210,11 +214,11 @@ export default function ProductDetailPage() {
                 )}
               </div>
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
-                {images.map((img, idx) => (
+                {displayImages.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => { setActiveImage(idx); setSelectedColorImage(null); setSelectedColorIdx(null); }}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-[8px] overflow-hidden border-2 transition-colors ${!selectedColorImage && activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
+                    onClick={() => setActiveImage(idx)}
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-[8px] overflow-hidden border-2 transition-colors ${activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
                   >
                     <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                   </button>
@@ -262,11 +266,10 @@ export default function ProductDetailPage() {
                         onClick={() => {
                           if (selectedColorIdx === i) {
                             setSelectedColorIdx(null);
-                            setSelectedColorImage(null);
                           } else {
                             setSelectedColorIdx(i);
-                            setSelectedColorImage((color.images?.[0] ?? color.image) || null);
                           }
+                          setActiveImage(0);
                         }}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${
                           selectedColorIdx === i
