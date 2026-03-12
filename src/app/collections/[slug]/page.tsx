@@ -10,7 +10,7 @@ import AddToCartButton from "@/components/ui/add-to-cart-button";
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 
-type ColorInfo = { name: string; hex: string; image?: string };
+type ColorInfo = { name: string; hex: string; image?: string; images?: string[] };
 
 type VariantCard = {
   key: string;
@@ -18,6 +18,7 @@ type VariantCard = {
   handle: string;
   name: string;
   image: string;
+  hoverImage: string;
   badge?: string | null;
   price: number;
   compareAt?: number;
@@ -37,12 +38,15 @@ function expandToVariantCards(products: any[]): VariantCard[] {
     if (colors.length > 0) {
       for (const color of colors) {
         const slug = colorToSlug(color.name);
+        const primaryImg = (color.images?.[0] ?? color.image) || p.image;
+        const hoverImg = color.images?.[1] || p.hoverImage || primaryImg;
         cards.push({
           key: `${p.id}-${slug}`,
           productId: p.id,
           handle: p.handle,
           name: p.name,
-          image: (color.images?.[0] ?? color.image) || p.image,
+          image: primaryImg,
+          hoverImage: hoverImg,
           badge: p.badge,
           price: p.price,
           compareAt: p.compareAt,
@@ -58,6 +62,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
         handle: p.handle,
         name: p.name,
         image: p.image,
+        hoverImage: p.hoverImage || p.image,
         badge: p.badge,
         price: p.price,
         compareAt: p.compareAt,
@@ -182,7 +187,14 @@ export default function CollectionPage() {
                             src={card.image}
                             alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                             fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          />
+                          <Image
+                            src={card.hoverImage}
+                            alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
+                            fill
+                            className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           />
                         </a>
