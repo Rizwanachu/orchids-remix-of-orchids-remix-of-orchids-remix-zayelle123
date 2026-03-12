@@ -35,9 +35,8 @@ export default function WishlistPage() {
       const firstDash = key.indexOf("-");
       const productIdStr = firstDash > -1 ? key.slice(0, firstDash) : key;
       const colorSlug = firstDash > -1 ? key.slice(firstDash + 1) : null;
-      const productId = parseInt(productIdStr);
 
-      const product = products.find((p) => p.id === productId);
+      const product = products.find((p) => String(p.id) === productIdStr);
       if (!product) return null;
 
       let colorInfo: ColorInfo | null = null;
