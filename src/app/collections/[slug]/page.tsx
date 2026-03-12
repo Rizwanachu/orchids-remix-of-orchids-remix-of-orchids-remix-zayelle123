@@ -178,7 +178,7 @@ export default function CollectionPage() {
               <p className="text-[14px] text-[#757575] mb-8">{cards.length} {cards.length === 1 ? "product" : "products"}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
                 {cards.map((card) => {
-                  const wishlisted = isInWishlist(card.productId);
+                  const wishlisted = isInWishlist(card.key);
                   return (
                     <div key={card.key} className="group flex flex-col">
                       <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
@@ -205,7 +205,7 @@ export default function CollectionPage() {
                         )}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => toggleWishlist(card.productId)}
+                            onClick={() => toggleWishlist(card.key)}
                             className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-[#F5F2ED] text-[#757575]"}`}
                           >
                             <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
@@ -213,7 +213,7 @@ export default function CollectionPage() {
                         </div>
                         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                           <AddToCartButton
-                            onAdd={() => addItem({ id: card.productId, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
+                            onAdd={() => addItem({ id: card.key, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
                           />
                         </div>
                       </div>
