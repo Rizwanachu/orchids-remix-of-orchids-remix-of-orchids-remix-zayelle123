@@ -52,7 +52,7 @@ interface ProductFormData {
   dimension: string;
   material: string;
   careInstructions: string;
-  colors: { name: string; hex: string; image?: string; images?: string[] }[];
+  colors: { name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }[];
   colorSwatchStyle: "pills" | "dots" | "squares";
   category: string;
   stockQuantity: string;
@@ -1059,6 +1059,21 @@ export default function AdminProductsPage() {
                             </div>
                           );
                         })()}
+                        <button
+                          type="button"
+                          title={color.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
+                          onClick={() => setForm(prev => ({
+                            ...prev,
+                            colors: prev.colors.map((c, i) => i === idx ? { ...c, outOfStock: !c.outOfStock } : c)
+                          }))}
+                          className={`text-[11px] px-2 py-1 rounded border flex-shrink-0 transition-colors ${
+                            color.outOfStock
+                              ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                              : "border-[#E8E4DE] text-[#999] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                          }`}
+                        >
+                          {color.outOfStock ? "OOS" : "In Stock"}
+                        </button>
                         <button type="button" onClick={() => removeVariant(idx)} className="text-[#999] hover:text-red-500 transition-colors flex-shrink-0 ml-1">
                           <X size={15} />
                         </button>

@@ -31,7 +31,7 @@ export default function ProductDetailPage() {
   // Pre-select color from URL ?color=slug param
   useEffect(() => {
     if (!product) return;
-    const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }> | undefined;
+    const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }> | undefined;
     if (!colors || colors.length === 0) return;
     const colorParam = new URLSearchParams(window.location.search).get("color");
     if (!colorParam) return;
@@ -106,10 +106,12 @@ export default function ProductDetailPage() {
     }
   };
 
-  const isOutOfStock = (product as any).stockQuantity === 0;
+  const productIsOutOfStock = (product as any).stockQuantity === 0;
   const baseImages = [product.image, product.hoverImage, ...(product.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx) as string[];
-  const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }> | undefined;
+  const colors = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }> | undefined;
   const selectedColor = selectedColorIdx !== null ? colors?.[selectedColorIdx] : null;
+  const isColorOutOfStock = selectedColor?.outOfStock === true;
+  const isOutOfStock = productIsOutOfStock || isColorOutOfStock;
   const colorImages = selectedColor
     ? ([...(selectedColor.images ?? []), selectedColor.image].filter(Boolean) as string[]).filter((img, idx, arr) => arr.indexOf(img) === idx)
     : [];
@@ -266,7 +268,7 @@ export default function ProductDetailPage() {
                   </p>
                   {(() => {
                     const swatchStyle = (product as any).colorSwatchStyle || "pills";
-                    const colorList = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[] }>;
+                    const colorList = (product as any).colors as Array<{ name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }>;
                     const handleColorClick = (i: number) => {
                       setSelectedColorIdx(selectedColorIdx === i ? null : i);
                       setActiveImage(0);
@@ -275,18 +277,25 @@ export default function ProductDetailPage() {
                       return (
                         <div className="flex flex-wrap gap-3">
                           {colorList.map((color, i) => (
-                            <button
-                              key={i}
-                              type="button"
-                              title={color.name}
-                              onClick={() => handleColorClick(i)}
-                              className={`w-8 h-8 rounded-full border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                                selectedColorIdx === i
-                                  ? "border-[#5C4B3D] scale-110 shadow-md"
-                                  : "border-transparent hover:border-[#5C4B3D] hover:scale-105"
-                              }`}
-                              style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
-                            />
+                            <div key={i} className="relative flex-shrink-0" title={color.outOfStock ? `${color.name} — Out of Stock` : color.name}>
+                              <button
+                                type="button"
+                                onClick={() => handleColorClick(i)}
+                                className={`w-8 h-8 rounded-full border-2 transition-all duration-200 flex-shrink-0 ${
+                                  color.outOfStock ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                                } ${
+                                  selectedColorIdx === i
+                                    ? "border-[#5C4B3D] scale-110 shadow-md"
+                                    : "border-transparent hover:border-[#5C4B3D] hover:scale-105"
+                                }`}
+                                style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
+                              />
+                              {color.outOfStock && (
+                                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <svg width="24" height="24" viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20" stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round"/></svg>
+                                </span>
+                              )}
+                            </div>
                           ))}
                         </div>
                       );
@@ -295,18 +304,25 @@ export default function ProductDetailPage() {
                       return (
                         <div className="flex flex-wrap gap-2">
                           {colorList.map((color, i) => (
-                            <button
-                              key={i}
-                              type="button"
-                              title={color.name}
-                              onClick={() => handleColorClick(i)}
-                              className={`w-9 h-9 rounded-[4px] border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                                selectedColorIdx === i
-                                  ? "border-[#5C4B3D] scale-105 shadow-md"
-                                  : "border-transparent hover:border-[#5C4B3D]"
-                              }`}
-                              style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
-                            />
+                            <div key={i} className="relative flex-shrink-0" title={color.outOfStock ? `${color.name} — Out of Stock` : color.name}>
+                              <button
+                                type="button"
+                                onClick={() => handleColorClick(i)}
+                                className={`w-9 h-9 rounded-[4px] border-2 transition-all duration-200 flex-shrink-0 ${
+                                  color.outOfStock ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                                } ${
+                                  selectedColorIdx === i
+                                    ? "border-[#5C4B3D] scale-105 shadow-md"
+                                    : "border-transparent hover:border-[#5C4B3D]"
+                                }`}
+                                style={{ backgroundColor: color.hex, boxShadow: selectedColorIdx === i ? undefined : "0 0 0 1px rgba(0,0,0,0.1)" }}
+                              />
+                              {color.outOfStock && (
+                                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <svg width="28" height="28" viewBox="0 0 28 28"><line x1="4" y1="4" x2="24" y2="24" stroke="rgba(0,0,0,0.4)" strokeWidth="2" strokeLinecap="round"/></svg>
+                                </span>
+                              )}
+                            </div>
                           ))}
                         </div>
                       );
@@ -318,7 +334,9 @@ export default function ProductDetailPage() {
                             key={i}
                             type="button"
                             onClick={() => handleColorClick(i)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 cursor-pointer text-[13px] ${
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 transition-all duration-200 text-[13px] ${
+                              color.outOfStock ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                            } ${
                               selectedColorIdx === i
                                 ? "border-[#5C4B3D] bg-[#5C4B3D]/5 shadow-sm font-medium text-[#1A1A1A]"
                                 : "border-[#E8E4DE] hover:border-[#5C4B3D] text-[#555]"
@@ -328,7 +346,8 @@ export default function ProductDetailPage() {
                               className={`w-4 h-4 rounded-full flex-shrink-0 border ${selectedColorIdx === i ? "border-[#5C4B3D]/40" : "border-black/10"}`}
                               style={{ backgroundColor: color.hex }}
                             />
-                            <span>{color.name}</span>
+                            <span className={color.outOfStock ? "line-through" : ""}>{color.name}</span>
+                            {color.outOfStock && <span className="text-[10px] text-red-500 ml-0.5">OOS</span>}
                           </button>
                         ))}
                       </div>
@@ -346,7 +365,11 @@ export default function ProductDetailPage() {
                     <ShoppingCart size={16} />
                     Out of Stock
                   </div>
-                  <p className="text-[12px] text-[#757575] text-center">This item is currently unavailable. Check back later.</p>
+                  <p className="text-[12px] text-[#757575] text-center">
+                    {isColorOutOfStock
+                      ? `${selectedColor?.name} is currently out of stock. Try another color or check back later.`
+                      : "This item is currently unavailable. Check back later."}
+                  </p>
                 </div>
               ) : (
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
