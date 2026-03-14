@@ -1011,7 +1011,7 @@ export default function AdminProductsPage() {
                           setDragOverColorIdx(null);
                         }}
                         onDragEnd={() => { setDragColorIdx(null); setDragOverColorIdx(null); }}
-                        className={`flex items-center gap-3 bg-[#FAFAF8] border rounded-md px-3 py-2.5 transition-all select-none ${
+                        className={`flex flex-col gap-2 bg-[#FAFAF8] border rounded-md px-3 py-2.5 transition-all select-none ${
                           dragColorIdx === idx
                             ? "opacity-40 border-[#5C4B3D] border-dashed"
                             : dragOverColorIdx === idx
@@ -1019,64 +1019,70 @@ export default function AdminProductsPage() {
                             : "border-[#E8E4DE]"
                         }`}
                       >
-                        <GripVertical size={16} className="text-[#C4B9B0] flex-shrink-0 cursor-grab active:cursor-grabbing" />
-                        <span className="w-7 h-7 rounded-full border-2 border-white shadow flex-shrink-0" style={{ backgroundColor: color.hex }} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{color.name}</p>
-                          <p className="text-[11px] text-[#999] font-mono">{color.hex}</p>
-                        </div>
-                        {!savedColors.some(sc => sc.hex.toLowerCase() === color.hex.toLowerCase()) && (
+                        {/* Row 1: drag handle + swatch + name + OOS + delete */}
+                        <div className="flex items-center gap-2">
+                          <GripVertical size={16} className="text-[#C4B9B0] flex-shrink-0 cursor-grab active:cursor-grabbing" />
+                          <span className="w-7 h-7 rounded-full border-2 border-white shadow flex-shrink-0" style={{ backgroundColor: color.hex }} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-medium text-[#1A1A1A] truncate">{color.name}</p>
+                            <p className="text-[11px] text-[#999] font-mono">{color.hex}</p>
+                          </div>
                           <button
                             type="button"
-                            onClick={() => handleSaveColor(color.name, color.hex)}
-                            title="Save this color for future use"
-                            className="text-[11px] text-[#5C4B3D] hover:underline flex-shrink-0 whitespace-nowrap"
+                            title={color.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
+                            onClick={() => setForm(prev => ({
+                              ...prev,
+                              colors: prev.colors.map((c, i) => i === idx ? { ...c, outOfStock: !c.outOfStock } : c)
+                            }))}
+                            className={`text-[11px] px-2 py-1 rounded border flex-shrink-0 transition-colors ${
+                              color.outOfStock
+                                ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                : "border-[#E8E4DE] text-[#999] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                            }`}
                           >
-                            Save color
+                            {color.outOfStock ? "OOS" : "In Stock"}
                           </button>
-                        )}
-                        {(() => {
-                          const imgs = getColorImages(color);
-                          return (
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              {imgs.map((src, imgIdx) => (
-                                <div key={imgIdx} className="relative group/img flex-shrink-0">
-                                  <img src={src} alt={`${color.name} ${imgIdx + 1}`} className="w-10 h-10 object-cover rounded-md border border-[#E8E4DE]" />
-                                  <button
-                                    type="button"
-                                    onClick={() => removeVariantImage(idx, imgIdx)}
-                                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity leading-none"
-                                  >×</button>
-                                </div>
-                              ))}
-                              {imgs.length < 3 && (
-                                <label className={`flex items-center gap-1 text-[11px] px-2 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingVariantIdx === idx ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
-                                  <Upload size={11} />
-                                  {uploadingVariantIdx === idx ? "…" : imgs.length === 0 ? "Add image" : "+"}
-                                  <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
-                                </label>
-                              )}
-                            </div>
-                          );
-                        })()}
-                        <button
-                          type="button"
-                          title={color.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
-                          onClick={() => setForm(prev => ({
-                            ...prev,
-                            colors: prev.colors.map((c, i) => i === idx ? { ...c, outOfStock: !c.outOfStock } : c)
-                          }))}
-                          className={`text-[11px] px-2 py-1 rounded border flex-shrink-0 transition-colors ${
-                            color.outOfStock
-                              ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
-                              : "border-[#E8E4DE] text-[#999] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
-                          }`}
-                        >
-                          {color.outOfStock ? "OOS" : "In Stock"}
-                        </button>
-                        <button type="button" onClick={() => removeVariant(idx)} className="text-[#999] hover:text-red-500 transition-colors flex-shrink-0 ml-1">
-                          <X size={15} />
-                        </button>
+                          <button type="button" onClick={() => removeVariant(idx)} className="text-[#999] hover:text-red-500 transition-colors flex-shrink-0">
+                            <X size={15} />
+                          </button>
+                        </div>
+                        {/* Row 2: images + save color (indented under swatch) */}
+                        <div className="flex items-center gap-2 flex-wrap pl-9">
+                          {!savedColors.some(sc => sc.hex.toLowerCase() === color.hex.toLowerCase()) && (
+                            <button
+                              type="button"
+                              onClick={() => handleSaveColor(color.name, color.hex)}
+                              title="Save this color for future use"
+                              className="text-[11px] text-[#5C4B3D] hover:underline flex-shrink-0 whitespace-nowrap"
+                            >
+                              Save color
+                            </button>
+                          )}
+                          {(() => {
+                            const imgs = getColorImages(color);
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {imgs.map((src, imgIdx) => (
+                                  <div key={imgIdx} className="relative group/img flex-shrink-0">
+                                    <img src={src} alt={`${color.name} ${imgIdx + 1}`} className="w-10 h-10 object-cover rounded-md border border-[#E8E4DE]" />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeVariantImage(idx, imgIdx)}
+                                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity leading-none"
+                                    >×</button>
+                                  </div>
+                                ))}
+                                {imgs.length < 3 && (
+                                  <label className={`flex items-center gap-1 text-[11px] px-2 py-1.5 border border-[#E8E4DE] rounded-sm cursor-pointer hover:border-[#5C4B3D] hover:text-[#5C4B3D] transition-colors flex-shrink-0 ${uploadingVariantIdx === idx ? "opacity-50 pointer-events-none text-[#999]" : "text-[#757575]"}`}>
+                                    <Upload size={11} />
+                                    {uploadingVariantIdx === idx ? "…" : imgs.length === 0 ? "Add image" : "+"}
+                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadVariantImage(e, idx)} disabled={uploadingVariantIdx === idx} />
+                                  </label>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
                       </div>
                     ))}
                   </div>

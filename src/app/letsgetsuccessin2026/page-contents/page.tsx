@@ -199,12 +199,12 @@ export default function AdminPageContentsPage() {
 
   return (
     <div className="p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="font-serif text-3xl text-[#5C4B3D]">Page Contents</h1>
           <p className="text-[#8B7D6B] mt-1">Manage content for website pages</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={handleSeedDefaults}
             disabled={seeding}

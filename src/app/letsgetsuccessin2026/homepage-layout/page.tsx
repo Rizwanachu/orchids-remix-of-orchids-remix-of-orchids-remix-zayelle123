@@ -135,26 +135,28 @@ export default function AdminHomepageLayoutPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-3xl">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-serif font-semibold text-[#1A1A1A]">Homepage Layout</h1>
           <p className="text-sm text-[#757575] mt-1">Reorder and toggle visibility of homepage sections</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 border border-[#5C4B3D] text-[#5C4B3D] text-sm font-medium rounded-lg hover:bg-[#F5F2ED] transition-colors"
-        >
-          <Plus size={16} />
-          Add Section
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] disabled:opacity-50 transition-colors"
-        >
-          <Save size={16} />
-          {saving ? "Saving..." : "Save Layout"}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-[#5C4B3D] text-[#5C4B3D] text-sm font-medium rounded-lg hover:bg-[#F5F2ED] transition-colors"
+          >
+            <Plus size={16} />
+            Add Section
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] disabled:opacity-50 transition-colors"
+          >
+            <Save size={16} />
+            {saving ? "Saving..." : "Save Layout"}
+          </button>
+        </div>
       </div>
 
       {showAddModal && (

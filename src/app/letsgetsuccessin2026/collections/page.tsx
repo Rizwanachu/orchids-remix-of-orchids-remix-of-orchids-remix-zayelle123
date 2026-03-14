@@ -272,9 +272,9 @@ export default function AdminCollectionsPage() {
 
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#5C4B3D] rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#5C4B3D] rounded-xl flex items-center justify-center flex-shrink-0">
             <FolderOpen size={20} className="text-white" />
           </div>
           <div>
@@ -284,7 +284,7 @@ export default function AdminCollectionsPage() {
         </div>
         <button
           onClick={handleStartAdd}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#5C4B3D] text-white text-[13px] font-medium rounded-lg hover:bg-[#4A3D31] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#5C4B3D] text-white text-[13px] font-medium rounded-lg hover:bg-[#4A3D31] transition-colors self-start sm:self-auto"
         >
           <Plus size={16} />
           Add Collection

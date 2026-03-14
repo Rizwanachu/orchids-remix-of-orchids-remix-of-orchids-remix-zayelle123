@@ -337,7 +337,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-[28px] font-serif font-semibold text-[#1A1A1A]">
             Banners
@@ -353,7 +353,7 @@ export default function BannersPage() {
             setErrorMessage("");
             setShowForm(true);
           }}
-          className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"
+          className="flex items-center gap-2 bg-[#5C4B3D] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors self-start sm:self-auto"
         >
           <Plus size={16} />
           Add Banner
