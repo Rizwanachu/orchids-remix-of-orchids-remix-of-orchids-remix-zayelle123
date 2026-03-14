@@ -95,6 +95,10 @@ export default function CollectionPage() {
   const [zayelleLoading, setZayelleLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  useEffect(() => {
     if (!slug) return;
     setZayelleLoading(true);
     fetch("/api/zayelle-edit")
