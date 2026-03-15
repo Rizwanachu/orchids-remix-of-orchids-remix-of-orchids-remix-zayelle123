@@ -101,7 +101,7 @@ export default function NewArrivalsCarousel() {
   const [sectionTitle, setSectionTitle] = useState("New Arrivals");
   const [sectionSubtitle, setSectionSubtitle] = useState("Designed for comfort. Crafted for elegance.");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [slidesPerView, setSlidesPerView] = useState(1);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
@@ -121,6 +121,12 @@ export default function NewArrivalsCarousel() {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
+  const onInit = useCallback(() => {
+    if (!emblaApi) return;
+    setScrollSnaps(emblaApi.scrollSnapList());
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
@@ -128,21 +134,12 @@ export default function NewArrivalsCarousel() {
 
   useEffect(() => {
     if (!emblaApi) return;
+    onInit();
     onSelect();
-    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onInit);
     emblaApi.on("reInit", onSelect);
-  }, [emblaApi, onSelect]);
-
-  useEffect(() => {
-    const updateSlidesPerView = () => {
-      if (window.innerWidth >= 1024) setSlidesPerView(4);
-      else if (window.innerWidth >= 640) setSlidesPerView(2);
-      else setSlidesPerView(1);
-    };
-    updateSlidesPerView();
-    window.addEventListener("resize", updateSlidesPerView);
-    return () => window.removeEventListener("resize", updateSlidesPerView);
-  }, []);
+    emblaApi.on("select", onSelect);
+  }, [emblaApi, onInit, onSelect]);
 
   useEffect(() => {
     Promise.all([
@@ -236,13 +233,14 @@ export default function NewArrivalsCarousel() {
         </div>
 
         <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: Math.ceil(products.length / slidesPerView) }).map((_, index) => (
+          {scrollSnaps.map((_, index) => (
             <button
               key={index}
-              onClick={() => emblaApi?.scrollTo(index * slidesPerView)}
+              onClick={() => emblaApi?.scrollTo(index)}
+              aria-label={`Go to slide group ${index + 1}`}
               className={`transition-all duration-300 rounded-full ${
-                Math.floor(selectedIndex / slidesPerView) === index 
-                  ? "w-4 h-2 bg-primary" 
+                selectedIndex === index
+                  ? "w-4 h-2 bg-primary"
                   : "w-2 h-2 bg-border"
               }`}
             />
