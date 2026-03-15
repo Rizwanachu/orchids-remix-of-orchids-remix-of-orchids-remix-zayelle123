@@ -66,7 +66,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       hoverImage: updated.hoverImage,
       badge: updated.badge || undefined,
       description: updated.description,
-      details: updated.details || [],
+      details: (() => {
+        if (!updated.details) return [];
+        const byNewline = updated.details.split("\n").map((d: string) => d.trim()).filter(Boolean);
+        if (byNewline.length > 1) return byNewline;
+        const byComma = updated.details.split(/,(?=[A-Z])/).map((d: string) => d.trim()).filter(Boolean);
+        if (byComma.length > 1) return byComma;
+        return byNewline;
+      })(),
       dimension: updated.dimension || "",
       material: updated.material || "",
       careInstructions: updated.careInstructions || "",
@@ -81,6 +88,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       colors: (() => { try { return updated.colors ? (typeof updated.colors === 'string' ? JSON.parse(updated.colors) : updated.colors) : []; } catch { return []; } })(),
       colorSwatchStyle: updated.colorSwatchStyle || "pills",
       gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
+      active: updated.active,
       customHamperEnabled: updated.customHamperEnabled ?? 0,
       customHamperTitle: updated.customHamperTitle || "",
       customHamperBody: updated.customHamperBody || "",

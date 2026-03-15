@@ -115,7 +115,14 @@ export async function POST(request: NextRequest) {
       hoverImage: newProduct.hoverImage,
       badge: newProduct.badge || undefined,
       description: newProduct.description,
-      details: newProduct.details || [],
+      details: (() => {
+        if (!newProduct.details) return [];
+        const byNewline = newProduct.details.split("\n").map((d: string) => d.trim()).filter(Boolean);
+        if (byNewline.length > 1) return byNewline;
+        const byComma = newProduct.details.split(/,(?=[A-Z])/).map((d: string) => d.trim()).filter(Boolean);
+        if (byComma.length > 1) return byComma;
+        return byNewline;
+      })(),
       dimension: newProduct.dimension || "",
       material: newProduct.material || "",
       careInstructions: newProduct.careInstructions || "",
