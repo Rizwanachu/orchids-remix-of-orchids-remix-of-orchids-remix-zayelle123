@@ -189,7 +189,7 @@ export default function CollectionPage() {
                   return (
                     <div key={card.key} className="group flex flex-col">
                       <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
-                        <a href={card.href} className="block w-full h-full">
+                        <a href={card.href} className="relative block w-full h-full">
                           <Image
                             src={card.image}
                             alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}

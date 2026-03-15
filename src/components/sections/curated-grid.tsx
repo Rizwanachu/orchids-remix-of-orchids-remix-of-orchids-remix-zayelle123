@@ -104,7 +104,7 @@ const CuratedGrid = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-8">
           {gridItems.map((item) => (
             <div key={item.id} className="relative group overflow-hidden rounded-[12px] min-h-[400px] md:min-h-[500px]">
-              <a href={item.redirectLink} className="block w-full h-full">
+              <a href={item.redirectLink} className="relative block w-full h-full">
                 <Image
                   src={item.imageUrl}
                   alt={item.title}

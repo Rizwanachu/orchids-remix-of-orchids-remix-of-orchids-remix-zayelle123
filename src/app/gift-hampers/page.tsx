@@ -123,7 +123,7 @@ export default function GiftHampersPage() {
                   return (
                     <div key={String(product.id)} className="group flex flex-col">
                       <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
-                        <a href={`/products/${product.handle}`} className="block w-full h-full">
+                        <a href={`/products/${product.handle}`} className="relative block w-full h-full">
                           <Image
                             src={product.image}
                             alt={product.name}

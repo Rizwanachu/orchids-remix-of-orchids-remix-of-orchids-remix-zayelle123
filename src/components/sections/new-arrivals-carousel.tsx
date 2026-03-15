@@ -30,7 +30,7 @@ const ProductCard = ({ product }: { product: CarouselProduct }) => {
     >
       <div className="group flex flex-col items-center text-center mb-8">
         <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white transition-premium">
-          <a href={productUrl} className="block w-full h-full">
+          <a href={productUrl} className="relative block w-full h-full">
             <Image
               src={product.image}
               alt={product.name}

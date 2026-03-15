@@ -84,7 +84,7 @@ export default function NewArrivalsPage() {
                 return (
                   <div key={product.id} className="group flex flex-col">
                     <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
-                      <a href={productUrl} className="block w-full h-full">
+                      <a href={productUrl} className="relative block w-full h-full">
                         <Image
                           src={product.image}
                           alt={product.name}
