@@ -19,8 +19,7 @@ export async function GET() {
       .select()
       .from(newArrivals)
       .innerJoin(products, eq(newArrivals.productId, products.id))
-      .orderBy(asc(newArrivals.displayOrder))
-      .limit(12);
+      .orderBy(asc(newArrivals.displayOrder));
 
     const formatted = results.map((r) => {
       const colorInfo = getColorInfo(r.products.colors, r.new_arrivals.colorSlug);
