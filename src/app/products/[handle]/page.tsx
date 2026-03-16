@@ -244,27 +244,24 @@ export default function ProductDetailPage() {
               <ProductReviewSummary productId={product.id} />
 
                   {(() => {
-                    const sizes = (product as any).sizes as Array<{ label: string; price?: number; outOfStock?: boolean }> | undefined;
+                    const sizes = (product as any).sizes as Array<{ label: string; price?: number; compareAt?: number; outOfStock?: boolean }> | undefined;
                     const selectedSize = selectedSizeIdx !== null ? sizes?.[selectedSizeIdx] : null;
                     const displayPrice = (selectedSize?.price != null) ? selectedSize.price : product.price;
-                    const priceChanged = selectedSize?.price != null && selectedSize.price !== product.price;
+                    const displayCompareAt = (selectedSize != null)
+                      ? (selectedSize.compareAt ?? null)
+                      : (product.compareAt ?? null);
                     return (
                       <div className="flex items-center gap-3 mt-4">
                         <span className="text-[24px] font-semibold text-[#1A1A1A]">
                           ₹{displayPrice.toLocaleString("en-IN")}.00
                         </span>
-                        {priceChanged && (
-                          <span className="text-[13px] text-[#757575]">
-                            Base ₹{product.price.toLocaleString("en-IN")}
-                          </span>
-                        )}
-                        {!priceChanged && product.compareAt && product.compareAt > product.price && (
+                        {displayCompareAt != null && displayCompareAt > displayPrice && (
                           <>
                             <span className="text-[16px] text-[#757575] line-through">
-                              ₹{product.compareAt.toLocaleString("en-IN")}.00
+                              ₹{displayCompareAt.toLocaleString("en-IN")}.00
                             </span>
                             <span className="text-[13px] font-medium text-[#991B1B] bg-red-50 px-2 py-0.5 rounded">
-                              {Math.round(((product.compareAt - product.price) / product.compareAt) * 100)}% OFF (SAVE ₹{(product.compareAt - product.price).toLocaleString("en-IN")})
+                              {Math.round(((displayCompareAt - displayPrice) / displayCompareAt) * 100)}% OFF (SAVE ₹{(displayCompareAt - displayPrice).toLocaleString("en-IN")})
                             </span>
                           </>
                         )}

@@ -36,7 +36,7 @@ interface CategoryItem { id: number; name: string; value: string; displayOrder: 
 interface BadgeItem { id: number; name: string; value: string; color: string }
 interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
 interface ColorVariant { name: string; hex: string; image?: string }
-interface SizeVariant { label: string; price?: number; outOfStock?: boolean }
+interface SizeVariant { label: string; price?: number; compareAt?: number; outOfStock?: boolean }
 
 interface ProductFormData {
   name: string;
@@ -191,6 +191,7 @@ export default function AdminProductsPage() {
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [newSizeLabel, setNewSizeLabel] = useState("");
   const [newSizePriceStr, setNewSizePriceStr] = useState("");
+  const [newSizeCompareAtStr, setNewSizeCompareAtStr] = useState("");
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
   const [newVariantImages, setNewVariantImages] = useState<string[]>([]);
@@ -1201,8 +1202,8 @@ export default function AdminProductsPage() {
                           {size.label}
                         </span>
                         {/* Price input */}
-                        <div className="flex items-center gap-1 flex-1 min-w-0">
-                          <span className="text-[12px] text-[#999] flex-shrink-0">₹</span>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className="text-[11px] text-[#999]">₹</span>
                           <input
                             type="number"
                             min="0"
@@ -1214,8 +1215,26 @@ export default function AdminProductsPage() {
                                 : s
                               )
                             }))}
-                            placeholder={`Base (₹${form.price || "–"})`}
-                            className="w-full max-w-[120px] h-[28px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white"
+                            placeholder="Price"
+                            className="w-[80px] h-[28px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white"
+                          />
+                        </div>
+                        {/* Compare-at price input */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className="text-[11px] text-[#bbb] line-through">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={size.compareAt ?? ""}
+                            onChange={(e) => setForm(prev => ({
+                              ...prev,
+                              sizes: prev.sizes.map((s, i) => i === idx
+                                ? { ...s, compareAt: e.target.value !== "" ? Number(e.target.value) : undefined }
+                                : s
+                              )
+                            }))}
+                            placeholder="Compare"
+                            className="w-[80px] h-[28px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white text-[#999]"
                           />
                         </div>
                         {/* OOS toggle */}
@@ -1253,12 +1272,13 @@ export default function AdminProductsPage() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && newSizeLabel.trim()) {
                         const price = newSizePriceStr !== "" ? Number(newSizePriceStr) : undefined;
-                        setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}) }] }));
-                        setNewSizeLabel(""); setNewSizePriceStr("");
+                        const compareAt = newSizeCompareAtStr !== "" ? Number(newSizeCompareAtStr) : undefined;
+                        setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}), ...(compareAt !== undefined ? { compareAt } : {}) }] }));
+                        setNewSizeLabel(""); setNewSizePriceStr(""); setNewSizeCompareAtStr("");
                       }
                     }}
                     placeholder="Size label (e.g. 3ml, One Size)"
-                    className="flex-1 min-w-[140px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                    className="flex-1 min-w-[120px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
                   />
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <span className="text-[12px] text-[#999]">₹</span>
@@ -1267,8 +1287,19 @@ export default function AdminProductsPage() {
                       min="0"
                       value={newSizePriceStr}
                       onChange={(e) => setNewSizePriceStr(e.target.value)}
-                      placeholder="Price (optional)"
-                      className="w-[120px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                      placeholder="Price"
+                      className="w-[90px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className="text-[12px] text-[#bbb] line-through">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newSizeCompareAtStr}
+                      onChange={(e) => setNewSizeCompareAtStr(e.target.value)}
+                      placeholder="Compare"
+                      className="w-[90px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white text-[#999]"
                     />
                   </div>
                   <button
@@ -1276,8 +1307,9 @@ export default function AdminProductsPage() {
                     onClick={() => {
                       if (!newSizeLabel.trim()) return;
                       const price = newSizePriceStr !== "" ? Number(newSizePriceStr) : undefined;
-                      setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}) }] }));
-                      setNewSizeLabel(""); setNewSizePriceStr("");
+                      const compareAt = newSizeCompareAtStr !== "" ? Number(newSizeCompareAtStr) : undefined;
+                      setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}), ...(compareAt !== undefined ? { compareAt } : {}) }] }));
+                      setNewSizeLabel(""); setNewSizePriceStr(""); setNewSizeCompareAtStr("");
                     }}
                     disabled={!newSizeLabel.trim()}
                     className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
