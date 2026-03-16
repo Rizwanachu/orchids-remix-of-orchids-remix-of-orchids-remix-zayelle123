@@ -36,6 +36,7 @@ interface CategoryItem { id: number; name: string; value: string; displayOrder: 
 interface BadgeItem { id: number; name: string; value: string; color: string }
 interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
 interface ColorVariant { name: string; hex: string; image?: string }
+interface SizeVariant { label: string; outOfStock?: boolean }
 
 interface ProductFormData {
   name: string;
@@ -54,6 +55,7 @@ interface ProductFormData {
   careInstructions: string;
   colors: { name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }[];
   colorSwatchStyle: "pills" | "dots" | "squares";
+  sizes: SizeVariant[];
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -86,6 +88,7 @@ const emptyForm: ProductFormData = {
   careInstructions: "",
   colors: [],
   colorSwatchStyle: "pills",
+  sizes: [],
   category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -119,6 +122,7 @@ function toFormData(product: Product): ProductFormData {
     careInstructions: (product as any).careInstructions || "",
     colors: (product as any).colors || [],
     colorSwatchStyle: (product as any).colorSwatchStyle || "pills",
+    sizes: (product as any).sizes || [],
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
@@ -185,6 +189,7 @@ export default function AdminProductsPage() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
   const [showTemplateManager, setShowTemplateManager] = useState(false);
+  const [newSizeLabel, setNewSizeLabel] = useState("");
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
   const [newVariantImages, setNewVariantImages] = useState<string[]>([]);
@@ -570,6 +575,7 @@ export default function AdminProductsPage() {
       isFreeShipping: form.isFreeShipping,
       colors: form.colors,
       colorSwatchStyle: form.colorSwatchStyle,
+      sizes: form.sizes,
       gallery: form.gallery,
       customHamperEnabled: form.customHamperEnabled ? 1 : 0,
       customHamperTitle: form.customHamperTitle,
@@ -1145,6 +1151,99 @@ export default function AdminProductsPage() {
                     onClick={addVariant}
                     disabled={!newVariantName.trim() || uploadingNewVariantSlot}
                     className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 flex items-center gap-1.5"
+                  >
+                    <Plus size={13} /> Add
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Size Variants ── */}
+              <div className="pt-4 border-t border-[#F5F2ED]">
+                <h3 className="text-[14px] font-medium text-[#1A1A1A] mb-1">Product Size Variants <span className="text-[11px] font-normal text-[#999]">(optional)</span></h3>
+                <p className="text-[12px] text-[#999] mb-3">Add sizes like XS, S, M, L, XL, XXL or custom ones like 3ml, 6ml, 9ml.</p>
+
+                {/* Preset buttons */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {["XS", "S", "M", "L", "XL", "XXL"].map((preset) => {
+                    const already = form.sizes.some(s => s.label === preset);
+                    return (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => {
+                          if (!already) setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: preset }] }));
+                        }}
+                        className={`px-3 py-1.5 rounded-sm border text-[12px] font-medium transition-colors ${
+                          already
+                            ? "border-[#5C4B3D] bg-[#5C4B3D]/10 text-[#5C4B3D] cursor-default"
+                            : "border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] cursor-pointer"
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Current sizes list */}
+                {form.sizes.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {form.sizes.map((size, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-sm border text-[12px] transition-colors ${
+                          size.outOfStock ? "border-red-200 bg-red-50" : "border-[#E8E4DE] bg-[#FAFAF8]"
+                        }`}
+                      >
+                        <span className={`font-medium ${size.outOfStock ? "text-red-500 line-through" : "text-[#1A1A1A]"}`}>{size.label}</span>
+                        <button
+                          type="button"
+                          title={size.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
+                          onClick={() => setForm(prev => ({ ...prev, sizes: prev.sizes.map((s, i) => i === idx ? { ...s, outOfStock: !s.outOfStock } : s) }))}
+                          className={`text-[10px] px-1.5 py-0.5 rounded border flex-shrink-0 transition-colors ${
+                            size.outOfStock
+                              ? "bg-red-100 border-red-300 text-red-600 hover:bg-red-50"
+                              : "border-[#E8E4DE] text-[#999] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                          }`}
+                        >
+                          {size.outOfStock ? "OOS" : "Stock"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== idx) }))}
+                          className="text-[#C4B9B0] hover:text-red-500 transition-colors flex-shrink-0"
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Custom size input */}
+                <div className="flex gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
+                  <input
+                    type="text"
+                    value={newSizeLabel}
+                    onChange={(e) => setNewSizeLabel(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newSizeLabel.trim()) {
+                        setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim() }] }));
+                        setNewSizeLabel("");
+                      }
+                    }}
+                    placeholder="Custom size (e.g. 3ml, 6ml, One Size)"
+                    className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!newSizeLabel.trim()) return;
+                      setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim() }] }));
+                      setNewSizeLabel("");
+                    }}
+                    disabled={!newSizeLabel.trim()}
+                    className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                   >
                     <Plus size={13} /> Add
                   </button>

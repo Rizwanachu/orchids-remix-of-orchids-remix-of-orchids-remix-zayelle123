@@ -21,6 +21,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null);
+  const [selectedSizeIdx, setSelectedSizeIdx] = useState<number | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
@@ -353,6 +354,37 @@ export default function ProductDetailPage() {
                       </div>
                     );
                   })()}
+                </div>
+              )}
+
+              {/* Size selector */}
+              {(product as any).sizes && (product as any).sizes.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[12px] text-[#757575] mb-2.5 uppercase tracking-wider font-medium">
+                    {selectedSizeIdx !== null
+                      ? <>Size — <span className="text-[#1A1A1A] normal-case font-semibold">{(product as any).sizes[selectedSizeIdx]?.label}</span></>
+                      : "Select Size"
+                    }
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {((product as any).sizes as Array<{ label: string; outOfStock?: boolean }>).map((size, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => !size.outOfStock && setSelectedSizeIdx(selectedSizeIdx === i ? null : i)}
+                        className={`px-4 py-2 rounded-sm border-2 text-[13px] font-medium transition-all duration-200 ${
+                          size.outOfStock
+                            ? "border-[#E8E4DE] text-[#C4B9B0] cursor-not-allowed line-through"
+                            : selectedSizeIdx === i
+                            ? "border-[#5C4B3D] bg-[#5C4B3D]/5 text-[#1A1A1A] shadow-sm"
+                            : "border-[#E8E4DE] text-[#555] hover:border-[#5C4B3D] cursor-pointer"
+                        }`}
+                      >
+                        {size.label}
+                        {size.outOfStock && <span className="ml-1 text-[10px] text-red-400 no-underline not-italic font-normal">(OOS)</span>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
