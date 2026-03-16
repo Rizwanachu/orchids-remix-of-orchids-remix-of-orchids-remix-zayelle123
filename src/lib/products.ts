@@ -18,7 +18,7 @@ export interface Product {
   material: string;
   careInstructions: string;
   colors?: { name: string; hex: string }[];
-  sizes?: { label: string; outOfStock?: boolean }[];
+  sizes?: { label: string; price?: number; outOfStock?: boolean }[];
   category: string;
   shippingCost?: number;
   shippingCostKerala?: number;

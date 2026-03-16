@@ -36,7 +36,7 @@ interface CategoryItem { id: number; name: string; value: string; displayOrder: 
 interface BadgeItem { id: number; name: string; value: string; color: string }
 interface TemplateItem { id: number; name: string; description: string; details: string; dimension: string; material: string; careInstructions: string; shippingPolicy: string; returnPolicy: string }
 interface ColorVariant { name: string; hex: string; image?: string }
-interface SizeVariant { label: string; outOfStock?: boolean }
+interface SizeVariant { label: string; price?: number; outOfStock?: boolean }
 
 interface ProductFormData {
   name: string;
@@ -190,6 +190,7 @@ export default function AdminProductsPage() {
   const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [newSizeLabel, setNewSizeLabel] = useState("");
+  const [newSizePriceStr, setNewSizePriceStr] = useState("");
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantHex, setNewVariantHex] = useState("#000000");
   const [newVariantImages, setNewVariantImages] = useState<string[]>([]);
@@ -1185,17 +1186,39 @@ export default function AdminProductsPage() {
                   })}
                 </div>
 
-                {/* Current sizes list */}
+                {/* Current sizes list — row layout with price */}
                 {form.sizes.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="space-y-2 mb-3">
                     {form.sizes.map((size, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-sm border text-[12px] transition-colors ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md border text-[12px] transition-colors ${
                           size.outOfStock ? "border-red-200 bg-red-50" : "border-[#E8E4DE] bg-[#FAFAF8]"
                         }`}
                       >
-                        <span className={`font-medium ${size.outOfStock ? "text-red-500 line-through" : "text-[#1A1A1A]"}`}>{size.label}</span>
+                        {/* Label */}
+                        <span className={`font-semibold w-10 flex-shrink-0 ${size.outOfStock ? "text-red-400 line-through" : "text-[#1A1A1A]"}`}>
+                          {size.label}
+                        </span>
+                        {/* Price input */}
+                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                          <span className="text-[12px] text-[#999] flex-shrink-0">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={size.price ?? ""}
+                            onChange={(e) => setForm(prev => ({
+                              ...prev,
+                              sizes: prev.sizes.map((s, i) => i === idx
+                                ? { ...s, price: e.target.value !== "" ? Number(e.target.value) : undefined }
+                                : s
+                              )
+                            }))}
+                            placeholder={`Base (₹${form.price || "–"})`}
+                            className="w-full max-w-[120px] h-[28px] px-2 border border-[#E8E4DE] rounded-sm text-[12px] bg-white"
+                          />
+                        </div>
+                        {/* OOS toggle */}
                         <button
                           type="button"
                           title={size.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
@@ -1206,8 +1229,9 @@ export default function AdminProductsPage() {
                               : "border-[#E8E4DE] text-[#999] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
                           }`}
                         >
-                          {size.outOfStock ? "OOS" : "Stock"}
+                          {size.outOfStock ? "OOS" : "In Stock"}
                         </button>
+                        {/* Delete */}
                         <button
                           type="button"
                           onClick={() => setForm(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== idx) }))}
@@ -1220,27 +1244,40 @@ export default function AdminProductsPage() {
                   </div>
                 )}
 
-                {/* Custom size input */}
-                <div className="flex gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
+                {/* Add custom size */}
+                <div className="flex flex-wrap gap-2 items-center bg-[#FAFAF8] border border-dashed border-[#D4C8BE] rounded-md px-3 py-2.5">
                   <input
                     type="text"
                     value={newSizeLabel}
                     onChange={(e) => setNewSizeLabel(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && newSizeLabel.trim()) {
-                        setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim() }] }));
-                        setNewSizeLabel("");
+                        const price = newSizePriceStr !== "" ? Number(newSizePriceStr) : undefined;
+                        setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}) }] }));
+                        setNewSizeLabel(""); setNewSizePriceStr("");
                       }
                     }}
-                    placeholder="Custom size (e.g. 3ml, 6ml, One Size)"
-                    className="flex-1 h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                    placeholder="Size label (e.g. 3ml, One Size)"
+                    className="flex-1 min-w-[140px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
                   />
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className="text-[12px] text-[#999]">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newSizePriceStr}
+                      onChange={(e) => setNewSizePriceStr(e.target.value)}
+                      placeholder="Price (optional)"
+                      className="w-[120px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       if (!newSizeLabel.trim()) return;
-                      setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim() }] }));
-                      setNewSizeLabel("");
+                      const price = newSizePriceStr !== "" ? Number(newSizePriceStr) : undefined;
+                      setForm(prev => ({ ...prev, sizes: [...prev.sizes, { label: newSizeLabel.trim(), ...(price !== undefined ? { price } : {}) }] }));
+                      setNewSizeLabel(""); setNewSizePriceStr("");
                     }}
                     disabled={!newSizeLabel.trim()}
                     className="h-[36px] px-4 bg-[#5C4B3D] text-white rounded-sm text-[12px] hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
