@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop, convertToPixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { X, CropIcon } from "lucide-react";
+import { X, CropIcon, Upload } from "lucide-react";
 
 type AspectOption = {
   label: string;
@@ -37,6 +37,7 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [selectedAspect, setSelectedAspect] = useState<AspectOption>(ASPECT_OPTIONS[0]);
   const [processing, setProcessing] = useState(false);
+  const [cropError, setCropError] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
   const onImageLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       const { naturalWidth, naturalHeight, width, height } = e.currentTarget;
+      if (!width || !height) return;
       const aspect = selectedAspect.value;
       const initialCrop: Crop = aspect
         ? centerAspectCrop(naturalWidth, naturalHeight, aspect)
@@ -62,6 +64,7 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
     setSelectedAspect(option);
     if (!imgRef.current) return;
     const { naturalWidth, naturalHeight, width, height } = imgRef.current;
+    if (!width || !height) return;
     const newCrop: Crop = option.value
       ? centerAspectCrop(naturalWidth, naturalHeight, option.value)
       : { unit: "%", x: 5, y: 5, width: 90, height: 90 };
@@ -71,15 +74,22 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
 
   const getCroppedBlob = (): Promise<Blob> => {
     return new Promise((resolve, reject) => {
-      if (!completedCrop || !imgRef.current) return reject("No crop");
+      if (!completedCrop || !imgRef.current) return reject("No crop data");
       const image = imgRef.current;
+      if (!image.naturalWidth || !image.naturalHeight) return reject("Image not loaded");
+
       const canvas = document.createElement("canvas");
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-      canvas.width = Math.floor(completedCrop.width * scaleX);
-      canvas.height = Math.floor(completedCrop.height * scaleY);
+      const scaleX = image.naturalWidth / (image.width || 1);
+      const scaleY = image.naturalHeight / (image.height || 1);
+
+      const cropW = Math.max(1, Math.floor(completedCrop.width * scaleX));
+      const cropH = Math.max(1, Math.floor(completedCrop.height * scaleY));
+      canvas.width = cropW;
+      canvas.height = cropH;
+
       const ctx = canvas.getContext("2d");
-      if (!ctx) return reject("No context");
+      if (!ctx) return reject("Canvas context unavailable");
+
       ctx.drawImage(
         image,
         completedCrop.x * scaleX,
@@ -88,18 +98,25 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
         completedCrop.height * scaleY,
         0,
         0,
-        canvas.width,
-        canvas.height
+        cropW,
+        cropH
       );
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob);
-        else reject("Canvas is empty");
-      }, file.type === "image/jpeg" ? "image/jpeg" : "image/png", 1);
+
+      const mimeType = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject("Canvas produced empty blob");
+        },
+        mimeType,
+        0.95
+      );
     });
   };
 
   const handleConfirm = async () => {
     if (!completedCrop) return;
+    setCropError(null);
     setProcessing(true);
     try {
       const blob = await getCroppedBlob();
@@ -107,13 +124,18 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
       onConfirm(croppedFile);
     } catch (err) {
       console.error("Crop failed:", err);
+      setCropError("Crop failed — try 'Upload as-is' to skip cropping.");
     } finally {
       setProcessing(false);
     }
   };
 
+  const handleSkipCrop = () => {
+    onConfirm(file);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#F0EDE8]">
           <div className="flex items-center gap-2">
@@ -163,8 +185,20 @@ export default function ImageCropModal({ file, onConfirm, onCancel }: ImageCropM
           )}
         </div>
 
+        {cropError && (
+          <div className="px-5 py-2 bg-red-50 border-t border-red-100">
+            <p className="text-[12px] text-red-600">{cropError}</p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between px-5 py-4 border-t border-[#F0EDE8]">
-          <p className="text-[12px] text-[#757575]">Drag to adjust the crop area</p>
+          <button
+            onClick={handleSkipCrop}
+            disabled={processing}
+            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-[#5C4B3D] border border-[#5C4B3D] rounded-sm hover:bg-[#F5F2ED] transition-colors disabled:opacity-50"
+          >
+            <Upload size={13} /> Upload as-is
+          </button>
           <div className="flex gap-2">
             <button
               onClick={onCancel}
