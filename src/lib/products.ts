@@ -19,6 +19,7 @@ export interface Product {
   careInstructions: string;
   colors?: { name: string; hex: string }[];
   sizes?: { label: string; price?: number; compareAt?: number; outOfStock?: boolean }[];
+  deliveryCharges?: { default?: number; zones?: { pincodes: string[]; charge: number }[] } | null;
   category: string;
   shippingCost?: number;
   shippingCostKerala?: number;

@@ -1,0 +1,100 @@
+Add a new feature to the Zayelle Next.js ecommerce admin panel:
+
+GOAL:
+Allow admin to set optional delivery charges based on customer pincode while adding/editing a product.
+
+REQUIREMENTS:
+
+1. DATABASE CHANGES:
+- Update the products table schema to include a new optional field:
+  deliveryCharges (JSON / text)
+
+- Structure example:
+{
+  "default": 50,
+  "zones": [
+    { "pincodes": ["600001", "600002"], "charge": 30 },
+    { "pincodes": ["682001"], "charge": 70 }
+  ]
+}
+
+- If not provided, fallback to default delivery logic.
+
+---
+
+2. ADMIN PANEL (PRODUCT FORM):
+- In "Add Product" and "Edit Product" page:
+  Add a new section:
+
+  "Delivery Charges (Optional)"
+
+- Fields:
+  - Default Delivery Charge (number input)
+  - Add Zone button
+
+- Each Zone should allow:
+  - Multiple pincodes input (comma-separated OR tag input)
+  - Delivery charge (number)
+
+- UI should allow:
+  - Add zone
+  - Remove zone
+  - Edit zone
+
+- Store this data in the deliveryCharges field when saving product
+
+---
+
+3. API UPDATE:
+- Update POST /api/admin/products
+- Update PUT /api/admin/products/[id]
+
+- Ensure deliveryCharges is:
+  - validated
+  - saved as JSON string (if using text column)
+
+---
+
+4. FRONTEND LOGIC (IMPORTANT):
+- On checkout/cart page:
+  - Ask user for pincode (or use saved address)
+
+- Logic:
+  - Check product.deliveryCharges
+  - If user's pincode matches any zone → apply that charge
+  - Else → apply default charge
+  - If no deliveryCharges → fallback to global shipping
+
+---
+
+5. FAILSAFE:
+- If deliveryCharges is invalid or empty → no crash
+- Always fallback to default shipping cost
+
+---
+
+6. PERFORMANCE:
+- Do NOT slow down product loading
+- Parse JSON safely
+
+---
+
+7. DO NOT BREAK:
+- Existing product creation
+- Existing checkout flow
+- Existing database data
+
+---
+
+8. OPTIONAL (IF EASY):
+- Show "Delivery: ₹XX for your area" after entering pincode on product page
+
+---
+
+OUTPUT:
+- Updated schema
+- Updated admin UI
+- Updated API routes
+- Updated checkout logic
+
+Make sure everything works instantly without needing manual fixes.

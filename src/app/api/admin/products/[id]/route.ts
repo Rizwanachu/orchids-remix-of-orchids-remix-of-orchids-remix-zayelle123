@@ -40,6 +40,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.colors !== undefined) updateData.colors = Array.isArray(body.colors) ? JSON.stringify(body.colors) : null;
     if (body.colorSwatchStyle !== undefined) updateData.colorSwatchStyle = body.colorSwatchStyle || "pills";
     if (body.sizes !== undefined) updateData.sizes = Array.isArray(body.sizes) ? JSON.stringify(body.sizes) : null;
+    if (body.deliveryCharges !== undefined) updateData.deliveryCharges = body.deliveryCharges ? JSON.stringify(body.deliveryCharges) : null;
     if (body.gallery !== undefined) updateData.gallery = Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null;
     if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
     if (body.customHamperEnabled !== undefined) updateData.customHamperEnabled = body.customHamperEnabled ? 1 : 0;
@@ -89,6 +90,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       colors: (() => { try { return updated.colors ? (typeof updated.colors === 'string' ? JSON.parse(updated.colors) : updated.colors) : []; } catch { return []; } })(),
       colorSwatchStyle: updated.colorSwatchStyle || "pills",
       sizes: (() => { try { return updated.sizes ? (typeof updated.sizes === 'string' ? JSON.parse(updated.sizes) : updated.sizes) : []; } catch { return []; } })(),
+      deliveryCharges: (() => { try { return updated.deliveryCharges ? (typeof updated.deliveryCharges === 'string' ? JSON.parse(updated.deliveryCharges) : updated.deliveryCharges) : null; } catch { return null; } })(),
       gallery: (() => { try { return updated.gallery ? (typeof updated.gallery === 'string' ? JSON.parse(updated.gallery) : updated.gallery) : []; } catch { return []; } })(),
       active: updated.active,
       customHamperEnabled: updated.customHamperEnabled ?? 0,

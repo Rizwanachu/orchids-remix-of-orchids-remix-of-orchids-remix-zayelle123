@@ -62,12 +62,23 @@ function CheckoutContent() {
 
   const isKerala = formData.state === "Kerala";
 
-  const maxShipping = items.reduce((max, item: any) => {
-    if (item.isFreeShipping) return max;
-    const itemShipping = isKerala
+  const getItemDeliveryCharge = (item: any): number => {
+    if (item.isFreeShipping) return 0;
+    const dc = item.deliveryCharges as { default?: number; zones?: { pincodes: string[]; charge: number }[] } | null | undefined;
+    const pincode = formData.pincode.trim();
+    if (dc && pincode && /^\d{6}$/.test(pincode)) {
+      const matchedZone = (dc.zones || []).find(z => z.pincodes.includes(pincode));
+      if (matchedZone) return matchedZone.charge;
+      if (dc.default != null) return dc.default;
+    }
+    return isKerala
       ? (item.shippingCostKerala != null ? Number(item.shippingCostKerala) : (item.shippingCost != null ? Number(item.shippingCost) : 49))
       : (item.shippingCost != null ? Number(item.shippingCost) : 49);
-    return Math.max(max, itemShipping);
+  };
+
+  const maxShipping = items.reduce((max, item: any) => {
+    if (item.isFreeShipping) return max;
+    return Math.max(max, getItemDeliveryCharge(item));
   }, 0);
 
   const hasGlobalFreeShipping = items.some((item: any) => item.isFreeShipping);

@@ -25,6 +25,8 @@ export default function ProductDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
+  const [pincodeInput, setPincodeInput] = useState("");
+  const [pincodeResult, setPincodeResult] = useState<{ charge: number | "free"; message: string } | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
@@ -181,6 +183,31 @@ export default function ProductDetailPage() {
   };
 
   const related = products.filter((p) => p.id !== product.id).slice(0, 4);
+
+  const checkPincode = () => {
+    const pincode = pincodeInput.trim();
+    if (!/^\d{6}$/.test(pincode)) {
+      setPincodeResult({ charge: 0, message: "Please enter a valid 6-digit pincode." });
+      return;
+    }
+    const dc = product.deliveryCharges;
+    if (dc) {
+      const matchedZone = (dc.zones || []).find(z => z.pincodes.includes(pincode));
+      if (matchedZone) {
+        setPincodeResult(matchedZone.charge === 0
+          ? { charge: "free", message: "Free delivery to your pincode!" }
+          : { charge: matchedZone.charge, message: `Delivery charge: ₹${matchedZone.charge}` });
+        return;
+      }
+      if (dc.default != null) {
+        setPincodeResult(dc.default === 0
+          ? { charge: "free", message: "Free delivery to your pincode!" }
+          : { charge: dc.default, message: `Delivery charge: ₹${dc.default}` });
+        return;
+      }
+    }
+    setPincodeResult({ charge: 49, message: "Standard delivery rates apply." });
+  };
 
   return (
     <>
@@ -678,6 +705,36 @@ export default function ProductDetailPage() {
                 <p className="text-[12px] text-[#757575] leading-relaxed italic">
                   <span className="font-semibold text-[#1A1A1A]">Please Note:</span> While we try to display product colors as accurately as possible, slight variations may occur due to different screen settings and lighting conditions.
                 </p>
+              </div>
+
+              {/* Pincode delivery check */}
+              <div className="mt-6 pt-5 border-t border-[#E8E4DE]">
+                <p className="text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-2">Check Delivery</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={pincodeInput}
+                    onChange={(e) => { setPincodeInput(e.target.value.replace(/\D/g, "")); setPincodeResult(null); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") checkPincode(); }}
+                    placeholder="Enter pincode"
+                    className="flex-1 min-w-0 h-[40px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={checkPincode}
+                    disabled={pincodeInput.length !== 6}
+                    className="h-[40px] px-4 bg-[#5C4B3D] text-white text-[13px] rounded-sm hover:bg-[#4A3C31] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  >
+                    Check
+                  </button>
+                </div>
+                {pincodeResult && (
+                  <p className={`mt-2 text-[12px] flex items-center gap-1.5 ${pincodeResult.charge === "free" ? "text-green-600" : "text-[#5C4B3D]"}`}>
+                    {pincodeResult.charge === "free" ? "✓" : "○"} {pincodeResult.message}
+                  </p>
+                )}
               </div>
 
               {/* Trust badges */}

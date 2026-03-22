@@ -56,6 +56,7 @@ interface ProductFormData {
   colors: { name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }[];
   colorSwatchStyle: "pills" | "dots" | "squares";
   sizes: SizeVariant[];
+  deliveryCharges: { default: string; zones: { pincodes: string; charge: string }[] };
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -89,6 +90,7 @@ const emptyForm: ProductFormData = {
   colors: [],
   colorSwatchStyle: "pills",
   sizes: [],
+  deliveryCharges: { default: "", zones: [] },
   category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -123,6 +125,14 @@ function toFormData(product: Product): ProductFormData {
     colors: (product as any).colors || [],
     colorSwatchStyle: (product as any).colorSwatchStyle || "pills",
     sizes: (product as any).sizes || [],
+    deliveryCharges: (() => {
+      const dc = (product as any).deliveryCharges;
+      if (!dc) return { default: "", zones: [] };
+      return {
+        default: dc.default != null ? String(dc.default) : "",
+        zones: (dc.zones || []).map((z: any) => ({ pincodes: (z.pincodes || []).join(", "), charge: String(z.charge) })),
+      };
+    })(),
     category: product.category,
     stockQuantity: product.stockQuantity?.toString() ?? "100",
     lowStockThreshold: product.lowStockThreshold?.toString() ?? "10",
@@ -578,6 +588,20 @@ export default function AdminProductsPage() {
       colors: form.colors,
       colorSwatchStyle: form.colorSwatchStyle,
       sizes: form.sizes,
+      deliveryCharges: (() => {
+        const hasDefault = form.deliveryCharges.default !== "";
+        const hasZones = form.deliveryCharges.zones.some(z => z.pincodes.trim() && z.charge !== "");
+        if (!hasDefault && !hasZones) return null;
+        return {
+          ...(hasDefault ? { default: Number(form.deliveryCharges.default) } : {}),
+          zones: form.deliveryCharges.zones
+            .filter(z => z.pincodes.trim() && z.charge !== "")
+            .map(z => ({
+              pincodes: z.pincodes.split(",").map(p => p.trim()).filter(Boolean),
+              charge: Number(z.charge),
+            })),
+        };
+      })(),
       gallery: form.gallery,
       customHamperEnabled: form.customHamperEnabled ? 1 : 0,
       customHamperTitle: form.customHamperTitle,
@@ -1368,6 +1392,87 @@ export default function AdminProductsPage() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Delivery Charges by Pincode */}
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-1">Delivery Charges by Pincode</h2>
+              <p className="text-[12px] text-[#999] mb-4">Optional — override shipping cost for specific pincodes. Leave empty to use standard shipping rates above.</p>
+
+              {/* Default charge */}
+              <div className="mb-4">
+                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                  Default Delivery Charge (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.deliveryCharges.default}
+                  onChange={(e) => setForm(prev => ({ ...prev, deliveryCharges: { ...prev.deliveryCharges, default: e.target.value } }))}
+                  placeholder="e.g. 50 (applies when no zone matches)"
+                  className="w-full max-w-[260px] h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                />
+              </div>
+
+              {/* Zones */}
+              {form.deliveryCharges.zones.length > 0 && (
+                <div className="space-y-3 mb-3">
+                  {form.deliveryCharges.zones.map((zone, zIdx) => (
+                    <div key={zIdx} className="flex flex-col sm:flex-row gap-2 p-3 bg-[#FAFAF8] border border-[#E8E4DE] rounded-md">
+                      <div className="flex-1 min-w-0">
+                        <label className="block text-[11px] text-[#999] mb-1">Pincodes (comma-separated)</label>
+                        <input
+                          type="text"
+                          value={zone.pincodes}
+                          onChange={(e) => setForm(prev => ({
+                            ...prev,
+                            deliveryCharges: {
+                              ...prev.deliveryCharges,
+                              zones: prev.deliveryCharges.zones.map((z, i) => i === zIdx ? { ...z, pincodes: e.target.value } : z)
+                            }
+                          }))}
+                          placeholder="600001, 600002, 682001"
+                          className="w-full h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white focus:outline-none focus:border-[#5C4B3D]"
+                        />
+                      </div>
+                      <div className="flex items-end gap-2 flex-shrink-0">
+                        <div>
+                          <label className="block text-[11px] text-[#999] mb-1">Charge (₹)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={zone.charge}
+                            onChange={(e) => setForm(prev => ({
+                              ...prev,
+                              deliveryCharges: {
+                                ...prev.deliveryCharges,
+                                zones: prev.deliveryCharges.zones.map((z, i) => i === zIdx ? { ...z, charge: e.target.value } : z)
+                              }
+                            }))}
+                            placeholder="₹"
+                            className="w-[90px] h-[36px] px-3 border border-[#E8E4DE] rounded-sm text-[13px] bg-white focus:outline-none focus:border-[#5C4B3D]"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, deliveryCharges: { ...prev.deliveryCharges, zones: prev.deliveryCharges.zones.filter((_, i) => i !== zIdx) } }))}
+                          className="h-[36px] w-[36px] flex items-center justify-center text-[#C4B9B0] hover:text-red-500 border border-[#E8E4DE] rounded-sm transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setForm(prev => ({ ...prev, deliveryCharges: { ...prev.deliveryCharges, zones: [...prev.deliveryCharges.zones, { pincodes: "", charge: "" }] } }))}
+                className="flex items-center gap-1.5 text-[13px] text-[#5C4B3D] border border-[#5C4B3D] rounded-sm px-3 h-[36px] hover:bg-[#F5F2ED] transition-colors"
+              >
+                <Plus size={13} /> Add Zone
+              </button>
             </div>
 
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">

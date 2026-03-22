@@ -39,6 +39,7 @@ export async function GET() {
       colors: (() => { try { return p.colors ? (typeof p.colors === 'string' ? JSON.parse(p.colors) : p.colors) : []; } catch { return []; } })(),
       colorSwatchStyle: p.colorSwatchStyle || "pills",
       sizes: (() => { try { return p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : []; } catch { return []; } })(),
+      deliveryCharges: (() => { try { return p.deliveryCharges ? (typeof p.deliveryCharges === 'string' ? JSON.parse(p.deliveryCharges) : p.deliveryCharges) : null; } catch { return null; } })(),
       gallery: (() => { try { return p.gallery ? (typeof p.gallery === 'string' ? JSON.parse(p.gallery) : p.gallery) : []; } catch { return []; } })(),
       customHamperEnabled: p.customHamperEnabled ?? 0,
       customHamperTitle: p.customHamperTitle || "",
