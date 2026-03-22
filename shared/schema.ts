@@ -91,6 +91,7 @@ export const products = pgTable("products", {
   colorSwatchStyle: text("color_swatch_style").notNull().default("pills"),
   sizes: text("sizes"),
   deliveryCharges: text("delivery_charges"),
+  bundlePricing: text("bundle_pricing"),
   shippingPolicy: text("shipping_policy").notNull().default(""),
   returnPolicy: text("return_policy").notNull().default(""),
   active: integer("active").notNull().default(1),

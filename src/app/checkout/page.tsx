@@ -37,6 +37,7 @@ function CheckoutContent() {
   const isDirect = searchParams.get("direct") === "true";
   const productId = searchParams.get("id");
   const productQuantity = parseInt(searchParams.get("quantity") || "1", 10);
+  const directBundlePrice = searchParams.get("bundlePrice") ? Number(searchParams.get("bundlePrice")) : null;
 
   const directProduct = productId ? products.find(p => p.id === productId) : null;
 
@@ -45,7 +46,7 @@ function CheckoutContent() {
     : cartItems;
 
   const subtotal = isDirect && directProduct
-    ? (directProduct.price || 0) * productQuantity
+    ? (directBundlePrice != null ? directBundlePrice : (directProduct.price || 0) * productQuantity)
     : cartTotalPrice;
 
   const [formData, setFormData] = useState({

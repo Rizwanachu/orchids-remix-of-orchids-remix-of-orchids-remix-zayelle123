@@ -56,6 +56,7 @@ interface ProductFormData {
   colors: { name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }[];
   colorSwatchStyle: "pills" | "dots" | "squares";
   sizes: SizeVariant[];
+  bundlePricing: { quantity: string; price: string }[];
   deliveryCharges: { zones: { pincodes: string; charge: string }[] };
   category: string;
   stockQuantity: string;
@@ -90,6 +91,7 @@ const emptyForm: ProductFormData = {
   colors: [],
   colorSwatchStyle: "pills",
   sizes: [],
+  bundlePricing: [],
   deliveryCharges: { zones: [] },
   category: "",
   stockQuantity: "100",
@@ -125,6 +127,11 @@ function toFormData(product: Product): ProductFormData {
     colors: (product as any).colors || [],
     colorSwatchStyle: (product as any).colorSwatchStyle || "pills",
     sizes: (product as any).sizes || [],
+    bundlePricing: (() => {
+      const bp = (product as any).bundlePricing;
+      if (!bp || !Array.isArray(bp)) return [];
+      return bp.map((b: any) => ({ quantity: String(b.quantity), price: String(b.price) }));
+    })(),
     deliveryCharges: (() => {
       const dc = (product as any).deliveryCharges;
       if (!dc) return { zones: [] };
@@ -587,6 +594,10 @@ export default function AdminProductsPage() {
       colors: form.colors,
       colorSwatchStyle: form.colorSwatchStyle,
       sizes: form.sizes,
+      bundlePricing: (() => {
+        const valid = form.bundlePricing.filter(b => b.quantity !== "" && b.price !== "");
+        return valid.length > 0 ? valid.map(b => ({ quantity: Number(b.quantity), price: Number(b.price) })) : [];
+      })(),
       deliveryCharges: (() => {
         const validZones = form.deliveryCharges.zones.filter(z => z.pincodes.trim() && z.charge !== "");
         if (validZones.length === 0) return null;
@@ -1387,6 +1398,62 @@ export default function AdminProductsPage() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Bundle Offers */}
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-1">Bundle Offers</h2>
+              <p className="text-[12px] text-[#999] mb-4">Optional — offer discounted pricing when customers buy multiple units (e.g. Buy 2 for ₹499).</p>
+
+              {form.bundlePricing.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {form.bundlePricing.map((bundle, bIdx) => (
+                    <div key={bIdx} className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <span className="text-[12px] text-[#999] whitespace-nowrap">Buy</span>
+                        <input
+                          type="number"
+                          min="1"
+                          value={bundle.quantity}
+                          onChange={(e) => setForm(prev => ({
+                            ...prev,
+                            bundlePricing: prev.bundlePricing.map((b, i) => i === bIdx ? { ...b, quantity: e.target.value } : b)
+                          }))}
+                          placeholder="Qty"
+                          className="w-[70px] h-[36px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white focus:outline-none focus:border-[#5C4B3D] text-center"
+                        />
+                        <span className="text-[12px] text-[#999] whitespace-nowrap">for ₹</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={bundle.price}
+                          onChange={(e) => setForm(prev => ({
+                            ...prev,
+                            bundlePricing: prev.bundlePricing.map((b, i) => i === bIdx ? { ...b, price: e.target.value } : b)
+                          }))}
+                          placeholder="Price"
+                          className="w-[100px] h-[36px] px-2 border border-[#E8E4DE] rounded-sm text-[13px] bg-white focus:outline-none focus:border-[#5C4B3D]"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, bundlePricing: prev.bundlePricing.filter((_, i) => i !== bIdx) }))}
+                        className="h-[36px] w-[36px] flex items-center justify-center text-[#C4B9B0] hover:text-red-500 border border-[#E8E4DE] rounded-sm transition-colors flex-shrink-0"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setForm(prev => ({ ...prev, bundlePricing: [...prev.bundlePricing, { quantity: "", price: "" }] }))}
+                className="flex items-center gap-1.5 text-[13px] text-[#5C4B3D] border border-[#5C4B3D] rounded-sm px-3 h-[36px] hover:bg-[#F5F2ED] transition-colors"
+              >
+                <Plus size={13} /> Add Offer
+              </button>
             </div>
 
             {/* Delivery Charges by Pincode */}

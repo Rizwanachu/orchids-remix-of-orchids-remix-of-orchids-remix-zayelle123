@@ -1,0 +1,128 @@
+Add a "Bundle Pricing / Quantity Discount" feature to the Zayelle ecommerce project.
+
+GOAL:
+Show offers like:
+- Buy 2 for ₹499
+- Buy 3 for ₹699
+
+on the single product page and apply correct pricing in cart/checkout.
+
+---
+
+1. DATABASE CHANGES:
+
+Update products table:
+
+Add new optional field:
+bundlePricing (JSON / text)
+
+Example structure:
+[
+  { "quantity": 2, "price": 499 },
+  { "quantity": 3, "price": 699 }
+]
+
+---
+
+2. ADMIN PANEL (ADD / EDIT PRODUCT):
+
+In product form, add section:
+
+"Bundle Offers (Optional)"
+
+UI Requirements:
+- Button: "Add Offer"
+- Each offer row:
+  - Quantity (number input)
+  - Bundle Price (number input)
+  - Remove button
+
+Allow:
+- Multiple offers
+- Edit / delete offers
+
+Save data in bundlePricing field.
+
+---
+
+3. API UPDATE:
+
+Update:
+- POST /api/admin/products
+- PUT /api/admin/products/[id]
+
+Ensure:
+- bundlePricing is validated
+- stored as JSON string (if needed)
+
+---
+
+4. FRONTEND (SINGLE PRODUCT PAGE):
+
+Display below price:
+
+Examples:
+"Buy 2 for ₹499 (Save ₹X)"
+"Buy 3 for ₹699 (Best Value)"
+
+UI:
+- Show as selectable options (radio buttons or cards)
+- Highlight best offer (highest savings)
+
+---
+
+5. CART LOGIC (IMPORTANT):
+
+When user selects bundle:
+
+- Override product price logic:
+  If quantity matches bundle → use bundle price
+
+Example:
+Normal price = ₹300
+
+Buy 2:
+Normal = ₹600
+Bundle = ₹499 → apply ₹499
+
+- If quantity doesn’t match → fallback to normal pricing
+
+---
+
+6. CHECKOUT:
+
+Ensure:
+- Final price reflects bundle pricing
+- Order stores correct price (not per-item default)
+
+---
+
+7. FAILSAFE:
+
+- If bundlePricing is empty → normal pricing
+- No crashes if invalid data
+
+---
+
+8. DO NOT BREAK:
+
+- Existing cart logic
+- Existing product system
+- Existing checkout flow
+
+---
+
+9. OPTIONAL (HIGHLY RECOMMENDED):
+
+- Auto-select best offer if user adds multiple quantity
+- Show "You saved ₹X"
+
+---
+
+OUTPUT:
+
+- Updated schema
+- Admin UI for bundle offers
+- Product page UI
+- Cart price logic updated
+- Fully working end-to-end

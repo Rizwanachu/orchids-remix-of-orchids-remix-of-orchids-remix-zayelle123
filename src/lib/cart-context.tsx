@@ -2,6 +2,11 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
+export interface BundleOffer {
+  quantity: number;
+  price: number;
+}
+
 export interface CartItem {
   id: string;
   handle: string;
@@ -10,11 +15,31 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  bundlePricing?: BundleOffer[] | null;
+  isFreeShipping?: boolean;
+  shippingCost?: number;
+  shippingCostKerala?: number;
+  deliveryCharges?: { zones?: { pincodes: string[]; charge: number }[] } | null;
+}
+
+export function getItemTotal(item: CartItem): number {
+  if (item.bundlePricing && item.bundlePricing.length > 0) {
+    const sorted = [...item.bundlePricing].sort((a, b) => b.quantity - a.quantity);
+    const match = sorted.find(b => item.quantity >= b.quantity);
+    if (match) return match.price;
+  }
+  return item.price * item.quantity;
+}
+
+export function getBestBundle(bundlePricing: BundleOffer[] | null | undefined, quantity: number): BundleOffer | null {
+  if (!bundlePricing || bundlePricing.length === 0) return null;
+  const sorted = [...bundlePricing].sort((a, b) => b.quantity - a.quantity);
+  return sorted.find(b => quantity >= b.quantity) ?? null;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity">, qty?: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -32,7 +57,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  // Load from localStorage on mount
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("zayelle-cart");
@@ -43,7 +67,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setLoaded(true);
   }, []);
 
-  // Persist to localStorage
   useEffect(() => {
     if (!loaded) return;
     localStorage.setItem("zayelle-cart", JSON.stringify(items));
@@ -54,15 +77,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("zayelle-wishlist", JSON.stringify(wishlist));
   }, [wishlist, loaded]);
 
-  const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
+  const addItem = useCallback((item: Omit<CartItem, "quantity">, qty: number = 1) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, ...item, quantity: i.quantity + qty } : i
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: qty }];
     });
   }, []);
 
@@ -80,7 +103,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const totalPrice = items.reduce((sum, i) => sum + getItemTotal(i), 0);
 
   const toggleWishlist = useCallback((id: string) => {
     setWishlist((prev) =>

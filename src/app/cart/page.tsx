@@ -5,7 +5,7 @@ import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import { useCart, getItemTotal } from "@/lib/cart-context";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
@@ -97,9 +97,18 @@ export default function CartPage() {
                     </div>
 
                     {/* Total */}
-                    <span className="hidden md:block text-[15px] font-semibold text-[#1A1A1A] text-right">
-                      Rs. {(item.price * item.quantity).toLocaleString("en-IN")}.00
-                    </span>
+                    <div className="hidden md:flex flex-col items-end">
+                      <span className="text-[15px] font-semibold text-[#1A1A1A]">
+                        Rs. {getItemTotal(item).toLocaleString("en-IN")}.00
+                      </span>
+                      {(() => {
+                        const normal = item.price * item.quantity;
+                        const bundle = getItemTotal(item);
+                        return normal > bundle ? (
+                          <span className="text-[11px] text-[#991B1B] mt-0.5">Save ₹{(normal - bundle).toLocaleString("en-IN")}</span>
+                        ) : null;
+                      })()}
+                    </div>
 
                     {/* Remove */}
                     <button

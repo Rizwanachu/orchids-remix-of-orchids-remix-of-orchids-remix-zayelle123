@@ -27,6 +27,7 @@ export default function ProductDetailPage() {
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
   const [pincodeInput, setPincodeInput] = useState("");
   const [pincodeResult, setPincodeResult] = useState<{ charge: number | "free"; message: string } | null>(null);
+  const [selectedBundleIdx, setSelectedBundleIdx] = useState<number | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
@@ -121,17 +122,27 @@ export default function ProductDetailPage() {
   const displayImages = colorImages.length > 0 ? colorImages : baseImages;
   const wishlisted = isInWishlist(product.id);
 
+  const bundles = (product.bundlePricing && product.bundlePricing.length > 0)
+    ? [...product.bundlePricing].sort((a, b) => a.quantity - b.quantity)
+    : null;
+
+  const selectedBundle = (selectedBundleIdx !== null && bundles) ? bundles[selectedBundleIdx] : null;
+  const effectiveQty = selectedBundle ? selectedBundle.quantity : quantity;
+
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: product.id,
-        handle: product.handle,
-        name: product.name,
-        subtitle: product.subtitle,
-        price: product.price,
-        image: product.image,
-      });
-    }
+    addItem({
+      id: product.id,
+      handle: product.handle,
+      name: product.name,
+      subtitle: product.subtitle,
+      price: product.price,
+      image: product.image,
+      bundlePricing: product.bundlePricing ?? null,
+      isFreeShipping: (product as any).isFreeShipping ?? false,
+      shippingCost: (product as any).shippingCost,
+      shippingCostKerala: (product as any).shippingCostKerala,
+      deliveryCharges: (product as any).deliveryCharges ?? null,
+    }, effectiveQty);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -164,7 +175,8 @@ export default function ProductDetailPage() {
         if (data.checkoutUrl === "/checkout") {
           const params = new URLSearchParams();
           params.set("id", product.id);
-          params.set("quantity", quantity.toString());
+          params.set("quantity", effectiveQty.toString());
+          if (selectedBundle) params.set("bundlePrice", selectedBundle.price.toString());
           params.set("direct", "true");
           window.location.href = `/checkout?${params.toString()}`;
         } else {
@@ -289,6 +301,63 @@ export default function ProductDetailPage() {
                       </div>
                     );
                   })()}
+
+              {/* Bundle Offers */}
+              {bundles && bundles.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[12px] text-[#757575] mb-2.5 uppercase tracking-wider font-medium">Bundle Offers</p>
+                  <div className="flex flex-col gap-2">
+                    {bundles.map((bundle, i) => {
+                      const normalTotal = product.price * bundle.quantity;
+                      const savings = normalTotal - bundle.price;
+                      const isBest = i === bundles.length - 1 && bundles.length > 1;
+                      const isSelected = selectedBundleIdx === i;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSelectedBundleIdx(isSelected ? null : i)}
+                          className={`relative flex items-center justify-between px-4 py-3 rounded-md border-2 text-left transition-all duration-200 ${
+                            isSelected
+                              ? "border-[#5C4B3D] bg-[#5C4B3D]/5"
+                              : "border-[#E8E4DE] hover:border-[#5C4B3D]/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${isSelected ? "border-[#5C4B3D]" : "border-[#C4B9B0]"}`}>
+                              {isSelected && <div className="w-2 h-2 rounded-full bg-[#5C4B3D]" />}
+                            </div>
+                            <div>
+                              <span className="text-[13px] font-semibold text-[#1A1A1A]">
+                                Buy {bundle.quantity} for ₹{bundle.price.toLocaleString("en-IN")}
+                              </span>
+                              {savings > 0 && (
+                                <span className="ml-2 text-[11px] text-[#991B1B] font-medium">
+                                  Save ₹{savings.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {isBest && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-white bg-[#5C4B3D] px-2 py-0.5 rounded">
+                              Best Value
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                    {selectedBundleIdx !== null && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBundleIdx(null)}
+                        className="text-[12px] text-[#757575] hover:text-[#1A1A1A] text-left underline underline-offset-2"
+                      >
+                        Clear selection (buy single)
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {(product as any).colors && (product as any).colors.length > 0 && (
                 <div className="mt-4">
@@ -436,6 +505,11 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                {selectedBundle ? (
+                  <div className="flex items-center border border-[#5C4B3D]/30 bg-[#5C4B3D]/5 rounded-sm px-4 h-11 gap-2 text-[13px] font-medium text-[#5C4B3D]">
+                    Qty: {selectedBundle.quantity}
+                  </div>
+                ) : (
                 <div className="flex items-center border border-[#E8E4DE] rounded-sm">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -453,6 +527,7 @@ export default function ProductDetailPage() {
                     <Plus size={16} />
                   </button>
                 </div>
+                )}
 
                 <button
                   onClick={handleAddToCart}
