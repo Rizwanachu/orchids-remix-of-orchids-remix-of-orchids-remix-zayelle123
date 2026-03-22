@@ -504,58 +504,48 @@ export default function ProductDetailPage() {
                   </p>
                 </div>
               ) : (
-              <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                {selectedBundle ? (
-                  <div className="flex items-center border border-[#5C4B3D]/30 bg-[#5C4B3D]/5 rounded-sm px-4 h-11 gap-2 text-[13px] font-medium text-[#5C4B3D]">
-                    Qty: {selectedBundle.quantity}
-                  </div>
-                ) : (
-                <div className="flex items-center border border-[#E8E4DE] rounded-sm">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-11 h-11 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="w-11 h-11 flex items-center justify-center text-[14px] font-medium text-[#1A1A1A] border-x border-[#E8E4DE]">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-11 h-11 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
-                  >
-                    <Plus size={16} />
-                  </button>
-                </div>
-                )}
+              <div className="flex flex-col gap-3 mt-8">
+                {/* Row 1: Qty + Wishlist + Share */}
+                <div className="flex items-center gap-3">
+                  {selectedBundle ? (
+                    <div className="flex items-center border border-[#5C4B3D]/30 bg-[#5C4B3D]/5 rounded-sm px-4 h-11 gap-2 text-[13px] font-medium text-[#5C4B3D]">
+                      Qty: {selectedBundle.quantity}
+                    </div>
+                  ) : (
+                    <div className="flex items-center border border-[#E8E4DE] rounded-sm">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-11 h-11 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <span className="w-11 h-11 flex items-center justify-center text-[14px] font-medium text-[#1A1A1A] border-x border-[#E8E4DE]">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-11 h-11 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  )}
 
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 ${
-                    addedToCart
-                      ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
-                      : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
-                  }`}
-                >
-                  {addedToCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                  {addedToCart ? "Added to Cart!" : "Add to Cart"}
-                </button>
-
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`w-11 h-11 border rounded-sm flex items-center justify-center transition-colors ${wishlisted ? "bg-red-50 border-red-200 text-red-500" : "border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"}`}
-                >
-                  <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
-                </button>
-
-                <div className="relative" ref={shareRef}>
                   <button
-                    onClick={() => setShowShareModal((v) => !v)}
-                    className="w-11 h-11 border border-[#E8E4DE] rounded-sm flex items-center justify-center transition-colors text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
-                    title="Share Product"
+                    onClick={() => toggleWishlist(product.id)}
+                    className={`w-11 h-11 border rounded-sm flex items-center justify-center transition-colors ${wishlisted ? "bg-red-50 border-red-200 text-red-500" : "border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"}`}
                   >
-                    <Share2 size={18} />
+                    <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
                   </button>
+
+                  <div className="relative" ref={shareRef}>
+                    <button
+                      onClick={() => setShowShareModal((v) => !v)}
+                      className="w-11 h-11 border border-[#E8E4DE] rounded-sm flex items-center justify-center transition-colors text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D]"
+                      title="Share Product"
+                    >
+                      <Share2 size={18} />
+                    </button>
 
                   {showShareModal && (
                     <div className="absolute bottom-full right-0 mb-2 w-52 bg-white border border-[#E8E4DE] rounded-xl shadow-lg overflow-hidden z-50">
@@ -612,7 +602,21 @@ export default function ProductDetailPage() {
                       </button>
                     </div>
                   )}
+                  </div>
                 </div>
+
+                {/* Row 2: Add to Cart */}
+                <button
+                  onClick={handleAddToCart}
+                  className={`w-full py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 ${
+                    addedToCart
+                      ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
+                      : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
+                  }`}
+                >
+                  {addedToCart ? <Check size={16} /> : <ShoppingCart size={16} />}
+                  {addedToCart ? "Added to Cart!" : "Add to Cart"}
+                </button>
               </div>
               )}
 
