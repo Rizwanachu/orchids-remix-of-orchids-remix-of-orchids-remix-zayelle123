@@ -69,7 +69,6 @@ function CheckoutContent() {
     if (dc && pincode && /^\d{6}$/.test(pincode)) {
       const matchedZone = (dc.zones || []).find(z => z.pincodes.includes(pincode));
       if (matchedZone) return matchedZone.charge;
-      if (dc.default != null) return dc.default;
     }
     return isKerala
       ? (item.shippingCostKerala != null ? Number(item.shippingCostKerala) : (item.shippingCost != null ? Number(item.shippingCost) : 49))

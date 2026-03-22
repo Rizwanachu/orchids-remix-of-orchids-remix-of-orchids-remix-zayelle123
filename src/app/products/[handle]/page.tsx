@@ -199,14 +199,8 @@ export default function ProductDetailPage() {
           : { charge: matchedZone.charge, message: `Delivery charge: ₹${matchedZone.charge}` });
         return;
       }
-      if (dc.default != null) {
-        setPincodeResult(dc.default === 0
-          ? { charge: "free", message: "Free delivery to your pincode!" }
-          : { charge: dc.default, message: `Delivery charge: ₹${dc.default}` });
-        return;
-      }
     }
-    setPincodeResult({ charge: 49, message: "Standard delivery rates apply." });
+    setPincodeResult({ charge: 0, message: "Standard delivery rates apply." });
   };
 
   return (

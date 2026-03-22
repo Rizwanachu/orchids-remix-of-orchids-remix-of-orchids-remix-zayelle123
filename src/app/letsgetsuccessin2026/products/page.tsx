@@ -56,7 +56,7 @@ interface ProductFormData {
   colors: { name: string; hex: string; image?: string; images?: string[]; outOfStock?: boolean }[];
   colorSwatchStyle: "pills" | "dots" | "squares";
   sizes: SizeVariant[];
-  deliveryCharges: { default: string; zones: { pincodes: string; charge: string }[] };
+  deliveryCharges: { zones: { pincodes: string; charge: string }[] };
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -90,7 +90,7 @@ const emptyForm: ProductFormData = {
   colors: [],
   colorSwatchStyle: "pills",
   sizes: [],
-  deliveryCharges: { default: "", zones: [] },
+  deliveryCharges: { zones: [] },
   category: "",
   stockQuantity: "100",
   lowStockThreshold: "10",
@@ -127,9 +127,8 @@ function toFormData(product: Product): ProductFormData {
     sizes: (product as any).sizes || [],
     deliveryCharges: (() => {
       const dc = (product as any).deliveryCharges;
-      if (!dc) return { default: "", zones: [] };
+      if (!dc) return { zones: [] };
       return {
-        default: dc.default != null ? String(dc.default) : "",
         zones: (dc.zones || []).map((z: any) => ({ pincodes: (z.pincodes || []).join(", "), charge: String(z.charge) })),
       };
     })(),
@@ -589,17 +588,13 @@ export default function AdminProductsPage() {
       colorSwatchStyle: form.colorSwatchStyle,
       sizes: form.sizes,
       deliveryCharges: (() => {
-        const hasDefault = form.deliveryCharges.default !== "";
-        const hasZones = form.deliveryCharges.zones.some(z => z.pincodes.trim() && z.charge !== "");
-        if (!hasDefault && !hasZones) return null;
+        const validZones = form.deliveryCharges.zones.filter(z => z.pincodes.trim() && z.charge !== "");
+        if (validZones.length === 0) return null;
         return {
-          ...(hasDefault ? { default: Number(form.deliveryCharges.default) } : {}),
-          zones: form.deliveryCharges.zones
-            .filter(z => z.pincodes.trim() && z.charge !== "")
-            .map(z => ({
-              pincodes: z.pincodes.split(",").map(p => p.trim()).filter(Boolean),
-              charge: Number(z.charge),
-            })),
+          zones: validZones.map(z => ({
+            pincodes: z.pincodes.split(",").map(p => p.trim()).filter(Boolean),
+            charge: Number(z.charge),
+          })),
         };
       })(),
       gallery: form.gallery,
@@ -1397,22 +1392,7 @@ export default function AdminProductsPage() {
             {/* Delivery Charges by Pincode */}
             <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
               <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-1">Delivery Charges by Pincode</h2>
-              <p className="text-[12px] text-[#999] mb-4">Optional — override shipping cost for specific pincodes. Leave empty to use standard shipping rates above.</p>
-
-              {/* Default charge */}
-              <div className="mb-4">
-                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
-                  Default Delivery Charge (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.deliveryCharges.default}
-                  onChange={(e) => setForm(prev => ({ ...prev, deliveryCharges: { ...prev.deliveryCharges, default: e.target.value } }))}
-                  placeholder="e.g. 50 (applies when no zone matches)"
-                  className="w-full max-w-[260px] h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
-                />
-              </div>
+              <p className="text-[12px] text-[#999] mb-4">Optional — set specific delivery charges for certain pincodes. Unmatched pincodes will use the Kerala/outside Kerala rates above.</p>
 
               {/* Zones */}
               {form.deliveryCharges.zones.length > 0 && (
