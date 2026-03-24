@@ -20,7 +20,9 @@ export async function GET(
     return new NextResponse(file.content as unknown as BodyInit, {
       headers: {
         "Content-Type": file.mimeType,
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "public, s-maxage=31536000, max-age=31536000, immutable",
+        "CDN-Cache-Control": "public, max-age=31536000, immutable",
+        "Vercel-CDN-Cache-Control": "public, max-age=31536000, immutable",
       },
     });
   } catch (error) {
