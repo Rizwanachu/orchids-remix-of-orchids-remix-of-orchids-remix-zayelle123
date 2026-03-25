@@ -262,7 +262,7 @@ export default function ProductDetailPage() {
                     onClick={() => setActiveImage(idx)}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-[8px] overflow-hidden border-2 transition-colors ${activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                    <Image src={img} alt="" fill className="object-cover" sizes="80px" unoptimized />
                   </button>
                 ))}
               </div>
