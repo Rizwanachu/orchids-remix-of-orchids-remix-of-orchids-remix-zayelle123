@@ -298,7 +298,7 @@ export default function AdminGiftHampersPage() {
                           >
                             <div className="w-[44px] h-[44px] relative rounded-md overflow-hidden bg-[#F5F2ED] flex-shrink-0">
                               {p.image ? (
-                                <Image src={p.image} alt={p.name} fill className="object-cover" sizes="44px" />
+                                <Image src={p.image} alt={p.name} fill className="object-cover" sizes="44px" unoptimized />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                   <Package size={18} className="text-[#D4C8BE]" />

@@ -349,7 +349,7 @@ export default function AdminZayelleEditPage() {
                 </button>
                 {form.imageUrl && (
                   <div className="relative w-10 h-10 rounded border border-[#E8E4DE] overflow-hidden">
-                    <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" />
+                    <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" unoptimized />
                   </div>
                 )}
               </div>
@@ -572,7 +572,7 @@ export default function AdminZayelleEditPage() {
                           <td className="px-4 py-3">
                             {item.imageUrl ? (
                               <div className="relative w-12 h-12 rounded-lg border border-[#E8E4DE] overflow-hidden">
-                                <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="48px" />
+                                <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="48px" unoptimized />
                               </div>
                             ) : (
                               <div className="w-12 h-12 rounded-lg bg-[#F5F2ED] flex items-center justify-center">
@@ -672,7 +672,7 @@ export default function AdminZayelleEditPage() {
                                           <div className="flex items-center gap-3">
                                             {product.image ? (
                                               <div className="relative w-8 h-8 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
-                                                <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" />
+                                                <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" unoptimized />
                                               </div>
                                             ) : (
                                               <div className="w-8 h-8 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
@@ -718,7 +718,7 @@ export default function AdminZayelleEditPage() {
                                         <div className="flex items-center gap-3 min-w-0">
                                           {product.image ? (
                                             <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
-                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
+                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" unoptimized />
                                             </div>
                                           ) : (
                                             <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
