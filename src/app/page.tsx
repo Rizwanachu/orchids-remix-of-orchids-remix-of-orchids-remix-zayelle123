@@ -13,7 +13,7 @@ import { db } from "../../server/db";
 import { homepageSections } from "../../shared/schema";
 import { asc } from "drizzle-orm";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const SECTION_MAP: Record<string, React.ComponentType> = {
   hero: HeroSection,
