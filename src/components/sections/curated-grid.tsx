@@ -20,7 +20,7 @@ const CuratedGrid = () => {
   const [sectionSubtitle, setSectionSubtitle] = useState("");
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => setLoading(false), 6000);
+    const timeoutId = setTimeout(() => setLoading(false), 4000);
     const fetchItems = async () => {
       try {
         const [gridRes, settingsRes] = await Promise.all([

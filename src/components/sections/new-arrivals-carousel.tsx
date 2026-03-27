@@ -144,7 +144,7 @@ export default function NewArrivalsCarousel() {
   }, [emblaApi, onInit, onSelect]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => setLoading(false), 6000);
+    const timeoutId = setTimeout(() => setLoading(false), 4000);
     Promise.all([
       fetch("/api/new-arrivals")
         .then((res) => res.json())

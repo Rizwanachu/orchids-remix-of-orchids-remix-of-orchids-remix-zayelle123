@@ -22,7 +22,7 @@ const HeroSection = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => setLoaded(true), 6000);
+    const timeoutId = setTimeout(() => setLoaded(true), 2000);
     Promise.all([
       fetch('/api/banners')
         .then(res => res.json())

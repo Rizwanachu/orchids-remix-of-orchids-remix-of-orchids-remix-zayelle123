@@ -45,6 +45,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => setLoading(false), 5000);
     const fetchTheme = async () => {
       try {
         const res = await fetch("/api/admin/theme-settings");
@@ -78,6 +79,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Failed to fetch theme settings:", error);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };

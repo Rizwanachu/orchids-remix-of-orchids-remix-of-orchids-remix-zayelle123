@@ -25,7 +25,7 @@ const PromoBanners: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => setLoading(false), 6000);
+    const timeoutId = setTimeout(() => setLoading(false), 4000);
     const fetchData = async () => {
       try {
         const [bannersRes, settingsRes] = await Promise.all([
