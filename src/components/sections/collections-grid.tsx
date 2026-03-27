@@ -56,6 +56,7 @@ const CollectionsGrid: React.FC = () => {
   const [sectionSubtitle, setSectionSubtitle] = useState("");
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => setLoading(false), 6000);
     async function fetchData() {
       try {
         const [collectionsRes, settingsRes] = await Promise.all([
@@ -74,6 +75,7 @@ const CollectionsGrid: React.FC = () => {
       } catch (err) {
         console.error("Error fetching collections:", err);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     }

@@ -25,6 +25,7 @@ const PromoBanners: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => setLoading(false), 6000);
     const fetchData = async () => {
       try {
         const [bannersRes, settingsRes] = await Promise.all([
@@ -44,6 +45,7 @@ const PromoBanners: React.FC = () => {
       } catch (error) {
         console.error("Error fetching promo banners data:", error);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };

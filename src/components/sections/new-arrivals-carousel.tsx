@@ -144,6 +144,7 @@ export default function NewArrivalsCarousel() {
   }, [emblaApi, onInit, onSelect]);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => setLoading(false), 6000);
     Promise.all([
       fetch("/api/new-arrivals")
         .then((res) => res.json())
@@ -156,7 +157,7 @@ export default function NewArrivalsCarousel() {
           if (settings.newArrivalsSubtitle) setSectionSubtitle(settings.newArrivalsSubtitle);
         })
         .catch(() => {}),
-    ]).finally(() => setLoading(false));
+    ]).finally(() => { clearTimeout(timeoutId); setLoading(false); });
   }, []);
 
   if (loading) {

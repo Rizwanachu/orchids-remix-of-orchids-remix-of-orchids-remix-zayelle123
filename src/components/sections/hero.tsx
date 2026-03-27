@@ -22,6 +22,7 @@ const HeroSection = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => setLoaded(true), 6000);
     Promise.all([
       fetch('/api/banners')
         .then(res => res.json())
@@ -34,7 +35,7 @@ const HeroSection = () => {
         .then(res => res.json())
         .then(data => setSettings(data))
         .catch(console.error),
-    ]).finally(() => setLoaded(true));
+    ]).finally(() => { clearTimeout(timeoutId); setLoaded(true); });
   }, []);
 
   const title = heroBanner?.title || settings.heroTitle || "GRACE IN\nEVERY LAYER";
