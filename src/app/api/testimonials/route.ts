@@ -10,7 +10,13 @@ export async function GET() {
       .from(communityTestimonials)
       .where(eq(communityTestimonials.isActive, 1))
       .orderBy(asc(communityTestimonials.displayOrder));
-    return NextResponse.json({ testimonials: list });
+    return NextResponse.json({ testimonials: list }, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error) {
     console.error("Error fetching testimonials:", error);
     return NextResponse.json({ testimonials: [] });

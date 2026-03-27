@@ -48,7 +48,13 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(formatted);
+    return NextResponse.json(formatted, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching new arrivals:", error);
     return NextResponse.json([], { status: 200 });

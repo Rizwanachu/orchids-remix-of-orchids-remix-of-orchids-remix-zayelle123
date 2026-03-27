@@ -6,7 +6,13 @@ import { eq } from "drizzle-orm";
 export async function GET() {
   try {
     const settings = await db.select().from(themeSettings).limit(1);
-    return NextResponse.json(settings[0] || {});
+    return NextResponse.json(settings[0] || {}, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch theme settings" }, { status: 500 });
   }

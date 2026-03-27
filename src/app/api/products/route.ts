@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { products } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
@@ -48,7 +48,13 @@ export async function GET() {
       customHamperInstagram: p.customHamperInstagram || "",
       customHamperContact: p.customHamperContact || "",
     }));
-    return NextResponse.json(formatted);
+    return NextResponse.json(formatted, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json({ error: "Failed to load products" }, { status: 500 });
