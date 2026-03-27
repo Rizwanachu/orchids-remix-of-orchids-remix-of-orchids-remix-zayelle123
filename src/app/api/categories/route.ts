@@ -22,7 +22,13 @@ export async function GET() {
       allCategories = await db.select().from(categories).orderBy(asc(categories.displayOrder));
     }
 
-    return NextResponse.json(allCategories);
+    return NextResponse.json(allCategories, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching categories:", error);
     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });

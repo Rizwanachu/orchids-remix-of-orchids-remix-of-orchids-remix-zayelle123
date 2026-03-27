@@ -21,7 +21,13 @@ export async function GET() {
       .from(giftHampers)
       .where(eq(giftHampers.isActive, 1))
       .orderBy(asc(giftHampers.displayOrder));
-    return NextResponse.json({ hampers: list.map(parseHamper) });
+    return NextResponse.json({ hampers: list.map(parseHamper) }, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+        "Vercel-CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+      },
+    });
   } catch (error) {
     console.error("Error fetching gift hampers:", error);
     return NextResponse.json({ hampers: [] });
