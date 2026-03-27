@@ -307,7 +307,7 @@ export default function ProductReviews({ productId, productName }: { productId: 
                 {formData.imageUrl ? (
                   <div className="flex items-center gap-3">
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#E8E4DE]">
-                      <Image src={formData.imageUrl} alt="Uploaded" fill className="object-cover" sizes="80px" />
+                      <Image src={formData.imageUrl} alt="Uploaded" fill unoptimized className="object-cover" sizes="80px" />
                     </div>
                     <button
                       type="button"
@@ -405,7 +405,7 @@ export default function ProductReviews({ productId, productName }: { productId: 
                       onClick={() => setPreviewImage(review.imageUrl)}
                       className="mt-3 relative w-24 h-24 rounded-lg overflow-hidden border border-[#E8E4DE] hover:border-[#5C4B3D] transition-colors group"
                     >
-                      <Image src={review.imageUrl} alt="Review" fill className="object-cover" sizes="96px" />
+                      <Image src={review.imageUrl} alt="Review" fill unoptimized className="object-cover" sizes="96px" />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                         <Eye size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
@@ -425,7 +425,7 @@ export default function ProductReviews({ productId, productName }: { productId: 
       {previewImage && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-8" onClick={() => setPreviewImage(null)}>
           <div className="relative max-w-[600px] max-h-[80vh] w-full">
-            <Image src={previewImage} alt="Review image" width={600} height={600} className="object-contain rounded-lg w-full h-auto max-h-[80vh]" />
+            <Image src={previewImage} alt="Review image" width={600} height={600} unoptimized className="object-contain rounded-lg w-full h-auto max-h-[80vh]" />
           </div>
         </div>
       )}

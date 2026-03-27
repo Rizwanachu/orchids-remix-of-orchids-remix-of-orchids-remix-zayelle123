@@ -56,7 +56,7 @@ export default function CartPage() {
                     {/* Product */}
                     <div className="col-span-2 md:col-span-1 flex gap-4 items-center">
                       <a href={`/products/${item.handle}`} className="relative w-20 h-20 flex-shrink-0 rounded-[8px] overflow-hidden bg-white">
-                        <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
+                        <Image src={item.image} alt={item.name} fill unoptimized className="object-cover" sizes="80px" />
                       </a>
                       <div className="min-w-0">
                         <h3 className="text-[14px] font-medium text-[#1A1A1A] line-clamp-1">

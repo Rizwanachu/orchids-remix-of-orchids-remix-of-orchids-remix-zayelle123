@@ -154,6 +154,7 @@ const Header = () => {
                               src={product.image}
                               alt={product.name}
                               fill
+                              unoptimized
                               className="object-cover"
                               sizes="56px"
                             />

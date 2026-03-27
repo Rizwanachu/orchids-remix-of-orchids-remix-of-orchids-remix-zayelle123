@@ -415,6 +415,7 @@ function AllProductsContent() {
                           src={card.image}
                           alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                           fill
+                          unoptimized
                           className={`object-cover transition-all duration-500 ${card.hoverImage ? "group-hover:opacity-0" : "group-hover:scale-105"}`}
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
@@ -423,6 +424,7 @@ function AllProductsContent() {
                             src={card.hoverImage}
                             alt={`${card.colorName ? `${card.name} — ${card.colorName}` : card.name} hover`}
                             fill
+                            unoptimized
                             className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           />

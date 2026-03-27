@@ -122,6 +122,7 @@ const HeroSection = () => {
                   alt="Zayelle Premium Hijab Collection"
                   fill
                   priority
+                  unoptimized
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover object-center"
                 />
