@@ -11,7 +11,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 type CarouselProduct = Product & { colorSlug?: string | null; colorName?: string | null };
 
-const ProductCard = ({ product }: { product: CarouselProduct }) => {
+const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPriority?: boolean }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addItem, toggleWishlist, isInWishlist } = useCart();
   const wishlisted = isInWishlist(product.id);
@@ -36,6 +36,7 @@ const ProductCard = ({ product }: { product: CarouselProduct }) => {
               alt={product.name}
               fill
               unoptimized
+              priority={isPriority}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className={`object-cover transition-opacity duration-500 scale-100 group-hover:scale-105 ${
                 isHovered ? "opacity-0" : "opacity-100"
@@ -147,19 +148,17 @@ export default function NewArrivalsCarousel() {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => setLoading(false), 4000);
-    Promise.all([
-      fetch("/api/new-arrivals")
-        .then((res) => res.json())
-        .then((data) => setProducts(data))
-        .catch(() => {}),
-      fetch("/api/homepage-settings")
-        .then((res) => res.json())
-        .then((settings) => {
-          if (settings.newArrivalsTitle) setSectionTitle(settings.newArrivalsTitle);
-          if (settings.newArrivalsSubtitle) setSectionSubtitle(settings.newArrivalsSubtitle);
-        })
-        .catch(() => {}),
-    ]).finally(() => { clearTimeout(timeoutId); setLoading(false); });
+    fetch("/api/new-arrivals")
+      .then((res) => res.json())
+      .then((data) => { setProducts(data); clearTimeout(timeoutId); setLoading(false); })
+      .catch(() => { clearTimeout(timeoutId); setLoading(false); });
+    fetch("/api/homepage-settings")
+      .then((res) => res.json())
+      .then((settings) => {
+        if (settings.newArrivalsTitle) setSectionTitle(settings.newArrivalsTitle);
+        if (settings.newArrivalsSubtitle) setSectionSubtitle(settings.newArrivalsSubtitle);
+      })
+      .catch(() => {});
   }, []);
 
   if (loading) {
@@ -215,8 +214,8 @@ export default function NewArrivalsCarousel() {
         <div className="relative group/carousel px-4 sm:px-0">
           <div className="embla overflow-hidden" ref={emblaRef}>
             <div className="embla__container flex ml-[-20px]">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {products.map((product, index) => (
+                <ProductCard key={product.id} product={product} isPriority={index < 4} />
               ))}
             </div>
           </div>
