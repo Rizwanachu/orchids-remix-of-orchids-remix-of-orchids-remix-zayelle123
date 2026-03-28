@@ -29,14 +29,6 @@ function uploadStream(
   });
 }
 
-function replaceUrls(urlMap: Record<string, string>, value: string): string {
-  let result = value;
-  for (const [oldUrl, newUrl] of Object.entries(urlMap)) {
-    result = result.replaceAll(oldUrl, newUrl);
-  }
-  return result;
-}
-
 async function main() {
   console.log("=== Cloudinary Migration Script ===\n");
 
@@ -45,29 +37,45 @@ async function main() {
     process.exit(1);
   }
 
-  // ── 1. Fetch all media rows ─────────────────────────────────────────────
-  console.log("Fetching all media rows from database...");
-  const rows = await client<{ id: number; filename: string; content: Buffer; mime_type: string; cloudinary_url: string | null }[]>`
-    SELECT id, filename, content, mime_type, cloudinary_url FROM media ORDER BY id ASC
+  // ── 1. Get counts ────────────────────────────────────────────────────────
+  const [{ done_count }] = await client<[{ done_count: number }]>`
+    SELECT COUNT(*)::int AS done_count FROM media WHERE cloudinary_url IS NOT NULL
   `;
-  console.log(`Found ${rows.length} files to process.\n`);
+  const [{ total_count }] = await client<[{ total_count: number }]>`
+    SELECT COUNT(*)::int AS total_count FROM media
+  `;
+  const remaining = total_count - done_count;
 
-  // ── 2. Upload each file to Cloudinary ───────────────────────────────────
+  console.log(`Total files  : ${total_count}`);
+  console.log(`Already done : ${done_count}`);
+  console.log(`To upload    : ${remaining}\n`);
+
+  // ── 2. Load URL map for already-done rows (metadata only, no binary) ────
+  const doneMeta = await client<{ filename: string; cloudinary_url: string }[]>`
+    SELECT filename, cloudinary_url FROM media WHERE cloudinary_url IS NOT NULL
+  `;
   const urlMap: Record<string, string> = {};
+  for (const row of doneMeta) {
+    urlMap[`/api/media/serve/${row.filename}`] = row.cloudinary_url;
+  }
+
+  // ── 3. Get IDs of pending rows (no content yet) ──────────────────────────
+  const pendingIds = await client<{ id: number }[]>`
+    SELECT id FROM media WHERE cloudinary_url IS NULL ORDER BY id ASC
+  `;
+
   let uploaded = 0;
-  let skipped = 0;
   let failed = 0;
 
-  for (const row of rows) {
+  // ── 4. Process one row at a time (fetch binary one-by-one to avoid OOM) ──
+  for (const { id } of pendingIds) {
+    const [row] = await client<{ id: number; filename: string; content: Buffer; mime_type: string }[]>`
+      SELECT id, filename, content, mime_type FROM media WHERE id = ${id}
+    `;
+
+    if (!row) continue;
+
     const oldUrl = `/api/media/serve/${row.filename}`;
-
-    if (row.cloudinary_url) {
-      console.log(`[SKIP] ${row.filename} — already on Cloudinary: ${row.cloudinary_url}`);
-      urlMap[oldUrl] = row.cloudinary_url;
-      skipped++;
-      continue;
-    }
-
     const publicId = row.filename.replace(/\.[^.]+$/, "");
     const resourceType = row.mime_type.startsWith("image/") ? "image" : "raw";
 
@@ -78,54 +86,55 @@ async function main() {
         overwrite: false,
       });
 
-      await client`
-        UPDATE media SET cloudinary_url = ${result.secure_url} WHERE id = ${row.id}
-      `;
+      await client`UPDATE media SET cloudinary_url = ${result.secure_url} WHERE id = ${row.id}`;
 
       urlMap[oldUrl] = result.secure_url;
       uploaded++;
-      console.log(`[${uploaded + skipped}/${rows.length}] ${row.filename} → ${result.secure_url}`);
+      console.log(`[${done_count + uploaded}/${total_count}] ${row.filename} → ${result.secure_url}`);
     } catch (err) {
       console.error(`[FAIL] ${row.filename}: ${(err as Error).message}`);
       failed++;
     }
   }
 
-  console.log(`\nUpload complete: ${uploaded} uploaded, ${skipped} skipped, ${failed} failed.\n`);
+  console.log(`\nUpload phase complete:`);
+  console.log(`  Newly uploaded : ${uploaded}`);
+  console.log(`  Skipped        : ${done_count}`);
+  console.log(`  Failed         : ${failed}`);
 
-  if (Object.keys(urlMap).length === 0) {
-    console.error("No URL mappings built — aborting DB update.");
-    await client.end();
-    process.exit(1);
-  }
-
-  // ── 3. Save URL map backup ──────────────────────────────────────────────
+  // ── 5. Save URL map backup ───────────────────────────────────────────────
   const backupPath = path.join(process.cwd(), "scripts", "cloudinary-url-map.json");
   fs.writeFileSync(backupPath, JSON.stringify(urlMap, null, 2));
-  console.log(`URL map saved to: ${backupPath}\n`);
+  console.log(`\nURL map saved to: ${backupPath}`);
 
-  // ── 4. Update all tables in a single transaction ────────────────────────
-  console.log("Updating all database tables...");
+  // ── 6. Update all tables in a single transaction ─────────────────────────
+  console.log("\nUpdating all database tables...");
 
   await client.begin(async (sql) => {
-    // products.image (simple text)
-    const productImages = await sql<{ id: number; image: string }[]>`SELECT id, image FROM products WHERE image LIKE '/api/media/serve/%'`;
+    // products.image
+    const productImages = await sql<{ id: number; image: string }[]>`
+      SELECT id, image FROM products WHERE image LIKE '/api/media/serve/%'
+    `;
     for (const p of productImages) {
       const newUrl = urlMap[p.image];
       if (newUrl) await sql`UPDATE products SET image = ${newUrl} WHERE id = ${p.id}`;
     }
-    console.log(`  products.image: updated ${productImages.length} rows`);
+    console.log(`  ✓ products.image: ${productImages.length} rows checked`);
 
-    // products.hover_image (simple text)
-    const hoverImages = await sql<{ id: number; hover_image: string }[]>`SELECT id, hover_image FROM products WHERE hover_image LIKE '/api/media/serve/%'`;
+    // products.hover_image
+    const hoverImages = await sql<{ id: number; hover_image: string }[]>`
+      SELECT id, hover_image FROM products WHERE hover_image LIKE '/api/media/serve/%'
+    `;
     for (const p of hoverImages) {
       const newUrl = urlMap[p.hover_image];
       if (newUrl) await sql`UPDATE products SET hover_image = ${newUrl} WHERE id = ${p.id}`;
     }
-    console.log(`  products.hover_image: updated ${hoverImages.length} rows`);
+    console.log(`  ✓ products.hover_image: ${hoverImages.length} rows checked`);
 
-    // products.gallery (JSON array of URL strings)
-    const galleries = await sql<{ id: number; gallery: string }[]>`SELECT id, gallery FROM products WHERE gallery LIKE '%/api/media/serve/%'`;
+    // products.gallery (JSON array)
+    const galleries = await sql<{ id: number; gallery: string }[]>`
+      SELECT id, gallery FROM products WHERE gallery LIKE '%/api/media/serve/%'
+    `;
     for (const p of galleries) {
       try {
         const arr: string[] = JSON.parse(p.gallery);
@@ -135,10 +144,12 @@ async function main() {
         console.warn(`  WARNING: Could not parse gallery JSON for product ${p.id}`);
       }
     }
-    console.log(`  products.gallery: updated ${galleries.length} rows`);
+    console.log(`  ✓ products.gallery: ${galleries.length} rows checked`);
 
-    // products.colors (nested JSON — each color has images[])
-    const colorRows = await sql<{ id: number; colors: string }[]>`SELECT id, colors FROM products WHERE colors LIKE '%/api/media/serve/%'`;
+    // products.colors (nested JSON)
+    const colorRows = await sql<{ id: number; colors: string }[]>`
+      SELECT id, colors FROM products WHERE colors LIKE '%/api/media/serve/%'
+    `;
     for (const p of colorRows) {
       try {
         const colors: Array<{ name: string; hex: string; images?: string[]; outOfStock?: boolean }> = JSON.parse(p.colors);
@@ -151,56 +162,69 @@ async function main() {
         console.warn(`  WARNING: Could not parse colors JSON for product ${p.id}`);
       }
     }
-    console.log(`  products.colors: updated ${colorRows.length} rows`);
+    console.log(`  ✓ products.colors: ${colorRows.length} rows checked`);
 
-    // banners.image_url (simple text)
-    const bannerRows = await sql<{ id: number; image_url: string }[]>`SELECT id, image_url FROM banners WHERE image_url LIKE '/api/media/serve/%'`;
+    // banners.image_url
+    const bannerRows = await sql<{ id: number; image_url: string }[]>`
+      SELECT id, image_url FROM banners WHERE image_url LIKE '/api/media/serve/%'
+    `;
     for (const b of bannerRows) {
       const newUrl = urlMap[b.image_url];
       if (newUrl) await sql`UPDATE banners SET image_url = ${newUrl} WHERE id = ${b.id}`;
     }
-    console.log(`  banners.image_url: updated ${bannerRows.length} rows`);
+    console.log(`  ✓ banners.image_url: ${bannerRows.length} rows checked`);
 
-    // collections.image_url (simple text)
-    const collectionRows = await sql<{ id: number; image_url: string }[]>`SELECT id, image_url FROM collections WHERE image_url LIKE '/api/media/serve/%'`;
+    // collections.image_url
+    const collectionRows = await sql<{ id: number; image_url: string }[]>`
+      SELECT id, image_url FROM collections WHERE image_url LIKE '/api/media/serve/%'
+    `;
     for (const c of collectionRows) {
       const newUrl = urlMap[c.image_url];
       if (newUrl) await sql`UPDATE collections SET image_url = ${newUrl} WHERE id = ${c.id}`;
     }
-    console.log(`  collections.image_url: updated ${collectionRows.length} rows`);
+    console.log(`  ✓ collections.image_url: ${collectionRows.length} rows checked`);
 
-    // zayelle_edits.image_url (simple text)
-    const editRows = await sql<{ id: number; image_url: string }[]>`SELECT id, image_url FROM zayelle_edits WHERE image_url LIKE '/api/media/serve/%'`;
+    // zayelle_edits.image_url
+    const editRows = await sql<{ id: number; image_url: string }[]>`
+      SELECT id, image_url FROM zayelle_edits WHERE image_url LIKE '/api/media/serve/%'
+    `;
     for (const e of editRows) {
       const newUrl = urlMap[e.image_url];
       if (newUrl) await sql`UPDATE zayelle_edits SET image_url = ${newUrl} WHERE id = ${e.id}`;
     }
-    console.log(`  zayelle_edits.image_url: updated ${editRows.length} rows`);
+    console.log(`  ✓ zayelle_edits.image_url: ${editRows.length} rows checked`);
 
-    // dm_testimonials.image_url (simple text)
-    const testimonialRows = await sql<{ id: number; image_url: string }[]>`SELECT id, image_url FROM dm_testimonials WHERE image_url LIKE '/api/media/serve/%'`;
+    // dm_testimonials.image_url
+    const testimonialRows = await sql<{ id: number; image_url: string }[]>`
+      SELECT id, image_url FROM dm_testimonials WHERE image_url LIKE '/api/media/serve/%'
+    `;
     for (const t of testimonialRows) {
       const newUrl = urlMap[t.image_url];
       if (newUrl) await sql`UPDATE dm_testimonials SET image_url = ${newUrl} WHERE id = ${t.id}`;
     }
-    console.log(`  dm_testimonials.image_url: updated ${testimonialRows.length} rows`);
+    console.log(`  ✓ dm_testimonials.image_url: ${testimonialRows.length} rows checked`);
 
-    // order_items.image (simple text)
-    const orderItemRows = await sql<{ id: number; image: string }[]>`SELECT id, image FROM order_items WHERE image LIKE '/api/media/serve/%'`;
+    // order_items.image
+    const orderItemRows = await sql<{ id: number; image: string }[]>`
+      SELECT id, image FROM order_items WHERE image LIKE '/api/media/serve/%'
+    `;
     for (const o of orderItemRows) {
       const newUrl = urlMap[o.image];
       if (newUrl) await sql`UPDATE order_items SET image = ${newUrl} WHERE id = ${o.id}`;
     }
-    console.log(`  order_items.image: updated ${orderItemRows.length} rows`);
+    console.log(`  ✓ order_items.image: ${orderItemRows.length} rows checked`);
   });
 
   console.log("\n✓ All tables updated successfully.");
   console.log("\n=== Migration Complete ===");
-  console.log(`Total uploaded: ${uploaded}`);
-  console.log(`Total skipped (already migrated): ${skipped}`);
-  console.log(`Total failed: ${failed}`);
+  console.log(`  Newly uploaded to Cloudinary : ${uploaded}`);
+  console.log(`  Already migrated (skipped)   : ${done_count}`);
+  console.log(`  Failed uploads               : ${failed}`);
+  console.log(`  Tables updated               : 9`);
+  console.log(`  URL map backup               : ${backupPath}`);
+
   if (failed > 0) {
-    console.log("\nWARNING: Some files failed to upload. Re-run the script to retry — already-uploaded files will be skipped.");
+    console.log("\nWARNING: Some files failed. Re-run the script to retry — completed files will be skipped.");
   }
 
   await client.end();

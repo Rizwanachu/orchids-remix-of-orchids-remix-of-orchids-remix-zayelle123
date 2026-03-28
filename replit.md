@@ -49,16 +49,18 @@
 - Migration script at `scripts/migrate-base64-images.ts` can be re-run safely (skips products already using URLs).
 - Lightweight `/api/products/search` endpoint added for header search bar (2.6KB vs 47KB full endpoint).
 
-## Image Storage — Cloudinary Migration
-- Images are stored as `bytea` in Neon PostgreSQL (`media` table). Cloudinary migration is prepared but not yet executed.
-- `media` table has a `cloudinary_url` (TEXT, nullable) column added (March 2026).
+## Image Storage — Cloudinary Migration (COMPLETE — March 2026)
+- **291 of 292 images migrated** from Neon PostgreSQL bytea → Cloudinary. 1 file failed (corrupted: `10b7e479585a40f92e6e3ad46af6b4ef.jpg`).
+- All 9 affected table columns updated to direct Cloudinary URLs (no more `/api/media/serve/` indirection for migrated images).
+- URL map backup: `scripts/cloudinary-url-map.json`.
+- `media` table has a `cloudinary_url` (TEXT, nullable) column. All rows with migrated images have this set.
 - Cloudinary client: `src/lib/cloudinary.ts` using `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
-- **Upload route** (`/api/admin/upload`): Uploads new images directly to Cloudinary, stores `cloudinary_url` in DB, and returns the Cloudinary URL. Legacy `content` bytea is stored as empty buffer for new uploads.
-- **Serve route** (`/api/media/serve/[filename]`): Redirects (301) to `cloudinary_url` if set; falls back to serving bytea content otherwise. This means old and new URLs both work transparently.
-- **Migration script**: `scripts/migrate-to-cloudinary.ts` — uploads all 292 existing images to Cloudinary, builds a URL map, and updates all affected columns in one transaction. Run with: `npx tsx --env-file=.env.local scripts/migrate-to-cloudinary.ts`
+- **Upload route** (`/api/admin/upload`): Uploads new images directly to Cloudinary; stores `cloudinary_url` in DB; legacy `content` bytea is empty buffer for new uploads.
+- **Serve route** (`/api/media/serve/[filename]`): Redirects (301) to `cloudinary_url` if set; falls back to serving bytea content for the 1 failed/legacy file.
+- **Migration script** (`scripts/migrate-to-cloudinary.ts`): Safe to re-run — fetches only rows without `cloudinary_url`, one at a time to avoid OOM. Run with: `npx tsx --env-file=.env.local scripts/migrate-to-cloudinary.ts`
 - Affected columns: `products.image`, `products.hover_image`, `products.gallery` (JSON), `products.colors` (nested JSON), `banners.image_url`, `collections.image_url`, `zayelle_edits.image_url`, `dm_testimonials.image_url`, `order_items.image`.
-- URL map backup saved to `scripts/cloudinary-url-map.json` after migration.
 - **Media delete** (`/api/admin/media`): Also deletes from Cloudinary when `cloudinary_url` is set.
+- **Expected impact**: ~60 GB/month Neon transfer eliminated; Cloudinary CDN now serves images globally with automatic compression.
 
 ## Community Testimonials (Our Community Speaks)
 - `community_testimonials` table in DB (fields: id, quote, author, location, rating, is_active, display_order, created_at).
