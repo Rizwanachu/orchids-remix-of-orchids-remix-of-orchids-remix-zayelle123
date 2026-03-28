@@ -4,8 +4,15 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Search, User, Heart, ShoppingBag, Menu, ChevronDown, X, ChevronRight } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
-import { useProducts } from "@/lib/products-context";
 import Image from "next/image";
+
+interface SearchProduct {
+  id: string;
+  name: string;
+  handle: string;
+  price: number;
+  image: string;
+}
 
 const defaultNavigationItems = [
   { name: "Home", href: "/" },
@@ -32,9 +39,10 @@ const Header = () => {
   const [cmsSettings, setCmsSettings] = useState<Record<string, string>>({});
   const [dropdownCollections, setDropdownCollections] = useState<CollectionDropdownItem[]>([]);
   const [mobileProductsExpanded, setMobileProductsExpanded] = useState(false);
+  const [searchCatalog, setSearchCatalog] = useState<SearchProduct[]>([]);
+  const [searchCatalogLoaded, setSearchCatalogLoaded] = useState(false);
   const { totalItems, wishlist } = useCart();
   const { user } = useAuth();
-  const { searchProducts } = useProducts();
 
   useEffect(() => {
     fetch("/api/site-settings")
@@ -48,10 +56,22 @@ const Header = () => {
       .catch(() => {});
   }, []);
 
+  const loadSearchCatalog = () => {
+    if (searchCatalogLoaded) return;
+    setSearchCatalogLoaded(true);
+    fetch("/api/products/search")
+      .then((res) => res.ok ? res.json() : Promise.reject())
+      .then((data: SearchProduct[]) => setSearchCatalog(data))
+      .catch(() => {});
+  };
+
   const searchResults = useMemo(() => {
     if (searchQuery.trim().length < 2) return [];
-    return searchProducts(searchQuery).slice(0, 6);
-  }, [searchQuery, searchProducts]);
+    const q = searchQuery.toLowerCase().trim();
+    return searchCatalog
+      .filter((p) => p.name.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [searchQuery, searchCatalog]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +127,7 @@ const Header = () => {
                   type="text"
                   placeholder={searchPlaceholder}
                   className="w-full h-[40px] pl-4 pr-10 border border-[#E8E4DE] rounded-sm text-[13px] focus:outline-none focus:border-[#524436] transition-colors"
-                  onFocus={() => setIsSearchFocused(true)}
+                  onFocus={() => { setIsSearchFocused(true); loadSearchCatalog(); }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -161,7 +181,6 @@ const Header = () => {
                           </div>
                           <div className="min-w-0">
                             <p className="text-[13px] font-medium text-[#1A1A1A] line-clamp-1">{product.name}</p>
-                            <p className="text-[12px] text-[#757575]">{product.subtitle}</p>
                             <p className="text-[12px] font-semibold text-[#1A1A1A]">₹{product.price.toLocaleString("en-IN")}.00</p>
                           </div>
                         </a>
