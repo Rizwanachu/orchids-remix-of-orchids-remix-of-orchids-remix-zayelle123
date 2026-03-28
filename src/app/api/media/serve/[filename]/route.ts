@@ -9,13 +9,25 @@ export async function GET(
 ) {
   try {
     const { filename } = await params;
-    const result = await db.select().from(media).where(eq(media.filename, filename)).limit(1);
+    const result = await db
+      .select({
+        content: media.content,
+        mimeType: media.mimeType,
+        cloudinaryUrl: media.cloudinaryUrl,
+      })
+      .from(media)
+      .where(eq(media.filename, filename))
+      .limit(1);
 
     if (result.length === 0) {
       return new NextResponse("Not Found", { status: 404 });
     }
 
     const file = result[0];
+
+    if (file.cloudinaryUrl) {
+      return NextResponse.redirect(file.cloudinaryUrl, { status: 301 });
+    }
 
     return new NextResponse(file.content as unknown as BodyInit, {
       headers: {

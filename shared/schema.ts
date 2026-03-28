@@ -251,6 +251,7 @@ export const media = pgTable("media", {
   mimeType: text("mime_type").notNull(),
   size: integer("size").notNull(),
   content: bytea("content").notNull(),
+  cloudinaryUrl: text("cloudinary_url"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 

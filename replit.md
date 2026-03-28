@@ -47,6 +47,18 @@
 ## Performance Notes
 - All product images migrated from base64 to media URLs (March 2026). API response dropped from 25-74s to <200ms.
 - Migration script at `scripts/migrate-base64-images.ts` can be re-run safely (skips products already using URLs).
+- Lightweight `/api/products/search` endpoint added for header search bar (2.6KB vs 47KB full endpoint).
+
+## Image Storage — Cloudinary Migration
+- Images are stored as `bytea` in Neon PostgreSQL (`media` table). Cloudinary migration is prepared but not yet executed.
+- `media` table has a `cloudinary_url` (TEXT, nullable) column added (March 2026).
+- Cloudinary client: `src/lib/cloudinary.ts` using `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- **Upload route** (`/api/admin/upload`): Uploads new images directly to Cloudinary, stores `cloudinary_url` in DB, and returns the Cloudinary URL. Legacy `content` bytea is stored as empty buffer for new uploads.
+- **Serve route** (`/api/media/serve/[filename]`): Redirects (301) to `cloudinary_url` if set; falls back to serving bytea content otherwise. This means old and new URLs both work transparently.
+- **Migration script**: `scripts/migrate-to-cloudinary.ts` — uploads all 292 existing images to Cloudinary, builds a URL map, and updates all affected columns in one transaction. Run with: `npx tsx --env-file=.env.local scripts/migrate-to-cloudinary.ts`
+- Affected columns: `products.image`, `products.hover_image`, `products.gallery` (JSON), `products.colors` (nested JSON), `banners.image_url`, `collections.image_url`, `zayelle_edits.image_url`, `dm_testimonials.image_url`, `order_items.image`.
+- URL map backup saved to `scripts/cloudinary-url-map.json` after migration.
+- **Media delete** (`/api/admin/media`): Also deletes from Cloudinary when `cloudinary_url` is set.
 
 ## Community Testimonials (Our Community Speaks)
 - `community_testimonials` table in DB (fields: id, quote, author, location, rating, is_active, display_order, created_at).
@@ -58,6 +70,6 @@
 
 ## Deployment
 - Deployed on Vercel.
-- Ensure `DATABASE_URL` and `JWT_SECRET` environment variables are set in Vercel.
+- Required Vercel environment variables: `DATABASE_URL`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - Admin login issue on Vercel fixed by properly handling the `secure` cookie flag.
 - "Internal Server Error" issues resolved by adding fallback responses to API routes.
