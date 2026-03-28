@@ -12,7 +12,16 @@ export async function GET() {
   }
 
   try {
-    const results = await db.select().from(media).orderBy(desc(media.createdAt));
+    const results = await db
+      .select({
+        filename: media.filename,
+        url: media.url,
+        cloudinaryUrl: media.cloudinaryUrl,
+        size: media.size,
+        createdAt: media.createdAt,
+      })
+      .from(media)
+      .orderBy(desc(media.createdAt));
 
     return NextResponse.json(results.map(f => ({
       filename: f.filename,
