@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { db } from "@/../server/db";
 import { newArrivals, products } from "@/../shared/schema";
 import { eq, asc } from "drizzle-orm";
@@ -13,13 +14,20 @@ function getColorInfo(productColors: string | null, colorSlug: string | null | u
   ) || null;
 }
 
-export async function GET() {
-  try {
-    const results = await db
+const getNewArrivalsData = unstable_cache(
+  async () =>
+    db
       .select()
       .from(newArrivals)
       .innerJoin(products, eq(newArrivals.productId, products.id))
-      .orderBy(asc(newArrivals.displayOrder));
+      .orderBy(asc(newArrivals.displayOrder)),
+  ["new-arrivals-data"],
+  { tags: ["new-arrivals", "products"], revalidate: 86400 }
+);
+
+export async function GET() {
+  try {
+    const results = await getNewArrivalsData();
 
     const formatted = results.map((r) => {
       const colorInfo = getColorInfo(r.products.colors, r.new_arrivals.colorSlug);
@@ -50,9 +58,9 @@ export async function GET() {
 
     return NextResponse.json(formatted, {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
-        "CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
-        "Vercel-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
+        "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
       },
     });
   } catch (error: any) {

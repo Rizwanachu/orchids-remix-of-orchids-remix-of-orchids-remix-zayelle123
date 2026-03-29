@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { db } from "@/../server/db";
 import { products, newArrivals, reviews } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
@@ -57,6 +58,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     await logAdminActivity(admin.id, admin.email, "product_updated", `Updated product: ${updated.name}`);
+    revalidateTag("products");
 
     return NextResponse.json({
       id: updated.id.toString(),
@@ -125,6 +127,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 
     await logAdminActivity(admin.id, admin.email, "product_deleted", `Deleted product: ${deleted.name}`);
+    revalidateTag("products");
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

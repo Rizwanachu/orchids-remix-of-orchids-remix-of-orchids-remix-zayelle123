@@ -8,9 +8,9 @@ export async function GET() {
     const settings = await db.select().from(themeSettings).limit(1);
     return NextResponse.json(settings[0] || {}, {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
-        "CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
-        "Vercel-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
+        "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
       },
     });
   } catch (error) {

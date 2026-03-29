@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { db } from "@/../server/db";
 import { newArrivals, products } from "@/../shared/schema";
 import { eq, asc } from "drizzle-orm";
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
       .returning();
 
     await logAdminActivity(admin.id, admin.email, "new_arrival_added", `Added product #${body.productId}${body.colorSlug ? ` (${body.colorSlug})` : ""} to new arrivals`);
+    revalidateTag("new-arrivals");
 
     return NextResponse.json(created);
   } catch (error: any) {

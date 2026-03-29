@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { db } from "@/../server/db";
 import { products } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
 
+const getActiveProducts = unstable_cache(
+  async () => db.select().from(products).where(eq(products.active, 1)),
+  ["products-active"],
+  { tags: ["products"], revalidate: 86400 }
+);
+
 export async function GET() {
   try {
-    const allProducts = await db.select().from(products).where(eq(products.active, 1));
+    const allProducts = await getActiveProducts();
     const formatted = allProducts.map((p) => ({
       id: p.id.toString(),
       handle: p.handle,
@@ -50,9 +57,9 @@ export async function GET() {
     }));
     return NextResponse.json(formatted, {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
-        "CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
-        "Vercel-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=7200",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
+        "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
       },
     });
   } catch (error) {
