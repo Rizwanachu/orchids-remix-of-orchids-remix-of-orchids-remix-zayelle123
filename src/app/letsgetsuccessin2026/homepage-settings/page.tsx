@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Save, Settings, CheckCircle, AlertCircle, Upload, Image as ImageIcon, X } from "lucide-react";
 import Image from "next/image";
+import { uploadFile } from "@/lib/direct-upload";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 const SETTING_KEYS = [
@@ -100,18 +101,8 @@ export default function AdminHomepageSettingsPage() {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        handleChange(key, data.url);
-      }
+      const url = await uploadFile(file);
+        handleChange(key, url);
     } catch (error) {
       console.error("Failed to upload image:", error);
       showError("Failed to upload image");

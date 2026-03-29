@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { uploadFile } from "@/lib/direct-upload";
 import {
   Plus,
   Pencil,
@@ -276,24 +277,11 @@ export default function BannersPage() {
     setUploading(true);
     setErrorMessage("");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setForm({ ...form, imageUrl: data.url });
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        setErrorMessage(errData.error || "Failed to upload image. Make sure the file is under 10MB and is a valid image format (JPEG, PNG, WebP, GIF).");
-      }
+      const url = await uploadFile(file);
+      setForm({ ...form, imageUrl: url });
     } catch (error) {
-      console.error("Failed to upload image:", error);
-      setErrorMessage("Failed to upload image. Please try again.");
+      const err = error as Error;
+      setErrorMessage(err.message || "Failed to upload image. Make sure the file is under 10MB and is a valid image format (JPEG, PNG, WebP, GIF).");
     } finally {
       setUploading(false);
     }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Save, Plus, Trash2, GripVertical, Upload, ChevronUp, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { uploadFile } from "@/lib/direct-upload";
 
 interface NavItem {
   name: string;
@@ -162,15 +163,8 @@ export default function SiteSettingsPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (res.ok) {
-        const data = await res.json();
-        // Ensure absolute URL for external domains
-        const url = data.url.startsWith("http") ? data.url : `${window.location.origin}${data.url}`;
-        setLogoUrl(url);
-      }
+      const cloudUrl = await uploadFile(file);
+        setLogoUrl(cloudUrl);
     } catch (err) {
       console.error("Upload error:", err);
     } finally {

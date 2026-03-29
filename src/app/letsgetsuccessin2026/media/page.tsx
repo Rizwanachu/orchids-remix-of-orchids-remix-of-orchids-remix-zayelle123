@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Trash2, Upload, ImageIcon, Copy, Check, Search } from "lucide-react";
+import { uploadFile } from "@/lib/direct-upload";
 
 interface MediaFile {
   filename: string;
@@ -44,13 +45,7 @@ export default function MediaPage() {
     setUploading(true);
     try {
       for (let i = 0; i < fileList.length; i++) {
-        const formData = new FormData();
-        formData.append("file", fileList[i]);
-
-        await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
-        });
+        await uploadFile(fileList[i]);
       }
       await fetchFiles();
     } catch (error) {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, Package, UserPlus, UserMinus } from "lucide-react";
+import { uploadFile } from "@/lib/direct-upload";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface Collection {
@@ -158,17 +159,8 @@ export default function AdminCollectionsPage() {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (res.ok) {
-        setForm((prev) => ({ ...prev, imageUrl: data.url }));
-      } else {
-        console.error("Upload failed:", data.error);
-        alert(`Upload failed: ${data.error}`);
-      }
+      const url = await uploadFile(file);
+        setForm((prev) => ({ ...prev, imageUrl: url }));
     } catch (err) {
       console.error("Upload error:", err);
       alert("An unexpected error occurred during upload.");

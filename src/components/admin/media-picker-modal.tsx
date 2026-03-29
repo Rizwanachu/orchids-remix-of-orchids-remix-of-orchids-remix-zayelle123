@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Upload, Check, ImageIcon } from "lucide-react";
+import { uploadFile } from "@/lib/direct-upload";
 
 interface MediaFile {
   filename: string;
@@ -55,17 +56,8 @@ export default function MediaPickerModal({
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
+      await uploadFile(file);
         await fetchFiles();
-      }
     } catch (error) {
       console.error("Failed to upload:", error);
     } finally {

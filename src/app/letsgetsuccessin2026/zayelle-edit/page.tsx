@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Save, Upload, LayoutGrid, ImageIcon, Link2, ChevronDown, Package, Eye, UserPlus, UserMinus } from "lucide-react";
 import Image from "next/image";
+import { uploadFile } from "@/lib/direct-upload";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
 interface ZayelleEditItem {
@@ -176,13 +177,8 @@ export default function AdminZayelleEditPage() {
 
     setUploading(true);
     try {
-      const formData = new window.FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (res.ok) {
-        const data = await res.json();
-        setForm((prev) => ({ ...prev, imageUrl: data.url }));
-      }
+      const url = await uploadFile(file);
+        setForm((prev) => ({ ...prev, imageUrl: url }));
     } catch (err) {
       console.error("Upload error:", err);
     } finally {

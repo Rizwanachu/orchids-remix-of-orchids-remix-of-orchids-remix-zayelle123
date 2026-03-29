@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Save, Upload, Image as ImageIcon, MessageSquare } from "lucide-react";
+import { uploadFile } from "@/lib/direct-upload";
 
 interface DmTestimonial {
   id: number;
@@ -89,13 +90,8 @@ export default function AdminDmTestimonialsPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (res.ok) {
-        const data = await res.json();
-        setForm((f) => ({ ...f, imageUrl: data.url }));
-      }
+      const url = await uploadFile(file);
+        setForm((f) => ({ ...f, imageUrl: url }));
     } catch (err) {
       console.error("Error uploading image:", err);
     } finally {

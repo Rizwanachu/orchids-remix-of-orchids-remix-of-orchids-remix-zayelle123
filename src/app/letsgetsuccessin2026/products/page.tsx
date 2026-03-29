@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { uploadFile } from "@/lib/direct-upload";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -344,13 +345,8 @@ export default function AdminProductsPage() {
       onUpload: async (croppedFile) => {
         setUploadingNewVariantSlot(true);
         try {
-          const formData = new FormData();
-          formData.append("file", croppedFile);
-          const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-          if (res.ok) {
-            const data = await res.json();
-            setNewVariantImages(prev => [...prev, data.url].slice(0, 3));
-          }
+          const url = await uploadFile(croppedFile);
+          setNewVariantImages(prev => [...prev, url].slice(0, 3));
         } catch { setErrorMessage("Failed to upload image"); setTimeout(() => setErrorMessage(""), 3000); }
         finally { setUploadingNewVariantSlot(false); }
       },
@@ -370,20 +366,15 @@ export default function AdminProductsPage() {
       onUpload: async (croppedFile) => {
         setUploadingVariantIdx(idx);
         try {
-          const formData = new FormData();
-          formData.append("file", croppedFile);
-          const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-          if (res.ok) {
-            const data = await res.json();
-            setForm(prev => ({
-              ...prev,
-              colors: prev.colors.map((c, i) => {
-                if (i !== idx) return c;
-                const existing = getColorImages(c);
-                return { ...c, images: [...existing, data.url].slice(0, 3), image: undefined };
-              }),
-            }));
-          }
+          const url = await uploadFile(croppedFile);
+          setForm(prev => ({
+            ...prev,
+            colors: prev.colors.map((c, i) => {
+              if (i !== idx) return c;
+              const existing = getColorImages(c);
+              return { ...c, images: [...existing, url].slice(0, 3), image: undefined };
+            }),
+          }));
         } catch { setErrorMessage("Failed to upload variant image"); setTimeout(() => setErrorMessage(""), 3000); }
         finally { setUploadingVariantIdx(null); }
       },
@@ -475,27 +466,14 @@ export default function AdminProductsPage() {
   const handleImageUpload = async (file: File, field: "image" | "hoverImage" | "gallery") => {
     setUploadingImage(field);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (field === "gallery") {
-          setForm((prev) => ({ ...prev, gallery: [...prev.gallery, data.url] }));
-        } else {
-          updateField(field, data.url);
-        }
+      const url = await uploadFile(file);
+      if (field === "gallery") {
+        setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
       } else {
-        const errData = await res.json().catch(() => ({}));
-        setErrorMessage(errData.error || "Failed to upload image. Please try again.");
-        setTimeout(() => setErrorMessage(""), 5000);
+        updateField(field, url);
       }
     } catch (error) {
-      console.error("Image upload failed:", error);
-      setErrorMessage("Failed to upload image. Please try again.");
+      setErrorMessage((error as Error).message || "Failed to upload image. Please try again.");
       setTimeout(() => setErrorMessage(""), 5000);
     } finally {
       setUploadingImage(null);
