@@ -41,9 +41,24 @@ function CheckoutContent() {
 
   const directProduct = productId ? products.find(p => p.id === productId) : null;
 
+  // Enrich cart items with latest product data so changes like free shipping apply immediately
+  const enrichedCartItems = cartItems.map(cartItem => {
+    const latestProduct = products.find(p => p.id === cartItem.id);
+    if (latestProduct) {
+      return {
+        ...cartItem,
+        isFreeShipping: latestProduct.isFreeShipping,
+        shippingCost: (latestProduct as any).shippingCost,
+        shippingCostKerala: (latestProduct as any).shippingCostKerala,
+        deliveryCharges: (latestProduct as any).deliveryCharges,
+      };
+    }
+    return cartItem;
+  });
+
   const items = isDirect && directProduct
     ? [{ ...directProduct, quantity: productQuantity }]
-    : cartItems;
+    : enrichedCartItems;
 
   const subtotal = isDirect && directProduct
     ? (directBundlePrice != null ? directBundlePrice : (directProduct.price || 0) * productQuantity)
@@ -120,7 +135,14 @@ function CheckoutContent() {
 
   const codFee = formData.paymentMethod === "cod" ? 50 : 0;
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
-  const totalPrice = subtotal + shippingCost + codFee - discountAmount;
+
+  // Only show a shipping amount once state or a valid pincode is entered
+  const hasAddressInfo = formData.state !== "" || /^\d{6}$/.test(formData.pincode);
+  const allItemsFreeShipping = items.length > 0 && items.every((item: any) => item.isFreeShipping);
+  const shippingKnown = hasAddressInfo || allItemsFreeShipping || subtotal >= 1950;
+  const displayShipping = shippingKnown ? shippingCost : null;
+
+  const totalPrice = subtotal + (displayShipping ?? 0) + codFee - discountAmount;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -609,16 +631,17 @@ function CheckoutContent() {
                   <div className="flex justify-between text-[13px]">
                     <div>
                       <span className="text-[#757575]">Shipping</span>
-                      {formData.state && shippingCost > 0 && (
+                      {formData.state && displayShipping !== null && displayShipping > 0 && (
                         <span className="text-[11px] text-[#999] ml-1">({isKerala ? "Kerala" : "Outside Kerala"})</span>
                       )}
-                      {!formData.state && shippingCost > 0 && (
-                        <span className="text-[11px] text-[#999] ml-1">(select state)</span>
-                      )}
                     </div>
-                    <span className={shippingCost === 0 ? "text-green-600 font-medium" : "text-[#1A1A1A]"}>
-                      {shippingCost === 0 ? "Free" : `₹${shippingCost}.00`}
-                    </span>
+                    {displayShipping === null ? (
+                      <span className="text-[11px] text-[#999] italic">Calculated at checkout</span>
+                    ) : (
+                      <span className={displayShipping === 0 ? "text-green-600 font-medium" : "text-[#1A1A1A]"}>
+                        {displayShipping === 0 ? "Free" : `₹${displayShipping}.00`}
+                      </span>
+                    )}
                   </div>
                   {codFee > 0 && (
                     <div className="flex justify-between text-[13px]">
@@ -664,7 +687,7 @@ function CheckoutContent() {
                   </div>
                 </div>
 
-                {subtotal < 1950 && (
+                {subtotal < 1950 && !allItemsFreeShipping && (
                   <p className="mt-4 text-[12px] text-[#757575] text-center bg-[#F5F2ED] py-2 rounded">
                     Add ₹{(1950 - subtotal).toLocaleString("en-IN")}.00 more for free shipping
                   </p>
