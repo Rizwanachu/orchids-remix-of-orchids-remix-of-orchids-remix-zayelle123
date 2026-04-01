@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { orders, orderItems } from "@/../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
-import { sendOrderConfirmationEmail } from "@/lib/email";
+import { sendOrderConfirmationEmail, sendNewOrderNotificationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,6 +64,26 @@ export async function POST(request: NextRequest) {
     console.log("Attempting to send email...");
     
     await sendOrderConfirmationEmail({
+      id: newOrder.id,
+      orderId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      totalAmount: String(totalAmount),
+      paymentMethod,
+      paymentStatus: newOrder.paymentStatus,
+      items: items.map((item: any) => ({
+        productName: item.productName || item.name || item.title,
+        quantity: item.quantity,
+        price: String(item.price),
+        image: item.image || null,
+      })),
+      couponCode,
+      discountAmount: discountAmount ? String(discountAmount) : null,
+    });
+
+    await sendNewOrderNotificationEmail({
       id: newOrder.id,
       orderId,
       customerName,

@@ -344,6 +344,82 @@ export async function sendContactFormEmail(data: { name: string; email: string; 
   }
 }
 
+export async function sendNewOrderNotificationEmail(data: OrderEmailData) {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (!smtpUser || !smtpPass) {
+    console.error("Email credentials missing - skipping new order notification email");
+    return;
+  }
+
+  try {
+    const itemsHtml = (data.items || []).map(item => `
+      <tr class="product-row">
+        <td style="width: 80px; padding-right: 20px; vertical-align: top;">
+          <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
+        </td>
+        <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
+          <div class="product-name">${item.productName}</div>
+          <div class="product-meta">Quantity: ${item.quantity}</div>
+          <div class="product-price">₹${parseFloat(item.price).toLocaleString("en-IN")}</div>
+        </td>
+      </tr>
+    `).join("");
+
+    const discount = data.discountAmount ? parseFloat(data.discountAmount) : 0;
+
+    const content = `
+      <p class="message">You have received a new order on Zayelle.</p>
+
+      <div class="order-box">
+        <p><strong>Order ID:</strong> ${data.orderId}</p>
+        <p><strong>Order Date:</strong> ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        <p><strong>Customer Name:</strong> ${data.customerName}</p>
+        <p><strong>Customer Email:</strong> <a href="mailto:${data.customerEmail}" style="color: #8c6f5a;">${data.customerEmail}</a></p>
+        ${data.customerPhone ? `<p><strong>Phone:</strong> ${data.customerPhone}</p>` : ''}
+        ${data.shippingAddress ? `<p><strong>Shipping Address:</strong> ${data.shippingAddress}</p>` : ''}
+        <p><strong>Payment Method:</strong> ${data.paymentMethod || 'N/A'}</p>
+        <p><strong>Payment Status:</strong> ${data.paymentStatus ? data.paymentStatus.charAt(0).toUpperCase() + data.paymentStatus.slice(1) : 'Processing'}</p>
+        ${data.couponCode ? `<p><strong>Coupon Used:</strong> ${data.couponCode}</p>` : ''}
+      </div>
+
+      <table class="product-table">
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <div class="total-section">
+        ${discount > 0 ? `
+        <div class="total-row">
+          <span class="total-label">Discount:</span>
+          <span class="total-value">-₹${discount.toLocaleString("en-IN")}</span>
+        </div>` : ''}
+        <div class="total-row grand-total">
+          <span class="total-label">Total:</span>
+          <span class="total-value">₹${parseFloat(data.totalAmount || "0").toLocaleString("en-IN")}</span>
+        </div>
+      </div>
+
+      <div class="cta-container">
+        <a href="https://www.zayelle.in/letsgetsuccessin2026/orders" class="btn">View in Admin Panel</a>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Zayelle Store" <${FROM_EMAIL}>`,
+      to: "zayelle.in@gmail.com",
+      subject: `New Order Received – ${data.orderId} (₹${parseFloat(data.totalAmount || "0").toLocaleString("en-IN")})`,
+      html: baseTemplate(content, "New Order Received"),
+    });
+
+    console.log(`New order notification sent to zayelle.in@gmail.com for order ${data.orderId}`);
+  } catch (error: any) {
+    console.error(`Failed to send new order notification for ${data.orderId}:`, error.message);
+  }
+}
+
 export async function sendAbandonedCartEmail(customerEmail: string, customerName: string, items: any[], type: '30min' | '12hr' | '24hr') {
   const smtpUser = process.env.SMTP_USER;
   if (!smtpUser) return;
