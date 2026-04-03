@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/../server/db";
 import { banners } from "@/../shared/schema";
 import { verifyAdmin } from "@/lib/admin-auth";
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "banner_created", `Created banner: ${body.title}`);
+    revalidatePath("/");
 
     return NextResponse.json(newBanner);
   } catch (error: any) {

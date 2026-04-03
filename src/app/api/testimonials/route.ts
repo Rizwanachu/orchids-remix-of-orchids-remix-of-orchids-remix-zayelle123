@@ -12,9 +12,7 @@ export async function GET() {
       .orderBy(asc(communityTestimonials.displayOrder));
     return NextResponse.json({ testimonials: list }, {
       headers: {
-        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
-        "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
-        "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {

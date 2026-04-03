@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/../server/db";
 import { banners } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
@@ -37,6 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     await logAdminActivity(admin.id, admin.email, "banner_updated", `Updated banner: ${updated.title}`);
+    revalidatePath("/");
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -60,6 +62,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 
     await logAdminActivity(admin.id, admin.email, "banner_deleted", `Deleted banner: ${deleted.title}`);
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

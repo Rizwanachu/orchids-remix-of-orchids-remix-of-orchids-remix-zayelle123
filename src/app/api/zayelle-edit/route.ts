@@ -8,9 +8,7 @@ export async function GET() {
     const items = await db.select().from(zayelleEdits).orderBy(asc(zayelleEdits.displayOrder));
     return NextResponse.json(items, {
       headers: {
-        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
-        "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
-        "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error: any) {

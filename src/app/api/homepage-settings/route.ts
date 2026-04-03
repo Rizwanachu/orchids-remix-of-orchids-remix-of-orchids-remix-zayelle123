@@ -3,9 +3,7 @@ import { db } from "@/../server/db";
 import { homepageSettings } from "@/../shared/schema";
 
 const CDN_HEADERS = {
-  "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600",
-  "CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
-  "Vercel-CDN-Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+  "Cache-Control": "no-store",
 };
 
 export async function GET() {
