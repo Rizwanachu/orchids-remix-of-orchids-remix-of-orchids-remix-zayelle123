@@ -3,9 +3,8 @@ import postgres from "postgres";
 import * as schema from "../shared/schema";
 
 const rawUrl = process.env.DATABASE_URL!;
-const connectionUrl = rawUrl.replace(/-pooler\./, ".");
 
-const client = postgres(connectionUrl, {
+const client = postgres(rawUrl, {
   prepare: false,
 });
 
