@@ -35,6 +35,34 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await verifyAdmin();
+  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const { id } = await params;
+    const orderId = parseInt(id);
+
+    const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
+    if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+
+    await db.delete(orderItems).where(eq(orderItems.orderId, orderId));
+    await db.delete(orders).where(eq(orders.id, orderId));
+
+    await logAdminActivity(
+      admin.id,
+      admin.email,
+      "order_delete",
+      `Order ${existing.orderId} deleted`
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const admin = await verifyAdmin();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,7 +71,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params;
     const orderId = parseInt(id);
     const body = await request.json();
-    const { orderStatus, paymentStatus, trackingNumber, trackingCarrier, customerName, customerEmail, customerPhone, shippingAddress, items: updatedItems } = body;
+    const { orderStatus, paymentStatus, trackingNumber, trackingCarrier, customerName, customerEmail, customerPhone, shippingAddress, source, notes, items: updatedItems } = body;
 
     const [existing] = await db.select().from(orders).where(eq(orders.id, orderId));
     if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -57,6 +85,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (customerEmail !== undefined) updateFields.customerEmail = customerEmail;
     if (customerPhone !== undefined) updateFields.customerPhone = customerPhone || null;
     if (shippingAddress !== undefined) updateFields.shippingAddress = shippingAddress || null;
+    if (source !== undefined) updateFields.source = source;
+    if (notes !== undefined) updateFields.notes = notes || null;
 
     if (updatedItems && Array.isArray(updatedItems)) {
       const existingItems = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));

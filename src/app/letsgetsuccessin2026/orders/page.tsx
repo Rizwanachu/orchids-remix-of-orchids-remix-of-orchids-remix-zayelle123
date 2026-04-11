@@ -16,6 +16,12 @@ import {
   Pencil,
   Save,
   Trash2,
+  Plus,
+  Instagram,
+  ShoppingBag,
+  MessageCircle,
+  Store,
+  MoreHorizontal,
 } from "lucide-react";
 
 interface OrderItem {
@@ -46,9 +52,17 @@ interface Order {
   trackingCarrier: string | null;
   couponCode: string | null;
   discountAmount: string | null;
+  source: string;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+}
+
+interface NewOrderItem {
+  productName: string;
+  quantity: number;
+  price: string;
 }
 
 const orderStatusColors: Record<string, string> = {
@@ -67,8 +81,27 @@ const paymentStatusColors: Record<string, string> = {
   refunded: "bg-gray-100 text-gray-800",
 };
 
+const sourceColors: Record<string, string> = {
+  website: "bg-blue-50 text-blue-700",
+  instagram: "bg-pink-50 text-pink-700",
+  whatsapp: "bg-green-50 text-green-700",
+  offline: "bg-amber-50 text-amber-700",
+  other: "bg-gray-50 text-gray-600",
+};
+
+const sourceLabels: Record<string, string> = {
+  website: "Website",
+  instagram: "Instagram",
+  whatsapp: "WhatsApp",
+  offline: "Offline",
+  other: "Other",
+};
+
 const orderStatuses = ["processing", "confirmed", "packed", "shipped", "delivered", "cancelled"];
 const paymentStatuses = ["paid", "unpaid", "failed", "refunded"];
+const sources = ["website", "instagram", "whatsapp", "offline", "other"];
+
+const emptyNewItem = (): NewOrderItem => ({ productName: "", quantity: 1, price: "" });
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -80,6 +113,7 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("");
   const [orderFilter, setOrderFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -93,8 +127,27 @@ export default function AdminOrdersPage() {
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editSource, setEditSource] = useState("");
+  const [editNotes, setEditNotes] = useState("");
   const [editItems, setEditItems] = useState<OrderItem[]>([]);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [deletingOrder, setDeletingOrder] = useState(false);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [newOrderForm, setNewOrderForm] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    shippingAddress: "",
+    paymentStatus: "paid",
+    orderStatus: "confirmed",
+    paymentMethod: "",
+    source: "instagram",
+    notes: "",
+  });
+  const [newOrderItems, setNewOrderItems] = useState<NewOrderItem[]>([emptyNewItem()]);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -107,6 +160,7 @@ export default function AdminOrdersPage() {
       if (search) params.set("search", search);
       if (paymentFilter) params.set("paymentStatus", paymentFilter);
       if (orderFilter) params.set("orderStatus", orderFilter);
+      if (sourceFilter) params.set("source", sourceFilter);
       if (dateFrom) params.set("dateFrom", dateFrom);
       if (dateTo) params.set("dateTo", dateTo);
 
@@ -120,7 +174,7 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, paymentFilter, orderFilter, dateFrom, dateTo]);
+  }, [page, limit, search, paymentFilter, orderFilter, sourceFilter, dateFrom, dateTo]);
 
   useEffect(() => {
     fetchOrders();
@@ -167,6 +221,8 @@ export default function AdminOrdersPage() {
     setEditEmail(selectedOrder.customerEmail);
     setEditPhone(selectedOrder.customerPhone || "");
     setEditAddress(selectedOrder.shippingAddress || "");
+    setEditSource(selectedOrder.source || "website");
+    setEditNotes(selectedOrder.notes || "");
     setEditItems(selectedOrder.items.map((i) => ({ ...i })));
     setEditMode(true);
   };
@@ -200,6 +256,8 @@ export default function AdminOrdersPage() {
           customerEmail: editEmail,
           customerPhone: editPhone,
           shippingAddress: editAddress,
+          source: editSource,
+          notes: editNotes,
           items: editItems.map((i) => ({ id: i.id, quantity: i.quantity, price: i.price })),
         }),
       });
@@ -239,11 +297,30 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    if (!selectedOrder) return;
+    if (!confirm(`Delete order ${selectedOrder.orderId}? This cannot be undone.`)) return;
+    setDeletingOrder(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, { method: "DELETE" });
+      if (res.ok) {
+        setOrders((prev) => prev.filter((o) => o.id !== selectedOrder.id));
+        setTotal((t) => t - 1);
+        setSelectedOrder(null);
+      }
+    } catch {
+      console.error("Error deleting order");
+    } finally {
+      setDeletingOrder(false);
+    }
+  };
+
   const handleExport = async () => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (paymentFilter) params.set("paymentStatus", paymentFilter);
     if (orderFilter) params.set("orderStatus", orderFilter);
+    if (sourceFilter) params.set("source", sourceFilter);
     if (dateFrom) params.set("dateFrom", dateFrom);
     if (dateTo) params.set("dateTo", dateTo);
 
@@ -262,9 +339,61 @@ export default function AdminOrdersPage() {
     setSearch("");
     setPaymentFilter("");
     setOrderFilter("");
+    setSourceFilter("");
     setDateFrom("");
     setDateTo("");
     setPage(1);
+  };
+
+  const newOrderTotal = newOrderItems.reduce(
+    (sum, i) => sum + (parseFloat(i.price) || 0) * (i.quantity || 1),
+    0
+  );
+
+  const handleCreateOrder = async () => {
+    setCreateError("");
+    if (!newOrderForm.customerName.trim() || !newOrderForm.customerEmail.trim()) {
+      setCreateError("Customer name and email are required.");
+      return;
+    }
+    const validItems = newOrderItems.filter((i) => i.productName.trim() && parseFloat(i.price) > 0);
+    if (validItems.length === 0) {
+      setCreateError("Add at least one item with a name and price.");
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newOrderForm, items: validItems }),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setOrders((prev) => [created, ...prev]);
+        setTotal((t) => t + 1);
+        setShowCreateModal(false);
+        setNewOrderForm({
+          customerName: "",
+          customerEmail: "",
+          customerPhone: "",
+          shippingAddress: "",
+          paymentStatus: "paid",
+          orderStatus: "confirmed",
+          paymentMethod: "",
+          source: "instagram",
+          notes: "",
+        });
+        setNewOrderItems([emptyNewItem()]);
+      } else {
+        const err = await res.json();
+        setCreateError(err.error || "Failed to create order.");
+      }
+    } catch {
+      setCreateError("Failed to create order.");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -276,13 +405,22 @@ export default function AdminOrdersPage() {
             {total} total order{total !== 1 ? "s" : ""}
           </p>
         </div>
-        <button
-          onClick={handleExport}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] transition-colors"
-        >
-          <Download size={16} />
-          Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] transition-colors"
+          >
+            <Plus size={16} />
+            Add Order
+          </button>
+          <button
+            onClick={handleExport}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[#E8E4DE] text-sm font-medium rounded-lg hover:bg-[#F5F2ED] transition-colors text-[#757575]"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-[#E8E4DE] p-4 space-y-4">
@@ -298,6 +436,17 @@ export default function AdminOrdersPage() {
               className="w-full pl-9 pr-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
             />
           </div>
+
+          <select
+            value={sourceFilter}
+            onChange={(e) => { setSourceFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+          >
+            <option value="">All Sources</option>
+            {sources.map((s) => (
+              <option key={s} value={s}>{sourceLabels[s]}</option>
+            ))}
+          </select>
 
           <select
             value={paymentFilter}
@@ -370,6 +519,7 @@ export default function AdminOrdersPage() {
                 <th className="text-left px-4 py-3 font-medium text-[#757575]">Order ID</th>
                 <th className="text-left px-4 py-3 font-medium text-[#757575]">Customer</th>
                 <th className="text-left px-4 py-3 font-medium text-[#757575] hidden md:table-cell">Email</th>
+                <th className="text-left px-4 py-3 font-medium text-[#757575] hidden lg:table-cell">Source</th>
                 <th className="text-right px-4 py-3 font-medium text-[#757575]">Total</th>
                 <th className="text-center px-4 py-3 font-medium text-[#757575]">Payment</th>
                 <th className="text-center px-4 py-3 font-medium text-[#757575]">Status</th>
@@ -380,13 +530,13 @@ export default function AdminOrdersPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12 text-[#757575]">
+                  <td colSpan={9} className="text-center py-12 text-[#757575]">
                     Loading orders...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12 text-[#757575]">
+                  <td colSpan={9} className="text-center py-12 text-[#757575]">
                     <Package size={32} className="mx-auto mb-2 text-[#C4B5A5]" />
                     No orders found
                   </td>
@@ -400,6 +550,11 @@ export default function AdminOrdersPage() {
                     <td className="px-4 py-3 font-mono text-xs">{order.orderId}</td>
                     <td className="px-4 py-3">{order.customerName}</td>
                     <td className="px-4 py-3 hidden md:table-cell text-[#757575]">{order.customerEmail}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${sourceColors[order.source] || "bg-gray-50 text-gray-600"}`}>
+                        {sourceLabels[order.source] || order.source}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-right font-medium">
                       Rs. {parseFloat(order.totalAmount).toLocaleString()}
                     </td>
@@ -428,7 +583,7 @@ export default function AdminOrdersPage() {
                       </select>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-[#757575] text-xs">
-                      {new Date(order.createdAt).toLocaleDateString("en-PK", {
+                      {new Date(order.createdAt).toLocaleDateString("en-IN", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -494,18 +649,33 @@ export default function AdminOrdersPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E4DE] sticky top-0 bg-white rounded-t-xl">
-              <h2 className="text-lg font-serif font-semibold text-[#1A1A1A]">
-                Order {selectedOrder.orderId}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-serif font-semibold text-[#1A1A1A]">
+                  Order {selectedOrder.orderId}
+                </h2>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${sourceColors[selectedOrder.source] || "bg-gray-50 text-gray-600"}`}>
+                  {sourceLabels[selectedOrder.source] || selectedOrder.source}
+                </span>
+              </div>
               <div className="flex items-center gap-2">
                 {!editMode ? (
-                  <button
-                    onClick={enterEditMode}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#5C4B3D] border border-[#E8E4DE] rounded-lg hover:bg-[#F5F2ED] transition-colors"
-                  >
-                    <Pencil size={14} />
-                    Edit
-                  </button>
+                  <>
+                    <button
+                      onClick={enterEditMode}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#5C4B3D] border border-[#E8E4DE] rounded-lg hover:bg-[#F5F2ED] transition-colors"
+                    >
+                      <Pencil size={14} />
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleDeleteOrder}
+                      disabled={deletingOrder}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-60"
+                    >
+                      <Trash2 size={14} />
+                      {deletingOrder ? "Deleting..." : "Delete"}
+                    </button>
+                  </>
                 ) : (
                   <>
                     <button
@@ -595,6 +765,24 @@ export default function AdminOrdersPage() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <p className="text-xs text-[#757575] mb-1">Source</p>
+                  {editMode ? (
+                    <select
+                      value={editSource}
+                      onChange={(e) => setEditSource(e.target.value)}
+                      className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                    >
+                      {sources.map((s) => (
+                        <option key={s} value={s}>{sourceLabels[s]}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${sourceColors[selectedOrder.source] || "bg-gray-50 text-gray-600"}`}>
+                      {sourceLabels[selectedOrder.source] || selectedOrder.source}
+                    </span>
+                  )}
+                </div>
                 <div className="col-span-2">
                   <p className="text-xs text-[#757575] mb-1">Shipping Address</p>
                   {editMode ? (
@@ -603,10 +791,18 @@ export default function AdminOrdersPage() {
                     <p className="text-sm">{selectedOrder.shippingAddress || "—"}</p>
                   )}
                 </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-[#757575] mb-1">Notes</p>
+                  {editMode ? (
+                    <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} rows={2} placeholder="Internal notes about this order..." className="w-full px-3 py-1.5 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white resize-none" />
+                  ) : (
+                    <p className="text-sm text-[#757575]">{selectedOrder.notes || "—"}</p>
+                  )}
+                </div>
                 <div>
                   <p className="text-xs text-[#757575] mb-1">Date</p>
                   <p className="text-sm">
-                    {new Date(selectedOrder.createdAt).toLocaleDateString("en-PK", {
+                    {new Date(selectedOrder.createdAt).toLocaleDateString("en-IN", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -752,20 +948,227 @@ export default function AdminOrdersPage() {
                 <div className="text-right">
                   <p className="text-sm text-[#757575]">Total</p>
                   {editMode ? (
-                    <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
-                      ₹{editTotal.toLocaleString("en-IN")}
-                      {editDiscount > 0 && (
-                        <span className="block text-xs text-[#757575] font-normal">
-                          Subtotal: ₹{editSubtotal.toLocaleString("en-IN")} - Discount: ₹{editDiscount.toLocaleString("en-IN")}
-                        </span>
-                      )}
-                    </p>
+                    <p className="text-lg font-semibold text-[#1A1A1A]">Rs. {editTotal.toLocaleString()}</p>
                   ) : (
-                    <p className="text-xl font-serif font-semibold text-[#1A1A1A]">
-                      ₹{parseFloat(selectedOrder.totalAmount).toLocaleString("en-IN")}
-                    </p>
+                    <p className="text-lg font-semibold text-[#1A1A1A]">Rs. {parseFloat(selectedOrder.totalAmount).toLocaleString()}</p>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowCreateModal(false)}>
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E4DE] sticky top-0 bg-white rounded-t-xl">
+              <h2 className="text-lg font-serif font-semibold text-[#1A1A1A]">Add Outside Order</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-1 text-[#757575] hover:text-[#1A1A1A] transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="px-6 py-4 space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-[#1A1A1A] mb-3">Order Source</h3>
+                <div className="grid grid-cols-5 gap-2">
+                  {sources.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setNewOrderForm((f) => ({ ...f, source: s }))}
+                      className={`flex flex-col items-center gap-1 px-2 py-3 rounded-lg border text-xs font-medium transition-colors ${
+                        newOrderForm.source === s
+                          ? "border-[#5C4B3D] bg-[#FAF9F6] text-[#5C4B3D]"
+                          : "border-[#E8E4DE] text-[#757575] hover:border-[#5C4B3D]/40"
+                      }`}
+                    >
+                      {s === "instagram" && <Instagram size={16} />}
+                      {s === "whatsapp" && <MessageCircle size={16} />}
+                      {s === "website" && <ShoppingBag size={16} />}
+                      {s === "offline" && <Store size={16} />}
+                      {s === "other" && <MoreHorizontal size={16} />}
+                      {sourceLabels[s]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-[#1A1A1A] mb-3">Customer Details</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-[#757575] mb-1">Name *</label>
+                    <input
+                      type="text"
+                      value={newOrderForm.customerName}
+                      onChange={(e) => setNewOrderForm((f) => ({ ...f, customerName: e.target.value }))}
+                      placeholder="Customer name"
+                      className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#757575] mb-1">Email *</label>
+                    <input
+                      type="email"
+                      value={newOrderForm.customerEmail}
+                      onChange={(e) => setNewOrderForm((f) => ({ ...f, customerEmail: e.target.value }))}
+                      placeholder="customer@email.com"
+                      className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#757575] mb-1">Phone</label>
+                    <input
+                      type="text"
+                      value={newOrderForm.customerPhone}
+                      onChange={(e) => setNewOrderForm((f) => ({ ...f, customerPhone: e.target.value }))}
+                      placeholder="+91 9999999999"
+                      className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#757575] mb-1">Payment Method</label>
+                    <input
+                      type="text"
+                      value={newOrderForm.paymentMethod}
+                      onChange={(e) => setNewOrderForm((f) => ({ ...f, paymentMethod: e.target.value }))}
+                      placeholder="UPI, Cash, Bank Transfer..."
+                      className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs text-[#757575] mb-1">Shipping Address</label>
+                    <textarea
+                      value={newOrderForm.shippingAddress}
+                      onChange={(e) => setNewOrderForm((f) => ({ ...f, shippingAddress: e.target.value }))}
+                      rows={2}
+                      placeholder="Full delivery address"
+                      className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-[#1A1A1A] mb-3">Order Items</h3>
+                <div className="space-y-2">
+                  {newOrderItems.map((item, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                      <div className="col-span-5">
+                        <input
+                          type="text"
+                          value={item.productName}
+                          onChange={(e) => setNewOrderItems((prev) => prev.map((i, j) => j === idx ? { ...i, productName: e.target.value } : i))}
+                          placeholder="Product name"
+                          className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <input
+                          type="number"
+                          min={1}
+                          value={item.quantity}
+                          onChange={(e) => setNewOrderItems((prev) => prev.map((i, j) => j === idx ? { ...i, quantity: parseInt(e.target.value) || 1 } : i))}
+                          placeholder="Qty"
+                          className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                        />
+                      </div>
+                      <div className="col-span-4">
+                        <input
+                          type="number"
+                          min={0}
+                          value={item.price}
+                          onChange={(e) => setNewOrderItems((prev) => prev.map((i, j) => j === idx ? { ...i, price: e.target.value } : i))}
+                          placeholder="Price (Rs.)"
+                          className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                        />
+                      </div>
+                      <div className="col-span-1 flex justify-center">
+                        <button
+                          onClick={() => setNewOrderItems((prev) => prev.filter((_, j) => j !== idx))}
+                          disabled={newOrderItems.length <= 1}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => setNewOrderItems((prev) => [...prev, emptyNewItem()])}
+                    className="inline-flex items-center gap-1.5 text-xs text-[#5C4B3D] hover:text-[#4A3D31] font-medium mt-1"
+                  >
+                    <Plus size={14} />
+                    Add Item
+                  </button>
+                </div>
+                {newOrderTotal > 0 && (
+                  <div className="mt-3 text-right text-sm font-semibold text-[#1A1A1A]">
+                    Total: Rs. {newOrderTotal.toLocaleString()}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-[#757575] mb-1">Payment Status</label>
+                  <select
+                    value={newOrderForm.paymentStatus}
+                    onChange={(e) => setNewOrderForm((f) => ({ ...f, paymentStatus: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                  >
+                    {paymentStatuses.map((s) => (
+                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-[#757575] mb-1">Order Status</label>
+                  <select
+                    value={newOrderForm.orderStatus}
+                    onChange={(e) => setNewOrderForm((f) => ({ ...f, orderStatus: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white"
+                  >
+                    {orderStatuses.map((s) => (
+                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-[#757575] mb-1">Notes (internal)</label>
+                  <textarea
+                    value={newOrderForm.notes}
+                    onChange={(e) => setNewOrderForm((f) => ({ ...f, notes: e.target.value }))}
+                    rows={2}
+                    placeholder="e.g. Customer DM'd on Instagram, paid via UPI screenshot"
+                    className="w-full px-3 py-2 text-sm border border-[#E8E4DE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4B3D]/20 focus:border-[#5C4B3D] bg-white resize-none"
+                  />
+                </div>
+              </div>
+
+              {createError && (
+                <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{createError}</p>
+              )}
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-sm border border-[#E8E4DE] rounded-lg hover:bg-[#F5F2ED] transition-colors text-[#757575]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateOrder}
+                  disabled={creating}
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-[#5C4B3D] text-white text-sm font-medium rounded-lg hover:bg-[#4A3D31] transition-colors disabled:opacity-60"
+                >
+                  <Plus size={16} />
+                  {creating ? "Creating..." : "Create Order"}
+                </button>
               </div>
             </div>
           </div>

@@ -37,6 +37,8 @@ export const orders = pgTable("orders", {
   trackingCarrier: text("tracking_carrier"),
   couponCode: text("coupon_code"),
   discountAmount: numeric("discount_amount", { precision: 10, scale: 2 }),
+  source: text("source", { enum: ["website", "instagram", "whatsapp", "offline", "other"] }).notNull().default("website"),
+  notes: text("notes"),
   emailSent: integer("email_sent").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
