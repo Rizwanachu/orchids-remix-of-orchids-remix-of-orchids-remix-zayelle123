@@ -39,6 +39,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
     const colors = (p.colors ?? []) as ColorInfo[];
     const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
     const hasBundle = Array.isArray(p.bundlePricing) && p.bundlePricing.length > 0;
+    const hasColors = colors.length > 0;
     if (colors.length > 0) {
       for (const color of colors) {
         const slug = colorToSlug(color.name);
@@ -58,7 +59,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
           colorName: color.name,
           colorHex: color.hex,
           href: `/products/${p.handle}?color=${slug}`,
-          hasVariants: hasSizes || hasBundle,
+          hasVariants: hasColors || hasSizes || hasBundle,
         });
       }
     } else {
@@ -75,7 +76,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
         subtitle: p.subtitle,
         colorName: undefined,
         href: `/products/${p.handle}`,
-        hasVariants: hasSizes || hasBundle,
+        hasVariants: hasColors || hasSizes || hasBundle,
       });
     }
   }
