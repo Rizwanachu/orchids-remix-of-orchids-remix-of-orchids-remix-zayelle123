@@ -7,6 +7,12 @@ export interface BundleOffer {
   price: number;
 }
 
+export interface ColorSelection {
+  name: string;
+  hex: string;
+  quantity: number;
+}
+
 export interface CartItem {
   id: string;
   handle: string;
@@ -16,6 +22,7 @@ export interface CartItem {
   image: string;
   quantity: number;
   bundlePricing?: BundleOffer[] | null;
+  colorSelections?: ColorSelection[] | null;
   isFreeShipping?: boolean;
   shippingCost?: number;
   shippingCostKerala?: number;

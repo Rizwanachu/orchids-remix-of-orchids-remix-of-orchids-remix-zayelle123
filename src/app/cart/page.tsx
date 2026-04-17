@@ -65,6 +65,16 @@ export default function CartPage() {
                           </a>
                         </h3>
                         <p className="text-[12px] text-[#757575] mt-0.5">{item.subtitle}</p>
+                        {item.colorSelections && item.colorSelections.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {item.colorSelections.map((cs, ci) => (
+                              <span key={ci} className="inline-flex items-center gap-1 text-[11px] text-[#555] bg-[#F5F2ED] rounded-full px-2 py-0.5">
+                                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 border border-black/10" style={{ backgroundColor: cs.hex }} />
+                                {cs.quantity}× {cs.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <span className="text-[13px] text-[#1A1A1A] font-medium md:hidden mt-1 block">
                           Rs. {item.price.toLocaleString("en-IN")}.00
                         </span>

@@ -28,6 +28,7 @@ export default function ProductDetailPage() {
   const [pincodeInput, setPincodeInput] = useState("");
   const [pincodeResult, setPincodeResult] = useState<{ charge: number | "free"; message: string } | null>(null);
   const [selectedBundleIdx, setSelectedBundleIdx] = useState<number | null>(null);
+  const [bundleColorSelections, setBundleColorSelections] = useState<Record<string, number>>({});
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,10 @@ export default function ProductDetailPage() {
       setActiveImage(0);
     }
   }, [product]);
+
+  useEffect(() => {
+    setBundleColorSelections({});
+  }, [selectedBundleIdx]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -130,6 +135,14 @@ export default function ProductDetailPage() {
   const effectiveQty = selectedBundle ? selectedBundle.quantity : quantity;
 
   const handleAddToCart = () => {
+    const colorSelectionsForCart = (selectedBundle && colors && colors.length > 0)
+      ? Object.entries(bundleColorSelections)
+          .filter(([, qty]) => qty > 0)
+          .map(([name, qty]) => {
+            const color = colors.find(c => c.name === name);
+            return { name, hex: color?.hex || "", quantity: qty };
+          })
+      : null;
     addItem({
       id: product.id,
       handle: product.handle,
@@ -138,6 +151,7 @@ export default function ProductDetailPage() {
       price: product.price,
       image: product.image,
       bundlePricing: product.bundlePricing ?? null,
+      colorSelections: colorSelectionsForCart,
       isFreeShipping: (product as any).isFreeShipping ?? false,
       shippingCost: (product as any).shippingCost,
       shippingCostKerala: (product as any).shippingCostKerala,
@@ -359,6 +373,74 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               )}
+
+              {/* Bundle Color Selection */}
+              {selectedBundle && colors && colors.length > 0 && (() => {
+                const totalSelected = Object.values(bundleColorSelections).reduce((s, n) => s + n, 0);
+                const remaining = selectedBundle.quantity - totalSelected;
+                const availableColors = colors.filter(c => !c.outOfStock);
+                const updateColor = (name: string, delta: number) => {
+                  const current = bundleColorSelections[name] || 0;
+                  const next = Math.max(0, current + delta);
+                  if (delta > 0 && remaining <= 0) return;
+                  setBundleColorSelections(prev => ({ ...prev, [name]: next }));
+                };
+                return (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <p className="text-[12px] text-[#757575] uppercase tracking-wider font-medium">Choose Colors for Bundle</p>
+                      <span className={`text-[12px] font-semibold px-2 py-0.5 rounded ${remaining === 0 ? "bg-[#5C4B3D]/10 text-[#5C4B3D]" : "bg-[#F5F2ED] text-[#757575]"}`}>
+                        {totalSelected}/{selectedBundle.quantity} selected
+                      </span>
+                    </div>
+                    {remaining > 0 && (
+                      <p className="text-[12px] text-[#757575] mb-3">
+                        {remaining === selectedBundle.quantity
+                          ? `Choose ${selectedBundle.quantity} color${selectedBundle.quantity > 1 ? "s" : ""} for your bundle`
+                          : `${remaining} more to select`}
+                      </p>
+                    )}
+                    {remaining === 0 && (
+                      <p className="text-[12px] text-[#5C4B3D] font-medium mb-3">All colors selected!</p>
+                    )}
+                    <div className="flex flex-col gap-2">
+                      {availableColors.map((color, i) => {
+                        const qty = bundleColorSelections[color.name] || 0;
+                        return (
+                          <div key={i} className={`flex items-center justify-between px-4 py-3 rounded-md border transition-colors ${qty > 0 ? "border-[#5C4B3D] bg-[#5C4B3D]/5" : "border-[#E8E4DE]"}`}>
+                            <div className="flex items-center gap-3">
+                              <span className="w-5 h-5 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hex }} />
+                              <span className="text-[13px] text-[#1A1A1A] font-medium">{color.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => updateColor(color.name, -1)}
+                                disabled={qty === 0}
+                                className="w-7 h-7 rounded-full border border-[#E8E4DE] flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <Minus size={12} />
+                              </button>
+                              <span className="w-5 text-center text-[14px] font-semibold text-[#1A1A1A]">{qty}</span>
+                              <button
+                                type="button"
+                                onClick={() => updateColor(color.name, 1)}
+                                disabled={remaining <= 0}
+                                className="w-7 h-7 rounded-full border border-[#E8E4DE] flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {colors.some(c => c.outOfStock) && (
+                      <p className="mt-2 text-[11px] text-[#757575]">Some colors are out of stock and unavailable for selection.</p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {(product as any).colors && (product as any).colors.length > 0 && (
                 <div className="mt-4">
