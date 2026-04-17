@@ -946,7 +946,7 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-[#E8E4DE]">
                 <div className="flex flex-col items-center text-center gap-2">
                   <Truck size={20} className="text-[#5C4B3D]" />
-                  <span className="text-[11px] text-[#757575] uppercase tracking-wider">Free Shipping ₹1950+</span>
+                  <span className="text-[11px] text-[#757575] uppercase tracking-wider">Free Shipping ₹1000+</span>
                 </div>
                 <div className="flex flex-col items-center text-center gap-2">
                   <RotateCcw size={20} className="text-[#5C4B3D]" />

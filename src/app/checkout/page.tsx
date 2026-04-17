@@ -129,7 +129,7 @@ function CheckoutContent() {
   const hasGlobalFreeShipping = items.some((item: any) => item.isFreeShipping);
   const finalMaxShipping = hasGlobalFreeShipping && items.length === 1 ? 0 : maxShipping;
 
-  const shippingCost = subtotal >= 1950 || hasGlobalFreeShipping ? 0 : finalMaxShipping;
+  const shippingCost = subtotal >= 1000 || hasGlobalFreeShipping ? 0 : finalMaxShipping;
 
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -169,7 +169,7 @@ function CheckoutContent() {
   // Only show a shipping amount once state or a valid pincode is entered
   const hasAddressInfo = formData.state !== "" || /^\d{6}$/.test(formData.pincode);
   const allItemsFreeShipping = items.length > 0 && items.every((item: any) => item.isFreeShipping);
-  const shippingKnown = hasAddressInfo || allItemsFreeShipping || subtotal >= 1950;
+  const shippingKnown = hasAddressInfo || allItemsFreeShipping || subtotal >= 1000;
   const displayShipping = shippingKnown ? shippingCost : null;
 
   const totalPrice = subtotal + (displayShipping ?? 0) + codFee - discountAmount;
@@ -737,9 +737,9 @@ function CheckoutContent() {
                   </div>
                 </div>
 
-                {subtotal < 1950 && !allItemsFreeShipping && (
+                {subtotal < 1000 && !allItemsFreeShipping && (
                   <p className="mt-4 text-[12px] text-[#757575] text-center bg-[#F5F2ED] py-2 rounded">
-                    Add ₹{(1950 - subtotal).toLocaleString("en-IN")}.00 more for free shipping
+                    Add ₹{(1000 - subtotal).toLocaleString("en-IN")}.00 more for free shipping
                   </p>
                 )}
 

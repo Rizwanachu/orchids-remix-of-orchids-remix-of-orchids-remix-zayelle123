@@ -31,7 +31,7 @@ export default function CartPage() {
   };
 
   const hasFreeShippingProduct = items.some(item => (item as any).isFreeShipping);
-  const effectiveTotalPrice = (totalPrice + (totalPrice >= 1950 || hasFreeShippingProduct ? 0 : 49));
+  const effectiveTotalPrice = (totalPrice + (totalPrice >= 1000 || hasFreeShippingProduct ? 0 : 49));
 
   return (
     <>
@@ -156,7 +156,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-[#555]">
                       <span>Shipping</span>
-                      <span>{totalPrice >= 1950 || hasFreeShippingProduct ? "Free" : "Rs. 49.00"}</span>
+                      <span>{totalPrice >= 1000 || hasFreeShippingProduct ? "Free" : "Rs. 49.00"}</span>
                     </div>
                   </div>
 
@@ -198,9 +198,9 @@ export default function CartPage() {
                     Continue Shopping
                   </a>
 
-                  {totalPrice < 1950 && (
+                  {totalPrice < 1000 && (
                       <p className="mt-4 text-[12px] text-[#757575] text-center">
-                        Add Rs. {(1950 - totalPrice).toLocaleString("en-IN")}.00 more for free shipping
+                        Add Rs. {(1000 - totalPrice).toLocaleString("en-IN")}.00 more for free shipping
                       </p>
                     )}
                 </div>

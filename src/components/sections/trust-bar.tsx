@@ -6,7 +6,7 @@ const TrustBar = () => {
     {
       icon: <Truck size={28} strokeWidth={1.25} className="text-[#5C4B3D]" />,
       title: "Free Shipping",
-      description: "For all orders above \u20B91950",
+      description: "For all orders above \u20B91000",
     },
     {
       icon: <Clock size={28} strokeWidth={1.25} className="text-[#5C4B3D]" />,
