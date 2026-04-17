@@ -32,7 +32,7 @@ export default function CheckoutPage() {
 function CheckoutContent() {
   const { items: cartItems, totalPrice: cartTotalPrice, clearCart } = useCart();
   const searchParams = useSearchParams();
-  const { products } = useProducts();
+  const { products, loaded: productsLoaded } = useProducts();
 
   const isDirect = searchParams.get("direct") === "true";
   const productId = searchParams.get("id");
@@ -414,6 +414,18 @@ function CheckoutContent() {
               </Link>
             </div>
           </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isDirect && !productsLoaded) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <Loader2 size={28} className="animate-spin text-[#5C4B3D]" />
         </main>
         <Footer />
       </div>
