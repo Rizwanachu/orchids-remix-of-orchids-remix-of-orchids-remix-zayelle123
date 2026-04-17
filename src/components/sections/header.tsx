@@ -106,8 +106,15 @@ const Header = () => {
   return (
     <div className="w-full bg-white relative z-50">
       {announcementEnabled && announcementText && (
-        <div className="bg-[#524436] text-white text-center py-2 text-[12px] tracking-wide">
-          {announcementText}
+        <div className="bg-[#524436] text-white py-[9px] text-[12px] tracking-wide overflow-hidden">
+          <div className="announcement-track">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <React.Fragment key={i}>
+                <span className="px-10 whitespace-nowrap">{announcementText}</span>
+                <span className="opacity-40 text-[10px]">✦</span>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       )}
       {isSearchFocused && (
