@@ -85,6 +85,15 @@ function CheckoutContent() {
     ? (directBundlePrice != null ? directBundlePrice : (directProduct.price || 0) * productQuantity)
     : cartTotalPrice;
 
+  const compareSubtotal = items.reduce((sum: number, it: any) => {
+    const latest = products.find(p => p.id === it.id) as any;
+    const compareUnit = (latest?.compareAt && latest.compareAt > (latest?.price ?? it.price))
+      ? latest.compareAt
+      : (latest?.price ?? it.price);
+    return sum + (Number(compareUnit) || 0) * (it.quantity || 0);
+  }, 0);
+  const productSavings = Math.max(0, compareSubtotal - subtotal);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -645,8 +654,16 @@ function CheckoutContent() {
                 <div className="space-y-2.5 border-t border-[#E8E4DE] pt-4">
                   <div className="flex justify-between text-[13px]">
                     <span className="text-[#757575]">Subtotal</span>
-                    <span className="text-[#1A1A1A]">₹{subtotal.toLocaleString("en-IN")}.00</span>
+                    <span className={productSavings > 0 ? "text-[#757575] line-through" : "text-[#1A1A1A]"}>
+                      ₹{compareSubtotal.toLocaleString("en-IN")}.00
+                    </span>
                   </div>
+                  {productSavings > 0 && (
+                    <div className="flex justify-between text-[13px]">
+                      <span className="text-[#757575]">Discount Price</span>
+                      <span className="text-[#1A1A1A] font-medium">₹{subtotal.toLocaleString("en-IN")}.00</span>
+                    </div>
+                  )}
                   {appliedCoupon && (
                     <div className="flex justify-between text-[13px] text-green-600">
                       <span>Discount ({appliedCoupon.code})</span>
@@ -678,6 +695,14 @@ function CheckoutContent() {
                     <span className="text-[15px] font-bold text-[#1A1A1A]">Total</span>
                     <span className="text-[17px] font-bold text-[#5C4B3D]">₹{totalPrice.toLocaleString("en-IN")}.00</span>
                   </div>
+                  {(productSavings + (appliedCoupon?.discount ?? 0)) > 0 && (
+                    <div className="mt-3 bg-green-50 border border-green-200 rounded-md px-3 py-2 flex items-center justify-between">
+                      <span className="text-[12px] font-semibold text-green-700 uppercase tracking-wider">You Save</span>
+                      <span className="text-[14px] font-bold text-green-700">
+                        ₹{(productSavings + (appliedCoupon?.discount ?? 0)).toLocaleString("en-IN")}.00
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-6 border-t border-[#E8E4DE] pt-6">
