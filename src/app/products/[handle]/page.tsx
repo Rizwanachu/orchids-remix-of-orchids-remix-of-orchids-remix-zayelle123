@@ -185,6 +185,9 @@ export default function ProductDetailPage() {
     setIsRedirecting(true);
 
     try {
+      handleAddToCart();
+      await new Promise((r) => setTimeout(r, 50));
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,7 +200,7 @@ export default function ProductDetailPage() {
               subtitle: product.subtitle,
               price: product.price,
               image: product.image,
-              quantity: quantity,
+              quantity: effectiveQty,
             },
           ],
         }),
@@ -206,12 +209,7 @@ export default function ProductDetailPage() {
       const data = await response.json();
       if (data.checkoutUrl) {
         if (data.checkoutUrl === "/checkout") {
-          const params = new URLSearchParams();
-          params.set("id", product.id);
-          params.set("quantity", effectiveQty.toString());
-          if (selectedBundle) params.set("bundlePrice", selectedBundle.price.toString());
-          params.set("direct", "true");
-          window.location.href = `/checkout?${params.toString()}`;
+          window.location.href = `/checkout`;
         } else {
           window.location.href = data.checkoutUrl;
         }
