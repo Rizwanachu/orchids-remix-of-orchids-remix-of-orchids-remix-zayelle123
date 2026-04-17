@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         .select()
         .from(orders)
         .where(whereClause)
-        .orderBy(desc(orders.id))
+        .orderBy(desc(orders.id), desc(orders.createdAt))
         .limit(limit)
         .offset(offset),
       db
@@ -116,6 +116,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "At least one item is required" }, { status: 400 });
     }
 
+    for (const it of itemsInput) {
+      if (it.bundleType) {
+        const cs = Array.isArray(it.colorSelections) ? it.colorSelections : null;
+        const m = String(it.bundleType).match(/Bundle of (\d+)/i);
+        const bundleQty = m ? parseInt(m[1], 10) : 0;
+        if (!cs || cs.length === 0) {
+          return NextResponse.json({ error: `Bundle item "${it.productName}" requires colour selections` }, { status: 400 });
+        }
+        const sum = cs.reduce((s: number, c: any) => s + (Number(c.quantity) || 0), 0);
+        if (bundleQty > 0 && sum !== bundleQty) {
+          return NextResponse.json({ error: `Bundle quantity mismatch for "${it.productName}": selected ${sum} of ${bundleQty}` }, { status: 400 });
+        }
+      }
+    }
+
     const totalAmount = itemsInput.reduce(
       (sum: number, item: any) => sum + parseFloat(item.price || "0") * (item.quantity || 1),
       0
@@ -159,25 +174,23 @@ export async function POST(request: NextRequest) {
     }
     if (!newOrder) throw lastErr || new Error("Failed to allocate order ID");
 
-    const insertedItems = await db
-      .insert(orderItems)
-      .values(
-        itemsInput.map((item: any) => ({
-          orderId: newOrder!.id,
-          productName: item.productName,
-          productHandle: item.productHandle || null,
-          quantity: item.quantity || 1,
-          price: parseFloat(item.price || "0").toFixed(2),
-          image: item.image || null,
-          colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
-            ? JSON.stringify(item.colorSelections) : null,
-          selectedColor: item.selectedColor && typeof item.selectedColor === "object" ? JSON.stringify(item.selectedColor)
-            : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
-          selectedSize: item.selectedSize || null,
-          bundleType: item.bundleType || null,
-        }))
-      )
-      .returning();
+    const itemValuesAdmin = itemsInput.map((item: any) => ({
+      orderId: newOrder!.id,
+      productName: item.productName,
+      productHandle: item.productHandle || null,
+      quantity: item.quantity || 1,
+      price: parseFloat(item.price || "0").toFixed(2),
+      image: item.image || null,
+      colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
+        ? JSON.stringify(item.colorSelections) : null,
+      selectedColor: item.selectedColor && typeof item.selectedColor === "object" ? JSON.stringify(item.selectedColor)
+        : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
+      selectedSize: item.selectedSize || null,
+      bundleType: item.bundleType || null,
+    }));
+
+    console.log("ORDER ITEM DEBUG:", JSON.stringify(itemValuesAdmin));
+    const insertedItems = await db.insert(orderItems).values(itemValuesAdmin).returning();
 
     await logAdminActivity(
       admin.id,

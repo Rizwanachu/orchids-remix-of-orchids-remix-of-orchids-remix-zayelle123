@@ -45,9 +45,9 @@ export function getItemConfigLines(item: OrderItemConfig): string[] {
     } else {
       lines.push(item.bundleType);
     }
-  } else {
-    if (sc) lines.push(`Color: ${sc.name}`);
+    return lines;
   }
+  if (sc) lines.push(`Color: ${sc.name}`);
   if (item.selectedSize) lines.push(`Size: ${item.selectedSize}`);
   return lines;
 }

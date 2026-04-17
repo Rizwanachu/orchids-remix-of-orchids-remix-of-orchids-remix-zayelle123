@@ -113,44 +113,32 @@ function renderInvoice(
   doc.text("TOTAL", c4, y + 4, { width: 55, align: "right" });
   y += 14;
 
-  const maxItemsY = oy + (doc.page.height / 2) - 110;
-  let truncated = 0;
   for (let idx = 0; idx < order.items.length; idx++) {
     const item = order.items[idx];
     const lineTotal = item.quantity * parseFloat(item.price);
     const cfgLines = getItemConfigLines(item);
 
-    if (y > maxItemsY) {
-      truncated = order.items.length - idx;
-      break;
-    }
-
-    doc.font("Helvetica").fontSize(8).fillColor(textColor);
+    doc.font("Helvetica").fontSize(7.5).fillColor(textColor);
     const nameW = c2 - c1 - 4;
-    doc.text(item.productName, c1, y + 3, { width: nameW });
+    doc.text(item.productName, c1, y + 2, { width: nameW });
     const nameH = doc.heightOfString(item.productName, { width: nameW });
 
     let cfgH = 0;
     if (cfgLines.length > 0) {
       const cfgText = cfgLines.join("\n");
-      doc.font("Helvetica").fontSize(6.5).fillColor(mutedColor)
-        .text(cfgText, c1, y + 3 + nameH + 1, { width: nameW });
-      cfgH = doc.heightOfString(cfgText, { width: nameW }) + 1;
+      doc.font("Helvetica").fontSize(6).fillColor(mutedColor)
+        .text(cfgText, c1, y + 2 + nameH, { width: nameW, lineGap: 0 });
+      cfgH = doc.heightOfString(cfgText, { width: nameW, lineGap: 0 });
     }
 
-    doc.font("Helvetica").fontSize(8).fillColor(textColor)
-      .text(String(item.quantity), c2, y + 3, { width: 50, align: "center" });
-    doc.text(rupees(parseFloat(item.price)), c3, y + 3, { width: 55, align: "right" });
-    doc.font("Helvetica-Bold").text(rupees(lineTotal), c4, y + 3, { width: 55, align: "right" });
+    doc.font("Helvetica").fontSize(7.5).fillColor(textColor)
+      .text(String(item.quantity), c2, y + 2, { width: 50, align: "center" });
+    doc.text(rupees(parseFloat(item.price)), c3, y + 2, { width: 55, align: "right" });
+    doc.font("Helvetica-Bold").text(rupees(lineTotal), c4, y + 2, { width: 55, align: "right" });
 
-    const rowH = Math.max(14, nameH + cfgH + 6);
+    const rowH = Math.max(12, nameH + cfgH + 4);
     y += rowH;
     doc.moveTo(left, y).lineTo(right, y).strokeColor("#F0EDE8").lineWidth(0.5).stroke();
-  }
-  if (truncated > 0) {
-    doc.font("Helvetica-Oblique").fontSize(7).fillColor(mutedColor)
-      .text(`…and ${truncated} more item${truncated > 1 ? "s" : ""}`, c1, y + 3, { width: contentW - 12 });
-    y += 12;
   }
 
   y += 6;

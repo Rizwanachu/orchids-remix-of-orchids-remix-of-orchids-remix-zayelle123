@@ -88,14 +88,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [wishlist, loaded]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">, qty: number = 1) => {
+    const baseId = String(item.id).split("|")[0];
+    const mixFp = item.colorSelections && item.colorSelections.length > 0
+      ? [...item.colorSelections]
+          .map((c) => ({ n: c.name || "", q: Number(c.quantity) || 0 }))
+          .sort((a, b) => a.n.localeCompare(b.n))
+          .map((c) => `${c.n}:${c.q}`)
+          .join(",")
+      : "";
+    const variantKey = `${baseId}|${item.bundleType || ""}|${item.selectedColor?.name || ""}|${item.selectedSize || ""}|${mixFp}`;
+    const itemWithKey = { ...item, id: variantKey };
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      const existing = prev.find((i) => i.id === variantKey);
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, ...item, quantity: i.quantity + qty } : i
+          i.id === variantKey ? { ...i, ...itemWithKey, quantity: i.quantity + qty } : i
         );
       }
-      return [...prev, { ...item, quantity: qty }];
+      return [...prev, { ...itemWithKey, quantity: qty }];
     });
   }, []);
 

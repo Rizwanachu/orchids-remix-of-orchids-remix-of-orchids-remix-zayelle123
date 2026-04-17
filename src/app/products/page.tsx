@@ -24,7 +24,9 @@ type VariantCard = {
   compareAt?: number;
   subtitle: string;
   colorName?: string;
+  colorHex?: string;
   href: string;
+  hasVariants: boolean;
 };
 
 function colorToSlug(name: string) {
@@ -35,6 +37,8 @@ function expandToVariantCards(products: any[]): VariantCard[] {
   const cards: VariantCard[] = [];
   for (const p of products) {
     const colors = (p.colors ?? []) as ColorInfo[];
+    const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
+    const hasBundle = Array.isArray(p.bundlePricing) && p.bundlePricing.length > 0;
     if (colors.length > 0) {
       for (const color of colors) {
         const slug = colorToSlug(color.name);
@@ -52,7 +56,9 @@ function expandToVariantCards(products: any[]): VariantCard[] {
           compareAt: p.compareAt,
           subtitle: p.subtitle,
           colorName: color.name,
+          colorHex: color.hex,
           href: `/products/${p.handle}?color=${slug}`,
+          hasVariants: hasSizes || hasBundle,
         });
       }
     } else {
@@ -69,6 +75,7 @@ function expandToVariantCards(products: any[]): VariantCard[] {
         subtitle: p.subtitle,
         colorName: undefined,
         href: `/products/${p.handle}`,
+        hasVariants: hasSizes || hasBundle,
       });
     }
   }
@@ -444,9 +451,26 @@ function AllProductsContent() {
                         </button>
                       </div>
                       <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                        <AddToCartButton
-                          onAdd={() => addItem({ id: card.key, handle: card.handle, name: card.colorName ? `${card.name} — ${card.colorName}` : card.name, subtitle: card.subtitle, price: card.price, image: card.image })}
-                        />
+                        {card.hasVariants ? (
+                          <a
+                            href={card.href}
+                            className="flex items-center justify-center gap-2 w-full bg-white/95 hover:bg-white text-[#1A1A1A] text-[12px] uppercase tracking-wider font-medium py-2.5 rounded-sm border border-[#E8E4DE] transition-colors"
+                          >
+                            Select Options
+                          </a>
+                        ) : (
+                          <AddToCartButton
+                            onAdd={() => addItem({
+                              id: String(card.productId),
+                              handle: card.handle,
+                              name: card.colorName ? `${card.name} — ${card.colorName}` : card.name,
+                              subtitle: card.subtitle,
+                              price: card.price,
+                              image: card.image,
+                              selectedColor: card.colorName ? { name: card.colorName, hex: card.colorHex || "" } : null,
+                            })}
+                          />
+                        )}
                       </div>
                     </div>
                     <div className="mt-3">
