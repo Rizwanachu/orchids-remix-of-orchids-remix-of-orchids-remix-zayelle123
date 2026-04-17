@@ -70,6 +70,12 @@
 - Frontend `src/components/sections/testimonials.tsx` fetches from `/api/testimonials` on mount; falls back to 4 hardcoded testimonials if API fails or returns empty.
 - Sidebar link "Testimonials" added to admin layout.
 
+## Responsiveness
+- All product grid pages (products, new-arrivals, gift-hampers, collections/[slug], wishlist) have touch-accessible wishlist and add-to-cart buttons: buttons are always visible on mobile (<640px) and hover-only on desktop, using `sm:opacity-0 sm:group-hover:opacity-100` pattern.
+- New Arrivals carousel (homepage) same fix applied to wishlist icon group and AddToCartButton.
+- Product detail page price badge row uses `flex-wrap` to prevent overflow of "X% OFF (SAVE ₹X)" badge on narrow screens.
+- Admin dashboard outer container uses `p-4 md:p-8` with a responsive header that stacks on mobile.
+
 ## Deployment
 - Deployed on Vercel.
 - Required Vercel environment variables: `DATABASE_URL`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.

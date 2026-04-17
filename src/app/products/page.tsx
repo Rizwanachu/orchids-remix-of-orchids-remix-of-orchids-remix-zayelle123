@@ -443,7 +443,7 @@ function AllProductsContent() {
                           {card.badge}
                         </span>
                       )}
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => toggleWishlist(card.key)}
                           className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-[#F5F2ED] text-[#757575]"}`}
@@ -451,7 +451,7 @@ function AllProductsContent() {
                           <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
                         </button>
                       </div>
-                      <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      <div className="absolute bottom-3 left-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300">
                         {card.hasVariants ? (
                           <a
                             href={card.href}

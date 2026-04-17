@@ -97,7 +97,7 @@ export default function NewArrivalsPage() {
                       <span className="absolute top-3 left-3 bg-[#5C4B3D] text-white text-[11px] font-medium px-2.5 py-1 rounded-full uppercase tracking-wider">
                         New
                       </span>
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => toggleWishlist(wishlistKey)}
                           className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-[#F5F2ED] text-[#757575]"}`}
@@ -105,7 +105,7 @@ export default function NewArrivalsPage() {
                           <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
                         </button>
                       </div>
-                      <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      <div className="absolute bottom-3 left-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300">
                         <AddToCartButton
                           onAdd={() => addItem({
                             id: wishlistKey,

@@ -61,8 +61,8 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-8">
         <div>
           <h1 className="text-3xl font-bold">Product Management</h1>
           <p className="text-muted-foreground mt-1">Add, edit, and manage your store products.</p>

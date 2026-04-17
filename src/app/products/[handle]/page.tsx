@@ -341,7 +341,7 @@ export default function ProductDetailPage() {
                       ? (selectedSize.compareAt ?? null)
                       : (product.compareAt ?? null);
                     return (
-                      <div className="flex items-center gap-3 mt-4">
+                      <div className="flex flex-wrap items-center gap-2 mt-4">
                         <span className="text-[24px] font-semibold text-[#1A1A1A]">
                           ₹{displayPrice.toLocaleString("en-IN")}.00
                         </span>

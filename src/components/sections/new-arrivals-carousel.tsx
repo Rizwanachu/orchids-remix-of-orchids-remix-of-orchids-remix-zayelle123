@@ -54,7 +54,7 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
             />
           </a>
 
-          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
             <button
               onClick={() => toggleWishlist(product.id)}
               className={`w-10 h-10 rounded-full flex items-center justify-center shadow-soft transition-colors ${wishlisted ? "bg-red-50 text-red-500" : "bg-white hover:bg-primary hover:text-white"}`}
@@ -69,7 +69,7 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
           <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
             <AddToCartButton
               onAdd={() => addItem({ id: product.id, handle: product.handle, name: product.name, subtitle: product.subtitle, price: product.price, image: product.image })}
-              className="py-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-auto"
+              className="py-3 sm:translate-y-4 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 pointer-events-auto"
             />
           </div>
         </div>

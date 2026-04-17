@@ -119,7 +119,7 @@ export default function WishlistPage() {
                         <Heart size={15} fill="currentColor" />
                       </button>
                     </div>
-                    <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <div className="absolute bottom-3 left-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300">
                       <AddToCartButton
                         onAdd={() => addItem({
                           id: card.key,
