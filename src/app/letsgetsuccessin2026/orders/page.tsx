@@ -902,7 +902,7 @@ export default function AdminOrdersPage() {
                                 {(item as any).bundleType && (
                                   <span className="inline-flex w-fit items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C4B3D] bg-[#5C4B3D]/10 px-1.5 py-0.5 rounded">{(item as any).bundleType}</span>
                                 )}
-                                {editColorSel && (
+                                {(item as any).bundleType && editColorSel && (
                                   <div className="flex flex-wrap gap-1.5">
                                     {editColorSel.map((cs, ci) => (
                                       <span key={ci} className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A] bg-[#F5F2ED] border border-[#E8E4DE] rounded-full px-2 py-0.5">
@@ -912,10 +912,10 @@ export default function AdminOrdersPage() {
                                     ))}
                                   </div>
                                 )}
-                                {editSc && !editColorSel && (
+                                {!(item as any).bundleType && editSc && (
                                   <span className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A]"><span className="w-2.5 h-2.5 rounded-full border border-black/10" style={{ backgroundColor: editSc.hex }} />Color: {editSc.name}</span>
                                 )}
-                                {(item as any).selectedSize && (
+                                {!(item as any).bundleType && (item as any).selectedSize && (
                                   <span className="text-[11px] text-[#1A1A1A]">Size: {(item as any).selectedSize}</span>
                                 )}
                               </div>
@@ -995,13 +995,13 @@ export default function AdminOrdersPage() {
                                         </div>
                                       </div>
                                     )}
-                                    {sc && !colorSel && (
+                                    {!bt && sc && (
                                       <span className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A]">
                                         <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: sc.hex }} />
                                         Color: <span className="font-semibold">{sc.name}</span>
                                       </span>
                                     )}
-                                    {ss && (
+                                    {!bt && ss && (
                                       <span className="text-[11px] text-[#1A1A1A]">Size: <span className="font-semibold">{ss}</span></span>
                                     )}
                                   </div>
