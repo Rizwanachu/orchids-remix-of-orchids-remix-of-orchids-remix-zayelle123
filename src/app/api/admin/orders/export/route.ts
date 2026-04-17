@@ -59,7 +59,26 @@ export async function GET(request: NextRequest) {
 
     for (const order of ordersList) {
       const items = allItems.filter((item) => item.orderId === order.id);
-      const products = items.map((i) => `${i.productName} x${i.quantity}`).join("; ");
+      const products = items.map((i) => {
+        const parts: string[] = [`${i.productName} x${i.quantity}`];
+        if ((i as any).bundleType) parts.push(`[${(i as any).bundleType}]`);
+        if ((i as any).colorSelections) {
+          try {
+            const cs = JSON.parse((i as any).colorSelections);
+            if (Array.isArray(cs) && cs.length) parts.push(`Mix: ${cs.map((c: any) => `${c.quantity}× ${c.name}`).join(", ")}`);
+          } catch {}
+        }
+        if ((i as any).selectedColor) {
+          try {
+            const sc = JSON.parse((i as any).selectedColor);
+            if (sc?.name) parts.push(`Color: ${sc.name}`);
+          } catch {
+            parts.push(`Color: ${(i as any).selectedColor}`);
+          }
+        }
+        if ((i as any).selectedSize) parts.push(`Size: ${(i as any).selectedSize}`);
+        return parts.join(" ");
+      }).join("; ");
       const row = [
         order.orderId,
         order.customerName,

@@ -8,6 +8,7 @@ import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Package, ChevronRight, FileDown, Loader2, Truck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { getItemConfigLines } from "@/lib/order-item-display";
 
 interface DbOrderItem {
   id: number;
@@ -17,6 +18,10 @@ interface DbOrderItem {
   quantity: number;
   price: string;
   image: string | null;
+  colorSelections?: string | null;
+  selectedColor?: string | null;
+  selectedSize?: string | null;
+  bundleType?: string | null;
 }
 
 interface DbOrder {
@@ -160,16 +165,24 @@ export default function MyOrdersPage() {
 
                   {order.items && order.items.length > 0 && (
                     <div className="mb-3 space-y-2">
-                      {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 text-[13px] text-[#757575]">
-                          {item.image && (
-                            <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
-                          )}
-                          <span className="flex-1 truncate">{item.productName}</span>
-                          <span>x{item.quantity}</span>
-                          <span className="text-[#1A1A1A]">Rs. {Number(item.price).toLocaleString("en-IN")}</span>
-                        </div>
-                      ))}
+                      {order.items.map((item) => {
+                        const cfg = getItemConfigLines(item);
+                        return (
+                          <div key={item.id} className="flex items-start gap-3 text-[13px] text-[#757575]">
+                            {item.image && (
+                              <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded flex-shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="truncate text-[#1A1A1A]">{item.productName}</p>
+                              {cfg.length > 0 && (
+                                <p className="text-[12px] text-[#5C4B3D] mt-0.5">{cfg.join(" · ")}</p>
+                              )}
+                            </div>
+                            <span>x{item.quantity}</span>
+                            <span className="text-[#1A1A1A]">Rs. {Number(item.price).toLocaleString("en-IN")}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 

@@ -143,6 +143,16 @@ export default function ProductDetailPage() {
             return { name, hex: color?.hex || "", quantity: qty };
           })
       : null;
+    const sc = !selectedBundle && selectedColorIdx !== null && colors?.[selectedColorIdx]
+      ? { name: colors[selectedColorIdx].name, hex: colors[selectedColorIdx].hex || "" }
+      : null;
+    const sizes = (product as any).sizes as Array<{ label: string }> | undefined;
+    const ss = !selectedBundle && selectedSizeIdx !== null && sizes?.[selectedSizeIdx]
+      ? sizes[selectedSizeIdx].label
+      : null;
+    const bt = selectedBundle
+      ? `Bundle of ${selectedBundle.quantity} — Rs. ${Number(selectedBundle.price).toLocaleString("en-IN")}`
+      : null;
     addItem({
       id: product.id,
       handle: product.handle,
@@ -152,6 +162,9 @@ export default function ProductDetailPage() {
       image: product.image,
       bundlePricing: product.bundlePricing ?? null,
       colorSelections: colorSelectionsForCart,
+      selectedColor: sc,
+      selectedSize: ss,
+      bundleType: bt,
       isFreeShipping: (product as any).isFreeShipping ?? false,
       shippingCost: (product as any).shippingCost,
       shippingCostKerala: (product as any).shippingCostKerala,

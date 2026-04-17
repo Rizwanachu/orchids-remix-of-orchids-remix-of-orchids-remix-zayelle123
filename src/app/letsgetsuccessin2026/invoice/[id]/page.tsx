@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { Loader2, Printer, Download, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { getItemConfigLines, parseColorSelections, parseSelectedColor } from "@/lib/order-item-display";
+
 interface OrderItem {
   id: number;
   productName: string;
@@ -12,6 +14,10 @@ interface OrderItem {
   quantity: number;
   price: string;
   image: string;
+  colorSelections?: string | null;
+  selectedColor?: string | null;
+  selectedSize?: string | null;
+  bundleType?: string | null;
 }
 
 interface OrderData {
@@ -115,11 +121,36 @@ function InvoiceContent({ order }: { order: OrderData }) {
             </tr>
           </thead>
           <tbody>
-            {order.items.map((item, index) => (
-              <tr key={item.id} className="border-b border-[#E8E4DE]">
+            {order.items.map((item, index) => {
+              const cs = parseColorSelections(item.colorSelections);
+              const sc = parseSelectedColor(item.selectedColor);
+              return (
+              <tr key={item.id} className="border-b border-[#E8E4DE] align-top">
                 <td className="py-4 pr-4 text-[13px] text-[#757575]">{index + 1}</td>
                 <td className="py-4 pr-4">
                   <p className="text-[14px] font-medium text-[#1A1A1A]">{item.productName}</p>
+                  {item.bundleType && (
+                    <p className="text-[12px] text-[#5C4B3D] mt-1 font-semibold">{item.bundleType}</p>
+                  )}
+                  {cs && (
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {cs.map((c, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A] bg-[#F5F2ED] border border-[#E8E4DE] rounded-full px-2 py-0.5">
+                          <span className="w-2.5 h-2.5 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
+                          <span className="font-semibold">{c.quantity}×</span> {c.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {sc && !cs && (
+                    <p className="text-[12px] text-[#1A1A1A] mt-1 inline-flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: sc.hex }} />
+                      Color: <span className="font-semibold">{sc.name}</span>
+                    </p>
+                  )}
+                  {item.selectedSize && (
+                    <p className="text-[12px] text-[#1A1A1A] mt-1">Size: <span className="font-semibold">{item.selectedSize}</span></p>
+                  )}
                 </td>
                 <td className="py-4 px-4 text-center text-[14px] text-[#1A1A1A]">{item.quantity}</td>
                 <td className="py-4 px-4 text-right text-[14px] text-[#1A1A1A]">{formatCurrency(Number(item.price))}</td>
@@ -127,7 +158,7 @@ function InvoiceContent({ order }: { order: OrderData }) {
                   {formatCurrency(Number(item.price) * item.quantity)}
                 </td>
               </tr>
-            ))}
+            );})}
           </tbody>
         </table>
 

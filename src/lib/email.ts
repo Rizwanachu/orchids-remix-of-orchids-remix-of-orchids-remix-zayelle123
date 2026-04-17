@@ -2,6 +2,22 @@ import nodemailer from "nodemailer";
 import { db } from "@/../server/db";
 import { orders } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
+import { getItemConfigLines } from "./order-item-display";
+
+function escHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function itemConfigHtml(item: { colorSelections?: string | null; selectedColor?: string | null; selectedSize?: string | null; bundleType?: string | null }): string {
+  const lines = getItemConfigLines(item);
+  if (lines.length === 0) return "";
+  return `<div class="product-meta" style="font-size:13px;color:#5C4B3D;margin-top:4px;line-height:1.5;">${lines.map(l => `• ${escHtml(l)}`).join("<br>")}</div>`;
+}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
@@ -127,6 +143,10 @@ interface OrderEmailData {
     quantity: number;
     price: string;
     image?: string | null;
+    colorSelections?: string | null;
+    selectedColor?: string | null;
+    selectedSize?: string | null;
+    bundleType?: string | null;
   }>;
   couponCode?: string | null;
   discountAmount?: string | null;
@@ -161,7 +181,8 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData, retryCoun
           <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
         </td>
         <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
-          <div class="product-name">${item.productName}</div>
+          <div class="product-name">${escHtml(item.productName)}</div>
+          ${itemConfigHtml(item)}
           <div class="product-meta">Quantity: ${item.quantity}</div>
           <div class="product-price">₹${parseFloat(item.price).toLocaleString("en-IN")}</div>
         </td>
@@ -360,7 +381,8 @@ export async function sendNewOrderNotificationEmail(data: OrderEmailData) {
           <img src="${toAbsoluteUrl(item.image)}" class="product-image" alt="${item.productName}">
         </td>
         <td class="product-info" style="padding-left: 0; padding-right: 20px; vertical-align: top;">
-          <div class="product-name">${item.productName}</div>
+          <div class="product-name">${escHtml(item.productName)}</div>
+          ${itemConfigHtml(item)}
           <div class="product-meta">Quantity: ${item.quantity}</div>
           <div class="product-price">₹${parseFloat(item.price).toLocaleString("en-IN")}</div>
         </td>

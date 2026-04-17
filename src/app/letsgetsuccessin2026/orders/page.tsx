@@ -873,13 +873,53 @@ export default function AdminOrdersPage() {
                     </thead>
                     <tbody>
                       {editMode ? (
-                        editItems.map((item) => (
+                        editItems.map((item) => {
+                          let editColorSel: Array<{ name: string; hex: string; quantity: number }> | null = null;
+                          if ((item as any).colorSelections) {
+                            try {
+                              const parsed = JSON.parse((item as any).colorSelections);
+                              if (Array.isArray(parsed) && parsed.length > 0) editColorSel = parsed;
+                            } catch {}
+                          }
+                          let editSc: { name: string; hex: string } | null = null;
+                          if ((item as any).selectedColor) {
+                            try {
+                              const p = JSON.parse((item as any).selectedColor);
+                              if (p?.name) editSc = { name: p.name, hex: p.hex || "" };
+                            } catch {
+                              editSc = { name: String((item as any).selectedColor), hex: "" };
+                            }
+                          }
+                          return (
                           <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
-                            <td className="px-4 py-2.5 flex items-center gap-3">
+                            <td className="px-4 py-2.5">
+                              <div className="flex items-start gap-3">
                               {item.image && (
                                 <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
                               )}
-                              <span className="text-sm">{item.productName}</span>
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm">{item.productName}</span>
+                                {(item as any).bundleType && (
+                                  <span className="inline-flex w-fit items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C4B3D] bg-[#5C4B3D]/10 px-1.5 py-0.5 rounded">{(item as any).bundleType}</span>
+                                )}
+                                {editColorSel && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {editColorSel.map((cs, ci) => (
+                                      <span key={ci} className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A] bg-[#F5F2ED] border border-[#E8E4DE] rounded-full px-2 py-0.5">
+                                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 border border-black/10" style={{ backgroundColor: cs.hex }} />
+                                        <span className="font-semibold">{cs.quantity}×</span> {cs.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {editSc && !editColorSel && (
+                                  <span className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A]"><span className="w-2.5 h-2.5 rounded-full border border-black/10" style={{ backgroundColor: editSc.hex }} />Color: {editSc.name}</span>
+                                )}
+                                {(item as any).selectedSize && (
+                                  <span className="text-[11px] text-[#1A1A1A]">Size: {(item as any).selectedSize}</span>
+                                )}
+                              </div>
+                              </div>
                             </td>
                             <td className="px-4 py-2.5 text-center">
                               <input
@@ -905,7 +945,7 @@ export default function AdminOrdersPage() {
                               </button>
                             </td>
                           </tr>
-                        ))
+                        );})
                       ) : (
                         selectedOrder.items.map((item) => {
                           let colorSel: Array<{ name: string; hex: string; quantity: number }> | null = null;
@@ -915,19 +955,35 @@ export default function AdminOrdersPage() {
                               if (Array.isArray(parsed) && parsed.length > 0) colorSel = parsed;
                             } catch {}
                           }
+                          let sc: { name: string; hex: string } | null = null;
+                          if ((item as any).selectedColor) {
+                            try {
+                              const p = JSON.parse((item as any).selectedColor);
+                              if (p?.name) sc = { name: p.name, hex: p.hex || "" };
+                            } catch {
+                              sc = { name: String((item as any).selectedColor), hex: "" };
+                            }
+                          }
+                          const bt = (item as any).bundleType as string | null;
+                          const ss = (item as any).selectedSize as string | null;
                           return (
                             <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
                               <td className="px-4 py-2.5">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-start gap-3">
                                   {item.image && (
                                     <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
                                   )}
                                   <div className="flex flex-col gap-1">
                                     <span className="text-sm">{item.productName}</span>
+                                    {bt && (
+                                      <span className="inline-flex w-fit items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C4B3D] bg-[#5C4B3D]/10 px-1.5 py-0.5 rounded">
+                                        {bt}
+                                      </span>
+                                    )}
                                     {colorSel && (
                                       <div className="flex flex-col gap-1 mt-0.5">
                                         <span className="inline-flex w-fit items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C4B3D] bg-[#5C4B3D]/10 px-1.5 py-0.5 rounded">
-                                          Bundle — Color Mix
+                                          Color Mix
                                         </span>
                                         <div className="flex flex-wrap gap-1.5">
                                           {colorSel.map((cs, ci) => (
@@ -938,6 +994,15 @@ export default function AdminOrdersPage() {
                                           ))}
                                         </div>
                                       </div>
+                                    )}
+                                    {sc && !colorSel && (
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A]">
+                                        <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: sc.hex }} />
+                                        Color: <span className="font-semibold">{sc.name}</span>
+                                      </span>
+                                    )}
+                                    {ss && (
+                                      <span className="text-[11px] text-[#1A1A1A]">Size: <span className="font-semibold">{ss}</span></span>
                                     )}
                                   </div>
                                 </div>

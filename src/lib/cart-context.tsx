@@ -23,6 +23,9 @@ export interface CartItem {
   quantity: number;
   bundlePricing?: BundleOffer[] | null;
   colorSelections?: ColorSelection[] | null;
+  selectedColor?: { name: string; hex: string } | null;
+  selectedSize?: string | null;
+  bundleType?: string | null;
   isFreeShipping?: boolean;
   shippingCost?: number;
   shippingCostKerala?: number;

@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         .select()
         .from(orders)
         .where(whereClause)
-        .orderBy(desc(orders.createdAt))
+        .orderBy(desc(orders.createdAt), desc(orders.id))
         .limit(limit)
         .offset(offset),
       db
@@ -121,41 +121,66 @@ export async function POST(request: NextRequest) {
       0
     );
 
-    const year = new Date().getFullYear();
-    const [{ maxId }] = await db
-      .select({ maxId: sql<number>`COALESCE(MAX(id), 10000)` })
-      .from(orders);
-    const orderId = `ZAY-${maxId + 1}`;
-
-    const [newOrder] = await db
-      .insert(orders)
-      .values({
-        orderId,
-        customerName,
-        customerEmail,
-        customerPhone: customerPhone || null,
-        shippingAddress: shippingAddress || null,
-        totalAmount: totalAmount.toFixed(2),
-        paymentStatus: paymentStatus || "unpaid",
-        orderStatus: orderStatus || "processing",
-        paymentMethod: paymentMethod || null,
-        source: source || "offline",
-        notes: notes || null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-      .returning();
+    let newOrder: typeof orders.$inferSelect | undefined;
+    let orderId = "";
+    let attempts = 0;
+    let lastErr: any = null;
+    while (!newOrder && attempts < 5) {
+      attempts++;
+      const [lastOrder] = await db
+        .select({ orderId: orders.orderId })
+        .from(orders)
+        .orderBy(desc(orders.id))
+        .limit(1);
+      let nextNum = 10001;
+      if (lastOrder?.orderId) {
+        const match = lastOrder.orderId.match(/ZAY-(\d+)/);
+        if (match) nextNum = parseInt(match[1]) + attempts;
+      }
+      orderId = `ZAY-${nextNum}`;
+      try {
+        const inserted = await db
+          .insert(orders)
+          .values({
+            orderId,
+            customerName,
+            customerEmail,
+            customerPhone: customerPhone || null,
+            shippingAddress: shippingAddress || null,
+            totalAmount: totalAmount.toFixed(2),
+            paymentStatus: paymentStatus || "unpaid",
+            orderStatus: orderStatus || "processing",
+            paymentMethod: paymentMethod || null,
+            source: source || "offline",
+            notes: notes || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+          .returning();
+        newOrder = inserted[0];
+      } catch (e: any) {
+        lastErr = e;
+        if (!String(e?.message || "").toLowerCase().includes("unique")) throw e;
+      }
+    }
+    if (!newOrder) throw lastErr || new Error("Failed to allocate order ID");
 
     const insertedItems = await db
       .insert(orderItems)
       .values(
         itemsInput.map((item: any) => ({
-          orderId: newOrder.id,
+          orderId: newOrder!.id,
           productName: item.productName,
           productHandle: item.productHandle || null,
           quantity: item.quantity || 1,
           price: parseFloat(item.price || "0").toFixed(2),
           image: item.image || null,
+          colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
+            ? JSON.stringify(item.colorSelections) : null,
+          selectedColor: item.selectedColor && typeof item.selectedColor === "object" ? JSON.stringify(item.selectedColor)
+            : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
+          selectedSize: item.selectedSize || null,
+          bundleType: item.bundleType || null,
         }))
       )
       .returning();

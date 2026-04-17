@@ -53,6 +53,9 @@ export const orderItems = pgTable("order_items", {
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   image: text("image"),
   colorSelections: text("color_selections"),
+  selectedColor: text("selected_color"),
+  selectedSize: text("selected_size"),
+  bundleType: text("bundle_type"),
 });
 
 export const coupons = pgTable("coupons", {

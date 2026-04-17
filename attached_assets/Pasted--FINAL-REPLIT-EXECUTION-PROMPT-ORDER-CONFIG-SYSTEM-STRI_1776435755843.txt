@@ -1,0 +1,309 @@
+🚀 FINAL REPLIT EXECUTION PROMPT — ORDER CONFIG SYSTEM (STRICT & PRODUCTION SAFE)
+
+Implement a unified product configuration system across:
+
+1. Admin Order Panel
+2. Invoice Page + A4 PDF Download (2 copies per sheet)
+3. Customer Order Confirmation Email
+4. Admin New Order Notification Email
+
+Support:
+
+• bundleType
+• colorSelections[]
+• selectedColor
+• selectedSize
+
+Use ONE shared rendering logic across all surfaces. No duplication.
+
+---
+
+## STEP 1 — DATABASE (MANDATORY)
+
+Add columns to order_items:
+
+• selectedColor TEXT
+• selectedSize TEXT
+• bundleType TEXT
+
+Ensure existing:
+• colorSelections JSON
+
+Run:
+db:push --force
+
+If not applied, run:
+
+ALTER TABLE order_items ADD COLUMN selectedColor TEXT;
+ALTER TABLE order_items ADD COLUMN selectedSize TEXT;
+ALTER TABLE order_items ADD COLUMN bundleType TEXT;
+
+Verify columns exist before proceeding.
+
+---
+
+## STEP 2 — DATA FLOW (CRITICAL)
+
+Ensure fields persist across full pipeline:
+
+cart → checkout → API → DB → UI/email
+
+Files:
+• cart-context.tsx
+• checkout/page.tsx
+• api/orders
+• api/razorpay/verify
+
+Each order item MUST include:
+
+{
+selectedColor,
+selectedSize,
+bundleType,
+colorSelections
+}
+
+No missing fields allowed.
+
+---
+
+## STEP 3 — SERVER VALIDATION (BLOCK BAD ORDERS)
+
+If bundleType exists:
+
+• colorSelections must exist
+• sum(qty) must equal bundle quantity
+
+Reject if invalid:
+
+"Please select colors for your bundle"
+
+Apply in BOTH:
+• COD order API
+• Razorpay verify API
+
+---
+
+## STEP 4 — SHARED RENDER HELPER (CORE SYSTEM)
+
+Create:
+
+/src/lib/order-item-renderer.ts
+
+Function:
+
+getOrderItemDisplay(item)
+
+Return:
+
+IF bundle:
+{
+type: "bundle",
+bundleLabel,
+colors: [{ name, hex, qty }],
+totalItems
+}
+
+IF NOT bundle:
+{
+type: "single",
+selectedColor,
+selectedSize
+}
+
+RULES:
+
+• Never mix bundle + normal display
+• Bundle overrides color/size
+• Always compute totalItems from colorSelections
+
+---
+
+## STEP 5 — ADMIN ORDER PANEL
+
+Replace item UI:
+
+Product Name
+
+IF bundle:
+
+[Bundle Offer Applied]
+
+(Bundle Box - light background)
+
+Bundle Color Breakdown:
+● Black — 2 pcs
+● Beige — 2 pcs
+
+Total Items: 4
+
+IF NOT bundle:
+
+Color: Black
+Size: M
+
+UI Rules:
+
+• Larger font (12–14px minimum)
+• Clean spacing
+• Packing-friendly layout
+• Swatch + label + qty
+
+Ensure PATCH edits DO NOT remove:
+• bundleType
+• selectedColor
+• selectedSize
+• colorSelections
+
+---
+
+## STEP 6 — INVOICE PAGE UI
+
+File:
+invoice/[id]/page.tsx
+
+Each item:
+
+Product Name
+
+IF bundle:
+
+Bundle: Buy 4 Offer
+
+Colors:
+
+* Black ×2
+* Beige ×2
+
+IF NOT bundle:
+
+Color: Black
+Size: M
+
+Design:
+
+• Large readable font
+• Clean spacing
+• Structured layout
+
+---
+
+## STEP 7 — A4 PDF (CRITICAL)
+
+On "Download Invoice":
+
+Generate:
+
+• A4 size
+• TWO identical invoice copies
+• stacked vertically
+• separated by dashed divider
+
+Layout:
+
+[Invoice Copy 1]
+
+---
+
+[Invoice Copy 2]
+
+Use print CSS or PDF generator.
+
+Constraints:
+
+• Must fit ONE page
+• No overflow
+• Proper margins
+
+---
+
+## STEP 8 — CUSTOMER EMAIL
+
+Update sendOrderConfirmationEmail:
+
+Each item:
+
+IF bundle:
+
+Your Bundle Selection:
+• Black ×2
+• Beige ×2
+
+IF NOT bundle:
+
+Color: Black
+Size: M
+
+Rules:
+
+• Inline CSS only
+• Simple readable structure
+
+---
+
+## STEP 9 — ADMIN EMAIL
+
+Update sendNewOrderNotificationEmail:
+
+Each item:
+
+IF bundle:
+
+Bundle Offer Applied
+
+Colors:
+• Black ×2
+• Beige ×2
+
+Wrap in highlight box:
+
+<div style="background:#f5f5f5;padding:10px;border-radius:6px;">
+
+IF NOT bundle:
+
+Color: Black
+Size: M
+
+Make layout packing-friendly.
+
+---
+
+## STEP 10 — BACKWARD COMPATIBILITY
+
+If fields missing:
+
+• Show only product name
+• No empty labels
+• No UI break
+
+---
+
+## STEP 11 — TESTING (MANDATORY)
+
+Test cases:
+
+1. Bundle order:
+   2 Black + 2 Beige
+
+2. Normal order:
+   Color + Size
+
+Verify:
+
+✔ Admin panel correct
+✔ Invoice UI correct
+✔ PDF shows 2 copies
+✔ Customer email correct
+✔ Admin email correct
+✔ Bundle without colors is BLOCKED
+
+---
+
+## FINAL RULES
+
+• Never mix bundle + normal display
+• Always prioritize clarity
+• Keep UI clean and scannable
+• No long text or clutter
+• Must be packing-friendly
+• Shared renderer is REQUIRED (no duplication)

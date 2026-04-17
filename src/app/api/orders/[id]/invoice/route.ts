@@ -112,6 +112,10 @@ async function handleInvoice(
       productName: item.productName,
       quantity: item.quantity,
       price: item.price,
+      colorSelections: (item as any).colorSelections ?? null,
+      selectedColor: (item as any).selectedColor ?? null,
+      selectedSize: (item as any).selectedSize ?? null,
+      bundleType: (item as any).bundleType ?? null,
     })),
   });
 

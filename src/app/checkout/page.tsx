@@ -195,6 +195,9 @@ function CheckoutContent() {
       price: item.price,
       image: item.image,
       colorSelections: (item as any).colorSelections ?? null,
+      selectedColor: (item as any).selectedColor ?? null,
+      selectedSize: (item as any).selectedSize ?? null,
+      bundleType: (item as any).bundleType ?? null,
     }));
     return { customerName, shippingAddress, orderItems: orderItemsList };
   };

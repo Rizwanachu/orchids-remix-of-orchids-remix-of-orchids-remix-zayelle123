@@ -3,6 +3,7 @@
 import React from "react";
 import { Printer, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { parseColorSelections, parseSelectedColor } from "@/lib/order-item-display";
 
 const demoOrder = {
   id: 1,
@@ -19,9 +20,9 @@ const demoOrder = {
   discountAmount: "450.00",
   createdAt: new Date().toISOString(),
   items: [
-    { id: 1, productName: "The Noor Premium Chiffon Hijab — Dusty Rose", productHandle: "noor-chiffon-dusty-rose", quantity: 2, price: "1299.00", image: "" },
-    { id: 2, productName: "Satin Silk Classic Hijab — Champagne Gold", productHandle: "satin-silk-champagne", quantity: 1, price: "1499.00", image: "" },
-    { id: 3, productName: "Magnetic Hijab Pin Set — Rose Gold (6pcs)", productHandle: "magnetic-pin-set-rosegold", quantity: 1, price: "499.00", image: "" },
+    { id: 1, productName: "The Noor Premium Chiffon Hijab", productHandle: "noor-chiffon", quantity: 2, price: "1299.00", image: "", bundleType: "Bundle of 2 — Rs. 2,499", colorSelections: JSON.stringify([{ name: "Dusty Rose", hex: "#C9A6A0", quantity: 1 }, { name: "Beige", hex: "#D9C7AE", quantity: 1 }]), selectedColor: null, selectedSize: null },
+    { id: 2, productName: "Satin Silk Classic Hijab", productHandle: "satin-silk", quantity: 1, price: "1499.00", image: "", bundleType: null, colorSelections: null, selectedColor: JSON.stringify({ name: "Champagne Gold", hex: "#D4B886" }), selectedSize: "M" },
+    { id: 3, productName: "Magnetic Hijab Pin Set (6pcs)", productHandle: "magnetic-pin-set", quantity: 1, price: "499.00", image: "", bundleType: null, colorSelections: null, selectedColor: JSON.stringify({ name: "Rose Gold", hex: "#B76E79" }), selectedSize: null },
   ],
 };
 
@@ -133,11 +134,36 @@ export default function InvoiceDemoPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items.map((item, index) => (
-                    <tr key={item.id} className="border-b border-[#E8E4DE]">
+                  {order.items.map((item, index) => {
+                    const cs = parseColorSelections((item as any).colorSelections);
+                    const sc = parseSelectedColor((item as any).selectedColor);
+                    return (
+                    <tr key={item.id} className="border-b border-[#E8E4DE] align-top">
                       <td className="py-4 pr-4 text-[13px] text-[#757575]">{index + 1}</td>
                       <td className="py-4 pr-4">
                         <p className="text-[14px] font-medium text-[#1A1A1A]">{item.productName}</p>
+                        {(item as any).bundleType && (
+                          <p className="text-[12px] text-[#5C4B3D] mt-1 font-semibold">{(item as any).bundleType}</p>
+                        )}
+                        {cs && (
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            {cs.map((c, i) => (
+                              <span key={i} className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A] bg-[#F5F2ED] border border-[#E8E4DE] rounded-full px-2 py-0.5">
+                                <span className="w-2.5 h-2.5 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
+                                <span className="font-semibold">{c.quantity}×</span> {c.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {sc && !cs && (
+                          <p className="text-[12px] text-[#1A1A1A] mt-1 inline-flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: sc.hex }} />
+                            Color: <span className="font-semibold">{sc.name}</span>
+                          </p>
+                        )}
+                        {(item as any).selectedSize && (
+                          <p className="text-[12px] text-[#1A1A1A] mt-1">Size: <span className="font-semibold">{(item as any).selectedSize}</span></p>
+                        )}
                       </td>
                       <td className="py-4 px-4 text-center text-[14px] text-[#1A1A1A]">{item.quantity}</td>
                       <td className="py-4 px-4 text-right text-[14px] text-[#1A1A1A]">{formatCurrency(Number(item.price))}</td>
@@ -145,7 +171,7 @@ export default function InvoiceDemoPage() {
                         {formatCurrency(Number(item.price) * item.quantity)}
                       </td>
                     </tr>
-                  ))}
+                  );})}
                 </tbody>
               </table>
 

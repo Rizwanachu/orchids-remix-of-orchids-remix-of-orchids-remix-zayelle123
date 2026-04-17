@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
+import { getItemConfigLines, type OrderItemConfig } from "./order-item-display";
 
-interface OrderItem {
+interface OrderItem extends OrderItemConfig {
   productName: string;
   quantity: number;
   price: string;
@@ -26,203 +27,197 @@ function rupees(amount: number): string {
   return `Rs. ${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
-  const doc = new PDFDocument({ size: "A4", margin: 50, autoFirstPage: true, bufferPages: false });
+const brandColor = "#5C4B3D";
+const textColor = "#1A1A1A";
+const mutedColor = "#757575";
+const lineColor = "#E8E4DE";
 
-  const brandColor = "#5C4B3D";
-  const textColor = "#1A1A1A";
-  const mutedColor = "#757575";
-  const lineColor = "#E8E4DE";
-  const pageWidth = doc.page.width;
-  const contentWidth = pageWidth - 100;
+function renderInvoice(
+  doc: PDFKit.PDFDocument,
+  order: OrderData,
+  ox: number,
+  oy: number,
+  width: number,
+  copyLabel: string
+) {
+  const innerPad = 18;
+  const left = ox + innerPad;
+  const right = ox + width - innerPad;
+  const contentW = right - left;
 
-  const orderYear = new Date(order.createdAt).getFullYear();
-  const invoiceNumber = `INV-${orderYear}-${order.orderId}`;
   const invoiceDate = new Date(order.createdAt).toLocaleDateString("en-IN", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(22)
-    .fillColor(brandColor)
-    .text("ZAYELLE", 50, 45);
-  doc
-    .font("Helvetica")
-    .fontSize(9)
-    .fillColor(mutedColor)
-    .text("Premium Hijabs & Modest Accessories", 50, 70);
+  let y = oy + 14;
 
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(24)
-    .fillColor(brandColor)
-    .text("INVOICE", pageWidth - 200, 48, { width: 150, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(16).fillColor(brandColor).text("ZAYELLE", left, y);
+  doc.font("Helvetica").fontSize(7).fillColor(mutedColor).text("Premium Hijabs & Modest Accessories", left, y + 18);
 
-  doc.moveTo(50, 95).lineTo(pageWidth - 50, 95).strokeColor(lineColor).lineWidth(1).stroke();
+  doc.font("Helvetica-Bold").fontSize(14).fillColor(brandColor)
+    .text("INVOICE", right - 150, y, { width: 150, align: "right" });
+  doc.font("Helvetica").fontSize(7).fillColor(mutedColor)
+    .text(copyLabel, right - 150, y + 18, { width: 150, align: "right" });
 
-  let y = 108;
+  y += 32;
+  doc.moveTo(left, y).lineTo(right, y).strokeColor(lineColor).lineWidth(0.5).stroke();
+  y += 6;
 
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("INVOICE NUMBER", 50, y);
-  doc.font("Helvetica").fontSize(9).fillColor(textColor).text(invoiceNumber, 50, y + 12);
+  const colW = contentW / 3;
+  doc.font("Helvetica-Bold").fontSize(6.5).fillColor(mutedColor).text("ORDER ID", left, y);
+  doc.font("Helvetica").fontSize(8).fillColor(textColor).text(order.orderId, left, y + 9);
 
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("DATE", 230, y);
-  doc.font("Helvetica").fontSize(9).fillColor(textColor).text(invoiceDate, 230, y + 12);
+  doc.font("Helvetica-Bold").fontSize(6.5).fillColor(mutedColor).text("DATE", left + colW, y);
+  doc.font("Helvetica").fontSize(8).fillColor(textColor).text(invoiceDate, left + colW, y + 9);
 
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("ORDER ID", pageWidth - 200, y, { width: 150, align: "right" });
-  doc.font("Helvetica").fontSize(9).fillColor(textColor).text(order.orderId, pageWidth - 200, y + 12, { width: 150, align: "right" });
+  const isCOD = (order.paymentMethod || "").toLowerCase().includes("cod");
+  const payStatusText = isCOD ? "Payable on Delivery" : (order.paymentStatus === "paid" ? "Paid" : order.paymentStatus);
+  const statusColor = payStatusText === "Paid" ? "#2E7D32" : "#E65100";
+  doc.font("Helvetica-Bold").fontSize(6.5).fillColor(mutedColor).text("PAYMENT", left + 2 * colW, y);
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(statusColor).text(payStatusText, left + 2 * colW, y + 9);
 
-  y += 38;
-  doc.moveTo(50, y).lineTo(pageWidth - 50, y).strokeColor(lineColor).lineWidth(0.5).stroke();
+  y += 26;
+  doc.moveTo(left, y).lineTo(right, y).strokeColor(lineColor).lineWidth(0.5).stroke();
+  y += 6;
 
-  y += 10;
-
-  const isPrepaid = true;
-  const isCOD = false;
-
-  doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text("Payment Details", 50, y);
-  y += 14;
-
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("Payment Method:", 50, y);
-  doc.font("Helvetica").fontSize(9).fillColor(textColor).text(
-    isPrepaid ? "Prepaid" : isCOD ? "Cash on Delivery" : (order.paymentMethod || "N/A"),
-    150, y
-  );
-  y += 14;
-
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("Payment Status:", 50, y);
-  const paymentStatusText = isPrepaid ? "Paid" : isCOD ? "Payable on Delivery" : order.paymentStatus;
-  const statusColor = paymentStatusText === "Paid" ? "#2E7D32" : "#E65100";
-  doc.font("Helvetica-Bold").fontSize(9).fillColor(statusColor).text(paymentStatusText, 150, y);
-
-  y += 22;
-  doc.moveTo(50, y).lineTo(pageWidth - 50, y).strokeColor(lineColor).lineWidth(0.5).stroke();
-  y += 10;
-
-  doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text("Customer Details", 50, y);
-  y += 14;
-
-  const details = [
-    { label: "Name:", value: order.customerName },
-    { label: "Email:", value: order.customerEmail },
-    { label: "Phone:", value: order.customerPhone || "N/A" },
-  ];
-
-  for (const detail of details) {
-    doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text(detail.label, 50, y);
-    doc.font("Helvetica").fontSize(9).fillColor(textColor).text(detail.value, 150, y);
-    y += 14;
+  const halfW = contentW / 2 - 6;
+  doc.font("Helvetica-Bold").fontSize(7).fillColor(brandColor).text("BILL TO", left, y);
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(textColor).text(order.customerName, left, y + 10, { width: halfW });
+  doc.font("Helvetica").fontSize(7).fillColor(mutedColor).text(order.customerEmail, left, y + 21, { width: halfW });
+  if (order.customerPhone) {
+    doc.text(order.customerPhone, left, y + 30, { width: halfW });
   }
 
+  doc.font("Helvetica-Bold").fontSize(7).fillColor(brandColor).text("SHIP TO", left + halfW + 12, y);
   if (order.shippingAddress) {
-    doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor).text("Shipping Address:", 50, y);
-    doc.font("Helvetica").fontSize(9).fillColor(textColor).text(order.shippingAddress, 150, y, { width: contentWidth - 100 });
-    const addressHeight = doc.heightOfString(order.shippingAddress, { width: contentWidth - 100 });
-    y += Math.max(14, addressHeight + 4);
+    doc.font("Helvetica").fontSize(7).fillColor(textColor)
+      .text(order.shippingAddress, left + halfW + 12, y + 10, { width: halfW });
   }
 
-  y += 10;
-  doc.moveTo(50, y).lineTo(pageWidth - 50, y).strokeColor(lineColor).lineWidth(0.5).stroke();
-  y += 10;
+  y += 48;
+  doc.moveTo(left, y).lineTo(right, y).strokeColor(lineColor).lineWidth(0.5).stroke();
+  y += 6;
 
-  doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text("Order Items", 50, y);
-  y += 16;
+  const c1 = left + 6;
+  const c2 = right - 180;
+  const c3 = right - 120;
+  const c4 = right - 60;
 
-  const col1 = 50;
-  const col2 = 310;
-  const col3 = 380;
-  const col4 = 460;
+  doc.rect(left, y, contentW, 14).fill("#F5F2ED");
+  doc.font("Helvetica-Bold").fontSize(6.5).fillColor(mutedColor);
+  doc.text("ITEM", c1, y + 4);
+  doc.text("QTY", c2, y + 4, { width: 50, align: "center" });
+  doc.text("PRICE", c3, y + 4, { width: 55, align: "right" });
+  doc.text("TOTAL", c4, y + 4, { width: 55, align: "right" });
+  y += 14;
 
-  doc.rect(50, y, contentWidth, 20).fill("#F5F2ED");
-  doc.font("Helvetica-Bold").fontSize(8).fillColor(mutedColor);
-  doc.text("PRODUCT", col1 + 8, y + 5);
-  doc.text("QTY", col2, y + 5, { width: 50, align: "center" });
-  doc.text("UNIT PRICE", col3, y + 5, { width: 70, align: "right" });
-  doc.text("TOTAL", col4, y + 5, { width: 85, align: "right" });
-  y += 20;
-
-  for (const item of order.items) {
+  const maxItemsY = oy + (doc.page.height / 2) - 110;
+  let truncated = 0;
+  for (let idx = 0; idx < order.items.length; idx++) {
+    const item = order.items[idx];
     const lineTotal = item.quantity * parseFloat(item.price);
+    const cfgLines = getItemConfigLines(item);
 
-    doc.font("Helvetica").fontSize(9).fillColor(textColor);
-    doc.text(item.productName, col1 + 8, y + 5, { width: 250 });
-    const nameHeight = doc.heightOfString(item.productName, { width: 250 });
-    doc.text(String(item.quantity), col2, y + 5, { width: 50, align: "center" });
-    doc.text(rupees(parseFloat(item.price)), col3, y + 5, { width: 70, align: "right" });
-    doc.font("Helvetica-Bold").text(rupees(lineTotal), col4, y + 5, { width: 85, align: "right" });
+    if (y > maxItemsY) {
+      truncated = order.items.length - idx;
+      break;
+    }
 
-    const rowHeight = Math.max(18, nameHeight + 10);
-    y += rowHeight;
+    doc.font("Helvetica").fontSize(8).fillColor(textColor);
+    const nameW = c2 - c1 - 4;
+    doc.text(item.productName, c1, y + 3, { width: nameW });
+    const nameH = doc.heightOfString(item.productName, { width: nameW });
 
-    doc.moveTo(50, y).lineTo(pageWidth - 50, y).strokeColor("#F0EDE8").lineWidth(0.5).stroke();
+    let cfgH = 0;
+    if (cfgLines.length > 0) {
+      const cfgText = cfgLines.join("\n");
+      doc.font("Helvetica").fontSize(6.5).fillColor(mutedColor)
+        .text(cfgText, c1, y + 3 + nameH + 1, { width: nameW });
+      cfgH = doc.heightOfString(cfgText, { width: nameW }) + 1;
+    }
+
+    doc.font("Helvetica").fontSize(8).fillColor(textColor)
+      .text(String(item.quantity), c2, y + 3, { width: 50, align: "center" });
+    doc.text(rupees(parseFloat(item.price)), c3, y + 3, { width: 55, align: "right" });
+    doc.font("Helvetica-Bold").text(rupees(lineTotal), c4, y + 3, { width: 55, align: "right" });
+
+    const rowH = Math.max(14, nameH + cfgH + 6);
+    y += rowH;
+    doc.moveTo(left, y).lineTo(right, y).strokeColor("#F0EDE8").lineWidth(0.5).stroke();
+  }
+  if (truncated > 0) {
+    doc.font("Helvetica-Oblique").fontSize(7).fillColor(mutedColor)
+      .text(`…and ${truncated} more item${truncated > 1 ? "s" : ""}`, c1, y + 3, { width: contentW - 12 });
+    y += 12;
   }
 
-  y += 12;
+  y += 6;
 
   const totalAmount = parseFloat(order.totalAmount);
   const discount = order.discountAmount ? parseFloat(order.discountAmount) : 0;
   const codCharge = isCOD ? 49 : 0;
   const subtotal = totalAmount + discount - codCharge;
 
-  const summaryX = col3;
-  const summaryValueX = col4;
+  const sumX = c3;
+  const sumValX = c4;
 
-  doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("Subtotal:", summaryX, y, { width: 70, align: "right" });
-  doc.font("Helvetica").fillColor(textColor).text(rupees(subtotal), summaryValueX, y, { width: 85, align: "right" });
-  y += 15;
+  doc.font("Helvetica").fontSize(7.5).fillColor(mutedColor).text("Subtotal:", sumX, y, { width: 55, align: "right" });
+  doc.font("Helvetica").fillColor(textColor).text(rupees(subtotal), sumValX, y, { width: 55, align: "right" });
+  y += 11;
 
   if (discount > 0) {
-    doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("Discount:", summaryX, y, { width: 70, align: "right" });
-    doc.font("Helvetica").fillColor("#2E7D32").text(`-${rupees(discount)}`, summaryValueX, y, { width: 85, align: "right" });
-    y += 15;
-
-    if (order.couponCode) {
-      doc.font("Helvetica").fontSize(7).fillColor(mutedColor).text(`(${order.couponCode})`, summaryValueX, y - 3, { width: 85, align: "right" });
-      y += 10;
-    }
+    doc.font("Helvetica").fontSize(7.5).fillColor(mutedColor).text("Discount:", sumX, y, { width: 55, align: "right" });
+    doc.font("Helvetica").fillColor("#2E7D32").text(`-${rupees(discount)}`, sumValX, y, { width: 55, align: "right" });
+    y += 11;
   }
 
-  doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("Shipping:", summaryX, y, { width: 70, align: "right" });
-  doc.font("Helvetica").fillColor(textColor).text("FREE", summaryValueX, y, { width: 85, align: "right" });
-  y += 15;
+  doc.font("Helvetica").fontSize(7.5).fillColor(mutedColor).text("Shipping:", sumX, y, { width: 55, align: "right" });
+  doc.font("Helvetica").fillColor(textColor).text("FREE", sumValX, y, { width: 55, align: "right" });
+  y += 11;
 
   if (codCharge > 0) {
-    doc.font("Helvetica").fontSize(9).fillColor(mutedColor).text("COD Charges:", summaryX, y, { width: 70, align: "right" });
-    doc.font("Helvetica").fillColor(textColor).text(rupees(codCharge), summaryValueX, y, { width: 85, align: "right" });
-    y += 16;
-  } else {
-    y += 1;
+    doc.font("Helvetica").fontSize(7.5).fillColor(mutedColor).text("COD Charges:", sumX, y, { width: 55, align: "right" });
+    doc.font("Helvetica").fillColor(textColor).text(rupees(codCharge), sumValX, y, { width: 55, align: "right" });
+    y += 12;
   }
 
-  doc.moveTo(summaryX, y).lineTo(pageWidth - 50, y).strokeColor(brandColor).lineWidth(1).stroke();
-  y += 6;
+  doc.moveTo(sumX, y).lineTo(right, y).strokeColor(brandColor).lineWidth(1).stroke();
+  y += 4;
 
-  doc.font("Helvetica-Bold").fontSize(12).fillColor(brandColor).text("Total:", summaryX, y, { width: 70, align: "right" });
-  doc.font("Helvetica-Bold").fontSize(12).fillColor(brandColor).text(rupees(totalAmount), summaryValueX, y, { width: 85, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text("Total:", sumX, y, { width: 55, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(10).fillColor(brandColor).text(rupees(totalAmount), sumValX, y, { width: 55, align: "right" });
 
-  y += 40;
+  y += 18;
+  doc.font("Helvetica").fontSize(7).fillColor(brandColor)
+    .text("Thank you for shopping with Zayelle!", left, y, { width: contentW, align: "center" });
+  doc.font("Helvetica").fontSize(6).fillColor(mutedColor)
+    .text("www.zayelle.in  |  @zayelle.in", left, y + 10, { width: contentW, align: "center" });
+}
 
-  doc.moveTo(50, y).lineTo(pageWidth - 50, y).strokeColor(lineColor).lineWidth(0.5).stroke();
+export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
+  const doc = new PDFDocument({ size: "A4", margin: 0, autoFirstPage: true, bufferPages: false });
 
-  doc
-    .font("Helvetica")
-    .fontSize(9)
-    .fillColor(brandColor)
-    .text("Thank you for shopping with Zayelle!", 50, y + 12, { width: contentWidth, align: "center" });
+  const pageWidth = doc.page.width;
+  const pageHeight = doc.page.height;
+  const marginX = 24;
+  const usableW = pageWidth - 2 * marginX;
+  const halfH = pageHeight / 2;
 
-  doc
-    .font("Helvetica")
-    .fontSize(7)
-    .fillColor(mutedColor)
-    .text("Premium Hijabs & Modest Accessories -- Gracefully designed for modern women across India.", 50, y + 26, { width: contentWidth, align: "center" });
+  renderInvoice(doc, order, marginX, 16, usableW, "CUSTOMER COPY");
 
-  doc
-    .font("Helvetica")
-    .fontSize(7)
-    .fillColor(mutedColor)
-    .text("www.zayelle.in | @zayelle.in", 50, y + 38, { width: contentWidth, align: "center" });
+  const midY = halfH;
+  doc.save();
+  doc.dash(3, { space: 3 });
+  doc.moveTo(marginX, midY).lineTo(pageWidth - marginX, midY)
+    .strokeColor(mutedColor).lineWidth(0.5).stroke();
+  doc.undash();
+  doc.font("Helvetica").fontSize(6).fillColor(mutedColor)
+    .text("✂  cut here", marginX, midY - 4, { width: usableW, align: "center" });
+  doc.restore();
+
+  renderInvoice(doc, order, marginX, halfH + 16, usableW, "MERCHANT COPY");
 
   return doc;
 }

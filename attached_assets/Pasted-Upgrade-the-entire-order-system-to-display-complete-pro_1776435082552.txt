@@ -1,0 +1,180 @@
+Upgrade the entire order system to display complete product configuration details across:
+
+1. Admin Order Panel
+2. Invoice (Printable PDF)
+3. Customer Order Confirmation Email
+4. Admin New Order Notification Email
+
+Support the following data types:
+• bundle offer (e.g., Buy 4)
+• bundle color selections (color + quantity)
+• single product color variant
+• product size variant
+
+--------------------------------------------------
+DATA STRUCTURE (STANDARDIZE FIRST)
+--------------------------------------------------
+
+Ensure each order item stores:
+
+{
+  product_name: string,
+  quantity: number,
+  price: number,
+
+  selected_color: string | null,
+  selected_size: string | null,
+
+  bundle_type: string | null, // e.g. "Buy 4 for ₹190"
+  color_selections: [
+    { name: string, hex: string, qty: number }
+  ] | null
+}
+
+--------------------------------------------------
+1. ADMIN ORDER PANEL (VERY IMPORTANT)
+--------------------------------------------------
+
+For each order item:
+
+Display in this structure:
+
+Product Name
+
+If bundle exists:
+Show badge:
+[Bundle Offer Applied]
+
+Below that:
+
+"Bundle Color Breakdown"
+• Black — 2 pcs
+• Beige — 2 pcs
+
+Show color swatch beside each color
+
+Add:
+Total Items: X
+
+If NOT bundle:
+
+Show:
+Color: Black
+Size: M (if exists)
+
+UI Improvements:
+• Increase font size for readability
+• Add light background box for bundle section
+• Make it packing-friendly (clean spacing)
+
+--------------------------------------------------
+2. INVOICE DESIGN (CRITICAL)
+--------------------------------------------------
+
+Create a printable invoice layout with:
+
+• Clean table layout
+• Large readable font (important for packing)
+• Structured product info
+
+Each item should display:
+
+Product Name
+
+If bundle:
+Bundle: Buy 4 Offer
+Colors:
+- Black ×2
+- Beige ×2
+
+If normal product:
+Color: Black
+Size: M
+
+--------------------------------------------------
+A4 PRINT REQUIREMENT
+--------------------------------------------------
+
+When user clicks "Download Invoice":
+
+Generate a PDF formatted as:
+
+• A4 size
+• TWO identical invoices on one page (top + bottom)
+• Each invoice separated with dashed line
+
+Layout:
+[Invoice Copy 1]
+-------------------------
+[Invoice Copy 2]
+
+Optimize spacing so both fit perfectly
+
+--------------------------------------------------
+3. CUSTOMER ORDER EMAIL
+--------------------------------------------------
+
+Subject: Order Confirmed – Zayelle
+
+Include:
+
+Product Name
+
+If bundle:
+Your Bundle Selection:
+• Black ×2
+• Beige ×2
+
+If normal:
+Color: Black
+Size: M
+
+Make text clean and easy to read
+
+--------------------------------------------------
+4. ADMIN NEW ORDER EMAIL
+--------------------------------------------------
+
+Subject: New Order Received
+
+Include FULL breakdown:
+
+Product Name
+
+If bundle:
+Bundle Offer Applied
+Colors:
+• Black ×2
+• Beige ×2
+
+If normal:
+Color: Black
+Size: M
+
+Highlight clearly for packing team
+
+--------------------------------------------------
+UI / UX RULES
+--------------------------------------------------
+
+• Never mix bundle and normal variant display
+• Always prioritize clarity over design
+• Keep everything structured and scannable
+• No clutter, no long paragraphs
+
+--------------------------------------------------
+VALIDATION RULE (IMPORTANT)
+--------------------------------------------------
+
+If bundle is selected:
+Ensure color selections exist before order is created
+
+--------------------------------------------------
+FINAL GOAL
+--------------------------------------------------
+
+Make the order system:
+• impossible to misinterpret
+• easy for packing team
+• clean and premium for customer
+• consistent across admin, invoice, and email

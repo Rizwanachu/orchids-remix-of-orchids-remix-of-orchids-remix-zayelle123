@@ -73,6 +73,11 @@ export async function POST(request: NextRequest) {
       colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
         ? JSON.stringify(item.colorSelections)
         : null,
+      selectedColor: item.selectedColor && typeof item.selectedColor === "object"
+        ? JSON.stringify(item.selectedColor)
+        : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
+      selectedSize: item.selectedSize || null,
+      bundleType: item.bundleType || null,
     }));
 
     await db.insert(orderItems).values(orderItemValues);
@@ -101,6 +106,12 @@ export async function POST(request: NextRequest) {
         quantity: item.quantity,
         price: String(item.price),
         image: item.image || null,
+        colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
+          ? JSON.stringify(item.colorSelections) : null,
+        selectedColor: item.selectedColor && typeof item.selectedColor === "object" ? JSON.stringify(item.selectedColor)
+          : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
+        selectedSize: item.selectedSize || null,
+        bundleType: item.bundleType || null,
       })),
       couponCode,
       discountAmount: discountAmount ? String(discountAmount) : null,
@@ -121,6 +132,12 @@ export async function POST(request: NextRequest) {
         quantity: item.quantity,
         price: String(item.price),
         image: item.image || null,
+        colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
+          ? JSON.stringify(item.colorSelections) : null,
+        selectedColor: item.selectedColor && typeof item.selectedColor === "object" ? JSON.stringify(item.selectedColor)
+          : (typeof item.selectedColor === "string" && item.selectedColor.trim() ? item.selectedColor : null),
+        selectedSize: item.selectedSize || null,
+        bundleType: item.bundleType || null,
       })),
       couponCode,
       discountAmount: discountAmount ? String(discountAmount) : null,
