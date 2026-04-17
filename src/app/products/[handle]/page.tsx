@@ -185,8 +185,28 @@ export default function ProductDetailPage() {
     setIsRedirecting(true);
 
     try {
-      handleAddToCart();
-      await new Promise((r) => setTimeout(r, 50));
+      const colorSelectionsForBuy = (selectedBundle && colors && colors.length > 0)
+        ? Object.entries(bundleColorSelections)
+            .filter(([, qty]) => qty > 0)
+            .map(([name, qty]) => {
+              const color = colors.find(c => c.name === name);
+              return { name, hex: color?.hex || "", quantity: qty };
+            })
+        : null;
+      const sizes = (product as any).sizes as Array<{ label: string }> | undefined;
+      const directConfig = {
+        bundleType: selectedBundle
+          ? `Bundle of ${selectedBundle.quantity} — Rs. ${Number(selectedBundle.price).toLocaleString("en-IN")}`
+          : null,
+        selectedColor: !selectedBundle && selectedColorIdx !== null && colors?.[selectedColorIdx]
+          ? { name: colors[selectedColorIdx].name, hex: colors[selectedColorIdx].hex || "" }
+          : null,
+        selectedSize: !selectedBundle && selectedSizeIdx !== null && sizes?.[selectedSizeIdx]
+          ? sizes[selectedSizeIdx].label
+          : null,
+        colorSelections: colorSelectionsForBuy,
+      };
+      try { sessionStorage.setItem("zayelle-direct-config", JSON.stringify(directConfig)); } catch {}
 
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -209,7 +229,12 @@ export default function ProductDetailPage() {
       const data = await response.json();
       if (data.checkoutUrl) {
         if (data.checkoutUrl === "/checkout") {
-          window.location.href = `/checkout`;
+          const params = new URLSearchParams();
+          params.set("id", product.id);
+          params.set("quantity", effectiveQty.toString());
+          if (selectedBundle) params.set("bundlePrice", selectedBundle.price.toString());
+          params.set("direct", "true");
+          window.location.href = `/checkout?${params.toString()}`;
         } else {
           window.location.href = data.checkoutUrl;
         }

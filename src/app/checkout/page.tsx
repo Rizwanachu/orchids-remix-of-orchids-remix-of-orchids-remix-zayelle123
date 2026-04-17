@@ -41,6 +41,20 @@ function CheckoutContent() {
 
   const directProduct = productId ? products.find(p => p.id === productId) : null;
 
+  const [directConfig, setDirectConfig] = useState<{
+    bundleType?: string | null;
+    selectedColor?: { name: string; hex: string } | null;
+    selectedSize?: string | null;
+    colorSelections?: Array<{ name: string; hex: string; quantity: number }> | null;
+  } | null>(null);
+  useEffect(() => {
+    if (!isDirect) return;
+    try {
+      const raw = sessionStorage.getItem("zayelle-direct-config");
+      if (raw) setDirectConfig(JSON.parse(raw));
+    } catch {}
+  }, [isDirect]);
+
   // Enrich cart items with latest product data so changes like free shipping apply immediately
   const enrichedCartItems = cartItems.map(cartItem => {
     const latestProduct = products.find(p => p.id === cartItem.id);
@@ -57,7 +71,14 @@ function CheckoutContent() {
   });
 
   const items = isDirect && directProduct
-    ? [{ ...directProduct, quantity: productQuantity }]
+    ? [{
+        ...directProduct,
+        quantity: productQuantity,
+        bundleType: directConfig?.bundleType ?? null,
+        selectedColor: directConfig?.selectedColor ?? null,
+        selectedSize: directConfig?.selectedSize ?? null,
+        colorSelections: directConfig?.colorSelections ?? null,
+      }]
     : enrichedCartItems;
 
   const subtotal = isDirect && directProduct
