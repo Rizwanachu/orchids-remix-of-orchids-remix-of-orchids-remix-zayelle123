@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         .select()
         .from(orders)
         .where(whereClause)
-        .orderBy(desc(orders.createdAt), desc(orders.id))
+        .orderBy(desc(orders.id))
         .limit(limit)
         .offset(offset),
       db
@@ -127,16 +127,10 @@ export async function POST(request: NextRequest) {
     let lastErr: any = null;
     while (!newOrder && attempts < 5) {
       attempts++;
-      const [lastOrder] = await db
-        .select({ orderId: orders.orderId })
-        .from(orders)
-        .orderBy(desc(orders.id))
-        .limit(1);
-      let nextNum = 10001;
-      if (lastOrder?.orderId) {
-        const match = lastOrder.orderId.match(/ZAY-(\d+)/);
-        if (match) nextNum = parseInt(match[1]) + attempts;
-      }
+      const maxRows = await db.execute(
+        sql`SELECT COALESCE(MAX(CAST(SUBSTRING(order_id FROM 5) AS INTEGER)), 10000) AS "maxNum" FROM orders WHERE order_id ~ '^ZAY-[0-9]+$'`
+      ) as unknown as Array<{ maxNum: number }>;
+      const nextNum = Math.max(10001, Number(maxRows[0]?.maxNum ?? 10000) + attempts);
       orderId = `ZAY-${nextNum}`;
       try {
         const inserted = await db
