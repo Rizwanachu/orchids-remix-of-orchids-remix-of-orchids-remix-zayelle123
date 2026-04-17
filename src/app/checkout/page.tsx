@@ -194,6 +194,7 @@ function CheckoutContent() {
       quantity: item.quantity,
       price: item.price,
       image: item.image,
+      colorSelections: (item as any).colorSelections ?? null,
     }));
     return { customerName, shippingAddress, orderItems: orderItemsList };
   };

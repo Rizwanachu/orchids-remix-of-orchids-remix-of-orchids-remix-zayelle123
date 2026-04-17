@@ -70,6 +70,9 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity,
       price: String(item.price),
       image: item.image || null,
+      colorSelections: item.colorSelections && Array.isArray(item.colorSelections) && item.colorSelections.length > 0
+        ? JSON.stringify(item.colorSelections)
+        : null,
     }));
 
     await db.insert(orderItems).values(orderItemValues);

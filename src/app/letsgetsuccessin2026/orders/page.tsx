@@ -32,6 +32,7 @@ interface OrderItem {
   quantity: number;
   price: string;
   image: string | null;
+  colorSelections: string | null;
 }
 
 interface Order {
@@ -906,21 +907,49 @@ export default function AdminOrdersPage() {
                           </tr>
                         ))
                       ) : (
-                        selectedOrder.items.map((item) => (
-                          <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
-                            <td className="px-4 py-2.5 flex items-center gap-3">
-                              {item.image && (
-                                <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
-                              )}
-                              <span className="text-sm">{item.productName}</span>
-                            </td>
-                            <td className="px-4 py-2.5 text-center">{item.quantity}</td>
-                            <td className="px-4 py-2.5 text-right">Rs. {parseFloat(item.price).toLocaleString()}</td>
-                            <td className="px-4 py-2.5 text-right font-medium">
-                              Rs. {(parseFloat(item.price) * item.quantity).toLocaleString()}
-                            </td>
-                          </tr>
-                        ))
+                        selectedOrder.items.map((item) => {
+                          let colorSel: Array<{ name: string; hex: string; quantity: number }> | null = null;
+                          if (item.colorSelections) {
+                            try {
+                              const parsed = JSON.parse(item.colorSelections);
+                              if (Array.isArray(parsed) && parsed.length > 0) colorSel = parsed;
+                            } catch {}
+                          }
+                          return (
+                            <tr key={item.id} className="border-b border-[#E8E4DE] last:border-0">
+                              <td className="px-4 py-2.5">
+                                <div className="flex items-center gap-3">
+                                  {item.image && (
+                                    <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
+                                  )}
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-sm">{item.productName}</span>
+                                    {colorSel && (
+                                      <div className="flex flex-col gap-1 mt-0.5">
+                                        <span className="inline-flex w-fit items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C4B3D] bg-[#5C4B3D]/10 px-1.5 py-0.5 rounded">
+                                          Bundle — Color Mix
+                                        </span>
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {colorSel.map((cs, ci) => (
+                                            <span key={ci} className="inline-flex items-center gap-1 text-[11px] text-[#1A1A1A] bg-[#F5F2ED] border border-[#E8E4DE] rounded-full px-2 py-0.5">
+                                              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 border border-black/10" style={{ backgroundColor: cs.hex }} />
+                                              <span className="font-semibold">{cs.quantity}×</span> {cs.name}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-2.5 text-center align-top pt-3">{item.quantity}</td>
+                              <td className="px-4 py-2.5 text-right align-top pt-3">Rs. {parseFloat(item.price).toLocaleString()}</td>
+                              <td className="px-4 py-2.5 text-right font-medium align-top pt-3">
+                                Rs. {(parseFloat(item.price) * item.quantity).toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
