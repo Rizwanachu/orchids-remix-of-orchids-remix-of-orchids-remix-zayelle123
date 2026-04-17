@@ -679,10 +679,15 @@ function CheckoutContent() {
                     </div>
                     {displayShipping === null ? (
                       <span className="text-[11px] text-[#999] italic">Calculated at checkout</span>
-                    ) : (
-                      <span className={displayShipping === 0 ? "text-green-600 font-medium" : "text-[#1A1A1A]"}>
-                        {displayShipping === 0 ? "Free" : `₹${displayShipping}.00`}
+                    ) : displayShipping === 0 ? (
+                      <span className="flex items-center gap-2">
+                        {finalMaxShipping > 0 && (
+                          <span className="text-[#999] line-through text-[12px]">₹{finalMaxShipping}.00</span>
+                        )}
+                        <span className="text-green-600 font-medium">Free</span>
                       </span>
+                    ) : (
+                      <span className="text-[#1A1A1A]">₹{displayShipping}.00</span>
                     )}
                   </div>
                   {codFee > 0 && (
