@@ -11,9 +11,22 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  const incompleteBundle = items.find((item) => {
+    if (!item.bundleType) return false;
+    const m = String(item.bundleType).match(/(\d+)/);
+    const need = m ? parseInt(m[1], 10) : 0;
+    if (!need) return true;
+    const sum = (item.colorSelections || []).reduce((s, c) => s + (Number(c.quantity) || 0), 0);
+    return sum !== need;
+  });
+
   const handleCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+    if (incompleteBundle) {
+      alert(`"${incompleteBundle.name}" is a bundle of ${String(incompleteBundle.bundleType).match(/(\d+)/)?.[1] || "?"} but only ${(incompleteBundle.colorSelections || []).reduce((s, c) => s + (Number(c.quantity) || 0), 0)} colors are picked. Please update the colors before checking out.`);
+      return;
+    }
     window.location.href = "/checkout";
   };
 
@@ -158,10 +171,15 @@ export default function CartPage() {
                     </span>
                   </div>
 
+                  {incompleteBundle && (
+                    <div className="mt-4 text-[12px] text-[#991B1B] bg-[#FBEAE9] border border-[#F1C7C2] rounded px-3 py-2">
+                      "{incompleteBundle.name}" needs {String(incompleteBundle.bundleType).match(/(\d+)/)?.[1] || "?"} colors picked. Open the product to complete the bundle.
+                    </div>
+                  )}
                   <button
                     onClick={handleCheckout}
-                    disabled={isRedirecting}
-                    className="mt-6 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-70"
+                    disabled={isRedirecting || !!incompleteBundle}
+                    className="mt-6 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isRedirecting ? (
                       <>

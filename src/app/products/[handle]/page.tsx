@@ -134,7 +134,12 @@ export default function ProductDetailPage() {
   const selectedBundle = (selectedBundleIdx !== null && bundles) ? bundles[selectedBundleIdx] : null;
   const effectiveQty = selectedBundle ? selectedBundle.quantity : quantity;
 
+  const bundleColorTotal = Object.values(bundleColorSelections).reduce((s, n) => s + n, 0);
+  const bundleNeedsColors = !!(selectedBundle && (product as any).colors && (product as any).colors.length > 0);
+  const bundleColorsIncomplete = bundleNeedsColors && bundleColorTotal !== (selectedBundle?.quantity ?? 0);
+
   const handleAddToCart = () => {
+    if (bundleColorsIncomplete) return;
     const colorSelectionsForCart = (selectedBundle && colors && colors.length > 0)
       ? Object.entries(bundleColorSelections)
           .filter(([, qty]) => qty > 0)
@@ -176,6 +181,7 @@ export default function ProductDetailPage() {
 
   const handleBuyItNow = async () => {
     if (isRedirecting) return;
+    if (bundleColorsIncomplete) return;
     setIsRedirecting(true);
 
     try {
@@ -704,14 +710,20 @@ export default function ProductDetailPage() {
                 {/* Row 2: Add to Cart */}
                 <button
                   onClick={handleAddToCart}
-                  className={`w-full py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 ${
+                  disabled={bundleColorsIncomplete}
+                  title={bundleColorsIncomplete ? `Select all ${selectedBundle?.quantity} colors for the bundle` : undefined}
+                  className={`w-full py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     addedToCart
                       ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
                       : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
                   }`}
                 >
                   {addedToCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                  {addedToCart ? "Added to Cart!" : "Add to Cart"}
+                  {addedToCart
+                    ? "Added to Cart!"
+                    : bundleColorsIncomplete
+                    ? `Select ${(selectedBundle?.quantity ?? 0) - bundleColorTotal} more color${(selectedBundle?.quantity ?? 0) - bundleColorTotal === 1 ? "" : "s"}`
+                    : "Add to Cart"}
                 </button>
               </div>
               )}
@@ -719,8 +731,9 @@ export default function ProductDetailPage() {
               {!isOutOfStock && (
               <button
                 onClick={handleBuyItNow}
-                disabled={isRedirecting}
-                className="mt-3 w-full bg-[#5C4B3D] text-white py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-70 shadow-sm"
+                disabled={isRedirecting || bundleColorsIncomplete}
+                title={bundleColorsIncomplete ? `Select all ${selectedBundle?.quantity} colors for the bundle` : undefined}
+                className="mt-3 w-full bg-[#5C4B3D] text-white py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
               >
                 {isRedirecting ? (
                   <>
