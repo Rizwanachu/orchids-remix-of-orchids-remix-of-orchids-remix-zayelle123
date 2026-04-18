@@ -6,7 +6,7 @@ const getJwtSecret = () => {
   return new TextEncoder().encode(secret);
 };
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only protect /letsgetsuccessin2026 routes, but allow /letsgetsuccessin2026/login
