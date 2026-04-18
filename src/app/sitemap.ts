@@ -55,18 +55,6 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
     priority: 0.6,
   },
   {
-    url: `${BASE_URL}/cart`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.4,
-  },
-  {
-    url: `${BASE_URL}/checkout`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.3,
-  },
-  {
     url: `${BASE_URL}/track-order`,
     lastModified: new Date(),
     changeFrequency: "monthly",

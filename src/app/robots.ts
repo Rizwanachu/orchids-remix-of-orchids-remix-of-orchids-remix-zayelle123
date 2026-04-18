@@ -7,8 +7,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/letsgetsuccessin2026/",
+          "/cart",
+          "/checkout",
           "/api/",
+          "/letsgetsuccessin2026/",
         ],
       },
     ],
