@@ -45,29 +45,6 @@ const HeroSection = () => {
   const buttonLink = settings.heroButtonLink || heroBanner?.buttonLink || "/collections/new-arrivals";
   const imageUrl = settings.heroImage || heroBanner?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/a9ca71f2-9ed6-4deb-bdfa-a6ddb126d30f/A-woman-wearing-a-premium-satin-or-chiffon-hijab-1771238935183.jpeg?width=8000&height=8000&resize=contain";
 
-  if (!loaded) {
-    return (
-      <section className="relative w-full overflow-hidden bg-[#FDFCF8]">
-        <div className="container mx-auto px-5 sm:px-8">
-          <div className="relative flex flex-col lg:flex-row items-center justify-between py-12 lg:py-0">
-            <div className="relative z-10 w-full lg:w-1/2 flex flex-col items-start text-left mb-8 lg:mb-0 lg:pt-20">
-              <div className="h-[64px] md:h-[80px] w-[300px] bg-[#F5F2ED] rounded-lg animate-pulse mb-4" />
-              <div className="h-[64px] md:h-[80px] w-[260px] bg-[#F5F2ED]/60 rounded-lg animate-pulse mb-6" />
-              <div className="h-[22px] w-[380px] max-w-full bg-[#F5F2ED]/50 rounded animate-pulse mb-3" />
-              <div className="h-[18px] w-[340px] max-w-full bg-[#F5F2ED]/40 rounded animate-pulse mb-8" />
-              <div className="h-[52px] w-[200px] bg-[#F5F2ED] rounded-[12px] animate-pulse" />
-            </div>
-            <div className="relative w-full lg:w-3/5 h-[500px] md:h-[600px] lg:h-[800px] flex justify-end">
-              <div className="relative w-full h-full lg:translate-x-12 xl:translate-x-24">
-                <div className="w-full h-full bg-[#F5F2ED] rounded-bl-[100px] md:rounded-bl-[200px] animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   const titleParts = title.split('\n');
 
   return (

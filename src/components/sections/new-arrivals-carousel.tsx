@@ -161,31 +161,6 @@ export default function NewArrivalsCarousel() {
       .catch(() => {});
   }, []);
 
-  if (loading) {
-    return (
-      <section className="py-[80px] bg-background">
-        <div className="container">
-          <header className="flex flex-col items-center mb-10 text-center">
-            <h2 className="text-[32px] font-serif italic text-foreground mb-2">{sectionTitle}</h2>
-            <p className="text-[14px] text-[#757575] mb-4">{sectionSubtitle}</p>
-            <div className="w-[60px] h-[1px] bg-border mb-8"></div>
-          </header>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse px-2">
-                <div className="aspect-square bg-[#F5F2ED] rounded-[12px]" />
-                <div className="mt-4 space-y-2">
-                  <div className="h-4 bg-[#F5F2ED] rounded w-3/4 mx-auto" />
-                  <div className="h-3 bg-[#F5F2ED] rounded w-1/2 mx-auto" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   if (products.length === 0) {
     return (
       <section className="py-[80px] bg-background">

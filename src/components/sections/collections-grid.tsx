@@ -83,37 +83,6 @@ const CollectionsGrid: React.FC = () => {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="py-16 md:py-24 bg-[#FAF9F6]">
-        <div className="container px-4 md:px-8">
-          <div className="relative mb-12 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-[#E8E4DE]"></div>
-            </div>
-            <div className="relative bg-[#FAF9F6] px-10">
-              <h2 className="text-[32px] md:text-[36px] font-sans font-medium text-[#1A1A1A] tracking-normal">
-                {sectionTitle}
-              </h2>
-            </div>
-          </div>
-          {sectionSubtitle && (
-            <p className="text-center text-[14px] text-[#757575] -mt-8 mb-12">{sectionSubtitle}</p>
-          )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-5 gap-y-10">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="w-full aspect-square rounded-[12px] bg-[#E8E4DE] animate-pulse" />
-                <div className="mt-3 h-4 w-24 bg-[#E8E4DE] rounded animate-pulse" />
-                <div className="mt-2 h-3 w-32 bg-[#E8E4DE] rounded animate-pulse" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   if (collections.length === 0) {
     return (
       <section className="py-16 md:py-24 bg-[#FDFCF8]">

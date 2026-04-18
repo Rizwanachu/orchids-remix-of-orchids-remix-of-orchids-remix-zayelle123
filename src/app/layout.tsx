@@ -48,10 +48,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body
         className={`${inter.variable} ${cormorant.variable} antialiased`}
         >
+          <noscript>
+            <div style={{position:'fixed',top:0,left:0,right:0,zIndex:9999,background:'#524436',color:'#fff',textAlign:'center',padding:'12px 16px',fontSize:'14px',letterSpacing:'0.02em'}}>
+              Please enable JavaScript in your browser to enjoy the full Zayelle experience.
+            </div>
+          </noscript>
           <AuthProvider>
               <ProductsProvider>
                 <OrdersProvider>
