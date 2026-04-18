@@ -46,23 +46,54 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
 
 const TestimonialCard = ({ item }: { item: Testimonial }) => (
   <div className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] min-w-0 pl-5">
-    <div className="bg-white border border-[#E8E4DE] rounded-2xl p-8 flex flex-col items-center text-center h-full">
-      <div className="flex justify-center gap-1 mb-5">
-        {Array.from({ length: item.rating }).map((_, i) => (
-          <Star key={i} size={16} fill="#D4A574" stroke="#D4A574" />
-        ))}
+    <div className="relative bg-[#faf8f5] border border-[#e8e2da] rounded-2xl p-7 flex flex-col h-full overflow-hidden group hover:shadow-md transition-shadow duration-300">
+      
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#5C4B3D] via-[#8B735B] to-[#c4b5a5] rounded-t-2xl" />
+
+      {/* Stars + rating row */}
+      <div className="flex items-center justify-between mb-5 mt-1">
+        <div className="flex gap-[3px]">
+          {Array.from({ length: item.rating }).map((_, i) => (
+            <Star key={i} size={13} fill="#c9985c" stroke="none" />
+          ))}
+        </div>
+        <span className="text-[10px] text-[#5C4B3D] font-semibold tracking-[1.5px] uppercase opacity-60">Verified</span>
       </div>
-      <blockquote className="font-serif italic text-[18px] md:text-[20px] text-[#1A1A1A] leading-relaxed mb-6 flex-1">
-        &ldquo;{item.quote}&rdquo;
+
+      {/* Decorative quote mark */}
+      <div
+        className="font-serif leading-none text-[80px] text-[#5C4B3D] opacity-[0.12] select-none mb-[-16px] mt-[-8px]"
+        aria-hidden="true"
+      >
+        &ldquo;
+      </div>
+
+      {/* Quote */}
+      <blockquote className="font-serif italic text-[17px] text-[#2a2118] leading-[1.65] flex-1 mb-6">
+        {item.quote}
       </blockquote>
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-[13px] font-semibold text-[#1A1A1A] uppercase tracking-wider">
-          {item.author}
-        </span>
-        {item.location && (
-          <span className="text-[12px] text-[#757575]">{item.location}</span>
-        )}
+
+      {/* Divider */}
+      <div className="h-px bg-[#e8e2da] mb-5" />
+
+      {/* Author row */}
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-[#5C4B3D] flex items-center justify-center flex-shrink-0">
+          <span className="text-[13px] font-semibold text-white uppercase">
+            {item.author.charAt(0)}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[13px] font-semibold text-[#1A1A1A] tracking-wide">
+            {item.author}
+          </span>
+          {item.location && (
+            <span className="text-[11px] text-[#8c7b6e] mt-[1px]">{item.location}</span>
+          )}
+        </div>
       </div>
+
     </div>
   </div>
 );
