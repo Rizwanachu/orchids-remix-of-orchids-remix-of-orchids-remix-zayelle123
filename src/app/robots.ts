@@ -9,8 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/letsgetsuccessin2026/",
           "/api/",
-          "/checkout",
-          "/cart",
         ],
       },
     ],
