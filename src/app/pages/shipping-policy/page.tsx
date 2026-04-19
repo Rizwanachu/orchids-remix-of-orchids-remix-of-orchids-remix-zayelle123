@@ -40,7 +40,7 @@ export default function ShippingPolicyPage() {
             <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {[
-              { icon: Truck, label: "Free Shipping", sub: "Above Rs. 1,950" },
+              { icon: Truck, label: "Free Shipping", sub: "Above Rs. 1,000" },
               { icon: Clock, label: "Delivery Time", sub: "5-7 Business Days" },
               { icon: Package, label: "Careful Packaging", sub: "Premium wrapping" },
               { icon: MapPin, label: "Pan India", sub: "All pin codes" },
@@ -62,9 +62,9 @@ export default function ShippingPolicyPage() {
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Shipping Charges</h2>
               <ul className="list-disc pl-5 space-y-2">
-                <li>Orders above Rs. 1,950 — <strong>Free Shipping</strong></li>
-                <li>Orders below Rs. 1,950 — Flat Rs. 49 shipping charge</li>
-                <li>Cash on Delivery (COD) — Additional Rs. 49 handling fee</li>
+                <li>Orders above Rs. 1,000 — <strong>Free Shipping</strong></li>
+                <li>Orders below Rs. 1,000 — Flat Rs. 55 shipping charge</li>
+                <li>Cash on Delivery (COD) — Additional Rs. 49 handling fee <em>(COD currently not available)</em></li>
               </ul>
             </section>
 
