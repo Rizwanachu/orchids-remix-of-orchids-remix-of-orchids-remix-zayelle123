@@ -56,16 +56,18 @@ export default function ReturnsExchangePage() {
           <div className="space-y-8 text-[15px] text-[#5C4B3D] leading-relaxed">
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Return Policy</h2>
-              <p>We accept returns within 7 days of delivery. To be eligible for a return, the item must be unused, unwashed, and in its original packaging with all tags attached.</p>
+              <p>Easy returns within 7 days of delivery. Product must be unused and in original packaging and need an unpacking video clearly showing the product is damaged.</p>
+              <p className="mt-2 font-medium text-[#1A1A1A]">Important: If you don&apos;t have an unpacking video and damaged products, we can&apos;t do the returns.</p>
             </section>
 
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">How to Initiate a Return</h2>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Email us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a> with your order number and reason for return.</li>
+                <li>Record an unpacking video clearly showing the product condition at the time of delivery.</li>
+                <li>Email us at <a href="mailto:zayelle.in@gmail.com" className="underline underline-offset-4">zayelle.in@gmail.com</a> with your order number, reason for return, and the unpacking video.</li>
                 <li>Our team will review your request and provide return instructions within 24 hours.</li>
-                <li>Ship the item back to us using a prepaid label (provided for eligible returns).</li>
-                <li>Once we receive and inspect the item, your refund will be processed.</li>
+                <li>Ship the item back to us in its original packaging with all tags attached.</li>
+                <li>Once we receive and inspect the item, your refund will be processed within 5-7 business days.</li>
               </ol>
             </section>
 
@@ -75,17 +77,13 @@ export default function ReturnsExchangePage() {
             </section>
 
             <section>
-              <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Refund Timeline</h2>
-              <p>Refunds are processed within 5-7 business days after we receive the returned item. The amount will be credited to your original payment method. For COD orders, refunds will be processed via bank transfer.</p>
-            </section>
-
-            <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Non-Returnable Items</h2>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Items that have been worn, washed, or altered</li>
                 <li>Items without original tags and packaging</li>
                 <li>Sale or discounted items (unless defective)</li>
                 <li>Hijab pins and accessories (hygiene reasons)</li>
+                <li>Returns without an unpacking video showing the damage</li>
               </ul>
             </section>
           </div>
