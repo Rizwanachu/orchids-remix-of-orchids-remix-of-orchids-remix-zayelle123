@@ -9,6 +9,25 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/pages/shipping",
+        destination: "/pages/shipping-policy",
+        permanent: true,
+      },
+      {
+        source: "/pages/shipping-and-delivery",
+        destination: "/pages/shipping-policy",
+        permanent: true,
+      },
+      {
+        source: "/shipping",
+        destination: "/pages/shipping-policy",
+        permanent: true,
+      },
+    ];
+  },
 } as NextConfig;
 
 export default nextConfig;

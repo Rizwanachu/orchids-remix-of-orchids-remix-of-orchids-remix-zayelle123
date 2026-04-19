@@ -861,6 +861,66 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
+                {((product as any).shippingPolicy) && (
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "shipping" ? null : "shipping")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Shipping &amp; Delivery</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "shipping" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "shipping" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    {(() => {
+                      const lines = ((product as any).shippingPolicy || "").split("\n").map((l: string) => l.trim()).filter(Boolean);
+                      if (lines.length > 1) {
+                        return (
+                          <ul className="space-y-1.5">
+                            {lines.map((line: string, idx: number) => (
+                              <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
+                                <span className="text-[#5C4B3D] mt-0.5 flex-shrink-0">•</span>
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return <p className="text-[14px] text-[#555] leading-relaxed">{lines[0]}</p>;
+                    })()}
+                  </div>
+                </div>
+                )}
+
+                {((product as any).returnPolicy) && (
+                <div className="border-b border-[#E8E4DE]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === "returns" ? null : "returns")}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[14px] font-medium text-[#1A1A1A] uppercase tracking-wider">Returns &amp; Exchange</span>
+                    <ChevronDown size={18} className={`text-[#757575] transition-transform duration-300 ${openAccordion === "returns" ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ${openAccordion === "returns" ? "max-h-[500px] pb-4" : "max-h-0"}`}>
+                    {(() => {
+                      const lines = ((product as any).returnPolicy || "").split("\n").map((l: string) => l.trim()).filter(Boolean);
+                      if (lines.length > 1) {
+                        return (
+                          <ul className="space-y-1.5">
+                            {lines.map((line: string, idx: number) => (
+                              <li key={idx} className="text-[13px] text-[#555] flex items-start gap-2">
+                                <span className="text-[#5C4B3D] mt-0.5 flex-shrink-0">•</span>
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return <p className="text-[14px] text-[#555] leading-relaxed">{lines[0]}</p>;
+                    })()}
+                  </div>
+                </div>
+                )}
+
               {(product as any).customHamperEnabled ? (
                 <div className="border-b border-[#E8E4DE]">
                   <button
