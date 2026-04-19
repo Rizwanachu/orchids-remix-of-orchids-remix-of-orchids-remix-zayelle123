@@ -63,7 +63,7 @@ export default function ShippingPolicyPage() {
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Shipping Charges</h2>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Orders above Rs. 1,000 — <strong>Free Shipping</strong></li>
-                <li>Orders below Rs. 1,000 — Flat Rs. 55 shipping charge</li>
+                <li>Orders below Rs. 1,000 — Shipping charge starting from Rs. 55 (varies based on order dimensions, weight, and delivery location)</li>
                 <li>Cash on Delivery (COD) — Additional Rs. 49 handling fee <em>(COD currently not available)</em></li>
               </ul>
             </section>
