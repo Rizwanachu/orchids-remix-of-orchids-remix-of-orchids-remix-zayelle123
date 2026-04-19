@@ -57,7 +57,7 @@ export default function ReturnsExchangePage() {
             <section>
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-3">Return Policy</h2>
               <p>Easy returns within 7 days of delivery. Product must be unused and in original packaging and need an unpacking video clearly showing the product is damaged.</p>
-              <p className="mt-2 font-medium text-[#1A1A1A]">Important: If you don&apos;t have an unpacking video and damaged products, we can&apos;t do the returns.</p>
+              <p className="mt-2 font-medium text-[#1A1A1A]">Important: If you don&apos;t have an uncut unpacking video and damaged products, we can&apos;t do the returns.</p>
             </section>
 
             <section>

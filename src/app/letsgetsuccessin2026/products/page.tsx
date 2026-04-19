@@ -101,7 +101,7 @@ const emptyForm: ProductFormData = {
   shippingCostKerala: "49",
   isFreeShipping: false,
   shippingPolicy: "Free shipping on orders above Rs. 1000. Standard delivery within 5-7 business days across India.",
-  returnPolicy: "Easy returns within 7 days of delivery. Product must be unused and in original packaging and need an unpacking video clearly showing the product is damaged (if you don't have unpacking video and damaged products we can't do the returns).",
+  returnPolicy: "Easy returns within 7 days of delivery. Product must be unused and in original packaging and need an uncut unpacking video clearly showing the product is damaged (if you don't have an uncut unpacking video and damaged products we can't do the returns).",
   customHamperEnabled: false,
   customHamperTitle: "Need a Custom Hamper?",
   customHamperBody: "Looking for a specific hijab color or a personalized hamper?\n\nDM us on Instagram or contact us through our Contact Page, and we'll help you create your perfect hamper.\n\nCustom hampers are one of our most requested gifts.",
