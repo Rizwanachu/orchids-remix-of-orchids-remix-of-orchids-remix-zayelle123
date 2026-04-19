@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
-import { orders, orderItems } from "@/../shared/schema";
+import { orders, orderItems, products } from "@/../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { sendOrderConfirmationEmail, sendNewOrderNotificationEmail } from "@/lib/email";
 
@@ -76,6 +76,16 @@ export async function POST(request: NextRequest) {
 
     for (const it of orderItemValues) console.log("ORDER ITEM DEBUG:", it);
     await db.insert(orderItems).values(orderItemValues);
+
+    for (const item of items) {
+      const handle = item.productHandle || item.handle;
+      if (handle) {
+        await db
+          .update(products)
+          .set({ stockQuantity: sql`GREATEST(0, stock_quantity - ${item.quantity})` })
+          .where(eq(products.handle, handle));
+      }
+    }
 
     if (couponCode) {
       await db.execute(
