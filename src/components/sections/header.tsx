@@ -138,7 +138,7 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]">
+                <button type="submit" aria-label="Search" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]">
                   <Search size={18} strokeWidth={1.5} />
                 </button>
               </form>
@@ -149,7 +149,7 @@ const Header = () => {
                     <span className="text-[12px] uppercase tracking-wider font-semibold text-[#757575]">
                       {searchQuery.trim().length >= 2 ? `Results (${searchResults.length})` : "Quick Search:"}
                     </span>
-                    <button onClick={() => setIsSearchFocused(false)} className="text-[#1A1A1A] hover:opacity-70 transition-opacity">
+                    <button onClick={() => setIsSearchFocused(false)} aria-label="Close search" className="text-[#1A1A1A] hover:opacity-70 transition-opacity">
                       <X size={16} />
                     </button>
                   </div>
@@ -223,22 +223,24 @@ const Header = () => {
               <button 
                 className="lg:hidden p-2 text-[#1A1A1A]"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
               </button>
               
-              <a href={user ? "/account" : "/account/login"} className="hidden lg:flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity">
+              <a href={user ? "/account" : "/account/login"} aria-label={user ? "My account" : "Sign in"} className="hidden lg:flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity">
                 <User size={22} strokeWidth={1.5} />
               </a>
               
-              <a href="/wishlist" className="flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity relative">
+              <a href="/wishlist" aria-label={`Wishlist${wishlist.length > 0 ? `, ${wishlist.length} items` : ""}`} className="flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity relative">
                   <Heart size={22} strokeWidth={1.5} />
                   {wishlist.length > 0 && (
                     <span className="absolute top-1 right-0 bg-[#5C4B3D] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full border border-white">{wishlist.length}</span>
                   )}
                 </a>
 
-                <a href="/cart" className="flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity relative">
+                <a href="/cart" aria-label={`Cart${totalItems > 0 ? `, ${totalItems} items` : ""}`} className="flex items-center p-2 text-[#1A1A1A] hover:opacity-70 transition-opacity relative">
                   <ShoppingBag size={22} strokeWidth={1.5} />
                   {totalItems > 0 && (
                     <span className="absolute top-1 right-0 bg-[#5C4B3D] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full border border-white">{totalItems}</span>
@@ -304,7 +306,7 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]">
+                <button type="submit" aria-label="Search" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]">
                   <Search size={18} strokeWidth={1.5} />
                 </button>
               </form>
