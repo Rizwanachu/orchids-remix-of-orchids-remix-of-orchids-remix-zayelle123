@@ -368,7 +368,7 @@ export default function AdminCollectionsPage() {
                 </button>
                 {form.imageUrl && (
                   <div className="relative w-10 h-10 rounded border border-[#E8E4DE] overflow-hidden">
-                    <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" unoptimized />
+                    <Image src={form.imageUrl} alt="Preview" fill className="object-cover" sizes="40px" />
                   </div>
                 )}
               </div>
@@ -448,7 +448,7 @@ export default function AdminCollectionsPage() {
                           <td className="px-4 py-3">
                             {collection.imageUrl ? (
                               <div className="relative w-12 h-12 rounded-lg border border-[#E8E4DE] overflow-hidden">
-                                <Image src={collection.imageUrl} alt={collection.title} fill className="object-cover" sizes="48px" unoptimized />
+                                <Image src={collection.imageUrl} alt={collection.title} fill className="object-cover" sizes="48px" />
                               </div>
                             ) : (
                               <div className="w-12 h-12 rounded-lg bg-[#F5F2ED] flex items-center justify-center">
@@ -548,7 +548,7 @@ export default function AdminCollectionsPage() {
                                           <div className="flex items-center gap-3">
                                             {product.image ? (
                                               <div className="relative w-8 h-8 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
-                                                <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" unoptimized />
+                                                <Image src={product.image} alt={product.name} fill className="object-cover" sizes="32px" />
                                               </div>
                                             ) : (
                                               <div className="w-8 h-8 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">
@@ -594,7 +594,7 @@ export default function AdminCollectionsPage() {
                                         <div className="flex items-center gap-3 min-w-0">
                                           {product.image ? (
                                             <div className="relative w-9 h-9 rounded border border-[#E8E4DE] overflow-hidden flex-shrink-0">
-                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" unoptimized />
+                                              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="36px" />
                                             </div>
                                           ) : (
                                             <div className="w-9 h-9 rounded bg-[#F5F2ED] flex items-center justify-center flex-shrink-0">

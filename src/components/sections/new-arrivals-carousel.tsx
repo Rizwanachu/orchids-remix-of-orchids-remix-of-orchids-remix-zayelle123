@@ -35,7 +35,6 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
               src={product.image}
               alt={product.name}
               fill
-              unoptimized
               priority={isPriority}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className={`object-cover transition-opacity duration-500 scale-100 group-hover:scale-105 ${
@@ -46,7 +45,6 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
               src={product.hoverImage}
               alt={`${product.name} alternate view`}
               fill
-              unoptimized
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className={`object-cover transition-opacity duration-500 scale-105 group-hover:scale-100 ${
                 isHovered ? "opacity-100" : "opacity-0"

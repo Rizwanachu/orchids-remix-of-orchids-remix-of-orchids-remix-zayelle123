@@ -413,8 +413,9 @@ function AllProductsContent() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
-              {displayCards.map((card) => {
+              {displayCards.map((card, idx) => {
                 const wishlisted = isInWishlist(card.key);
+                const isAboveFold = idx < 4;
                 return (
                   <div key={card.key} className="group flex flex-col">
                     <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-white">
@@ -423,7 +424,9 @@ function AllProductsContent() {
                           src={card.image}
                           alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                           fill
-                          unoptimized
+                          priority={isAboveFold}
+                          loading={isAboveFold ? "eager" : "lazy"}
+                          quality={70}
                           className={`object-cover transition-all duration-500 ${card.hoverImage ? "group-hover:opacity-0" : "group-hover:scale-105"}`}
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
@@ -432,7 +435,6 @@ function AllProductsContent() {
                             src={card.hoverImage}
                             alt={`${card.colorName ? `${card.name} — ${card.colorName}` : card.name} hover`}
                             fill
-                            unoptimized
                             className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           />

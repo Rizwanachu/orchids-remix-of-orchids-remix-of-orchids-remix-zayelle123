@@ -114,7 +114,6 @@ const InstagramFeed = () => {
                     src={item.imageUrl}
                     alt={item.alt}
                     fill
-                    unoptimized
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
                     className="object-cover"
                   />

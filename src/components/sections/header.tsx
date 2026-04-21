@@ -181,7 +181,6 @@ const Header = () => {
                               src={product.image}
                               alt={product.name}
                               fill
-                              unoptimized
                               className="object-cover"
                               sizes="56px"
                             />
@@ -280,7 +279,7 @@ const Header = () => {
                           >
                             {col.imageUrl ? (
                               <div className="relative w-8 h-8 rounded-md overflow-hidden border border-[#E8E4DE] flex-shrink-0">
-                                <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="32px" unoptimized />
+                                <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="32px" />
                               </div>
                             ) : (
                               <div className="w-8 h-8 rounded-md bg-[#F5F2ED] flex-shrink-0" />
@@ -338,7 +337,7 @@ const Header = () => {
                               >
                                 {col.imageUrl ? (
                                   <div className="relative w-6 h-6 rounded overflow-hidden border border-[#E8E4DE] flex-shrink-0">
-                                    <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="24px" unoptimized />
+                                    <Image src={col.imageUrl} alt={col.title} fill className="object-cover" sizes="24px" />
                                   </div>
                                 ) : (
                                   <div className="w-6 h-6 rounded bg-[#F5F2ED] flex-shrink-0" />

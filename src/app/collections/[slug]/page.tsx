@@ -194,7 +194,6 @@ export default function CollectionPage() {
                             src={card.image}
                             alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                             fill
-                            unoptimized
                             className="object-cover transition-opacity duration-500 group-hover:opacity-0"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           />
@@ -202,7 +201,6 @@ export default function CollectionPage() {
                             src={card.hoverImage}
                             alt={card.colorName ? `${card.name} — ${card.colorName}` : card.name}
                             fill
-                            unoptimized
                             className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           />

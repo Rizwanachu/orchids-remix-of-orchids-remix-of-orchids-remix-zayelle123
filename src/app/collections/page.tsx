@@ -75,7 +75,6 @@ export default function CollectionsPage() {
                         src={collection.imageUrl}
                         alt={collection.title}
                         fill
-                        unoptimized
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                       />

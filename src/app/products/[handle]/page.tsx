@@ -296,7 +296,6 @@ export default function ProductDetailPage() {
                   src={displayImages[Math.min(activeImage, displayImages.length - 1)] || baseImages[0]}
                   alt={product.name}
                   fill
-                  unoptimized
                   className="object-cover transition-all duration-300 ease-in-out"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
@@ -319,7 +318,7 @@ export default function ProductDetailPage() {
                     onClick={() => setActiveImage(idx)}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-[8px] overflow-hidden border-2 transition-colors ${activeImage === idx ? "border-[#5C4B3D]" : "border-transparent hover:border-[#D4C8BE]"}`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="80px" unoptimized />
+                    <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                   </button>
                 ))}
               </div>
@@ -1036,7 +1035,6 @@ export default function ProductDetailPage() {
                         src={p.image}
                         alt={p.name}
                         fill
-                        unoptimized
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />

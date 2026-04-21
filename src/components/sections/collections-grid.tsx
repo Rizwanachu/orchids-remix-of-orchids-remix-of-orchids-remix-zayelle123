@@ -20,7 +20,6 @@ const CollectionItem: React.FC<CollectionItemProps> = ({ image, title, subtitle,
           src={image}
           alt={title}
           fill
-          unoptimized
           className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
         />
