@@ -4,7 +4,10 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
   allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev", "*.spock.replit.dev", "*.riker.replit.dev", "*.picard.replit.dev", "*.worf.replit.dev", "127.0.0.1"],
   images: {
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
     formats: ["image/avif", "image/webp"],
+    qualities: [50, 60, 70, 75, 80, 90, 100],
     minimumCacheTTL: 31536000,
     remotePatterns: [
       { protocol: "https", hostname: "**" },
