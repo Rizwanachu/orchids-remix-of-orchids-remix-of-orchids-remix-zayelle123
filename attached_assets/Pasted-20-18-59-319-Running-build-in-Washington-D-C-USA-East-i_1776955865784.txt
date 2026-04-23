@@ -1,0 +1,507 @@
+20:18:59.319 Running build in Washington, D.C., USA (East) – iad1
+20:18:59.320 Build machine configuration: 2 cores, 8 GB
+20:18:59.448 Cloning github.com/Rizwanachu/orchids-remix-of-orchids-remix-of-orchids-remix-zayelle123 (Branch: main, Commit: a71e96e)
+20:19:01.228 Cloning completed: 1.780s
+20:19:01.364 Restored build cache from previous deployment (CMEVgR7cy7TQLxc5w3rL6TdUgodi)
+20:19:01.577 Running "vercel build"
+20:19:02.265 Vercel CLI 51.6.1
+20:19:02.582 Installing dependencies...
+20:19:11.032 
+20:19:11.033 removed 1 package, and changed 5 packages in 8s
+20:19:11.033 
+20:19:11.034 161 packages are looking for funding
+20:19:11.034   run `npm fund` for details
+20:19:11.073 Detected Next.js version: 15.5.15
+20:19:11.080 Running "npm run build"
+20:19:11.185 
+20:19:11.185 > nextjs-new@0.1.0 build
+20:19:11.185 > next build
+20:19:11.185 
+20:19:12.087    ▲ Next.js 15.5.15
+20:19:12.088    - Environments: .env.local
+20:19:12.088 
+20:19:12.178    Creating an optimized production build ...
+20:19:37.691  ⚠ Compiled with warnings in 1637ms
+20:19:37.691 
+20:19:37.696 ./node_modules/jose/dist/webapi/lib/deflate.js
+20:19:37.696 A Node.js API is used (CompressionStream at line: 10) which is not supported in the Edge Runtime.
+20:19:37.696 Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+20:19:37.697 
+20:19:37.697 Import trace for requested module:
+20:19:37.697 ./node_modules/jose/dist/webapi/lib/deflate.js
+20:19:37.697 ./node_modules/jose/dist/webapi/jwe/flattened/decrypt.js
+20:19:37.697 ./node_modules/jose/dist/webapi/index.js
+20:19:37.697 
+20:19:37.698 ./node_modules/jose/dist/webapi/lib/deflate.js
+20:19:37.698 A Node.js API is used (DecompressionStream at line: 26) which is not supported in the Edge Runtime.
+20:19:37.698 Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+20:19:37.698 
+20:19:37.698 Import trace for requested module:
+20:19:37.698 ./node_modules/jose/dist/webapi/lib/deflate.js
+20:19:37.699 ./node_modules/jose/dist/webapi/jwe/flattened/decrypt.js
+20:19:37.699 ./node_modules/jose/dist/webapi/index.js
+20:19:37.702 
+20:19:48.689  ✓ Compiled successfully in 33.4s
+20:19:48.692    Skipping validation of types
+20:19:48.693    Linting ...
+20:19:55.807 
+20:19:55.808 Failed to compile.
+20:19:55.809 
+20:19:55.809 ./src/app/account/orders/page.tsx
+20:19:55.809 173:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.809 223:15  Error: Do not use an `<a>` element to navigate to `/collections/all/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.810 
+20:19:55.810 ./src/app/api/admin/analytics/route.ts
+20:19:55.810 92:11  Warning: 'orderItemConditions' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.810 
+20:19:55.810 ./src/app/api/admin/badges/[id]/route.ts
+20:19:55.811 18:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.811 35:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.811 64:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.811 
+20:19:55.811 ./src/app/api/admin/badges/route.ts
+20:19:55.811 53:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.811 
+20:19:55.811 ./src/app/api/admin/banners/[id]/route.ts
+20:19:55.811 18:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.811 44:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.812 68:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.812 
+20:19:55.812 ./src/app/api/admin/banners/route.ts
+20:19:55.812 45:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.812 
+20:19:55.812 ./src/app/api/admin/categories/[id]/route.ts
+20:19:55.812 18:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.813 35:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.813 64:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.813 
+20:19:55.813 ./src/app/api/admin/categories/route.ts
+20:19:55.813 56:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.813 
+20:19:55.814 ./src/app/api/admin/collections/[id]/route.ts
+20:19:55.814 17:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.814 
+20:19:55.815 ./src/app/api/admin/coupons/[id]/route.ts
+20:19:55.815 17:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.815 
+20:19:55.816 ./src/app/api/admin/customers/route.ts
+20:19:55.816 5:10  Warning: 'sql' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.816 5:21  Warning: 'eq' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.817 
+20:19:55.817 ./src/app/api/admin/dm-testimonials/[id]/route.ts
+20:19:55.817 17:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.818 
+20:19:55.818 ./src/app/api/admin/gift-hampers/[id]/route.ts
+20:19:55.818 17:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.818 
+20:19:55.819 ./src/app/api/admin/gift-hampers/route.ts
+20:19:55.819 8:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.819 
+20:19:55.819 ./src/app/api/admin/login/route.ts
+20:19:55.820 86:11  Warning: 'isProduction' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.820 
+20:19:55.820 ./src/app/api/admin/new-arrivals/[id]/route.ts
+20:19:55.821 18:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.821 36:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.821 63:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.822 
+20:19:55.822 ./src/app/api/admin/new-arrivals/route.ts
+20:19:55.822 81:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.822 
+20:19:55.823 ./src/app/api/admin/orders/[id]/route.ts
+20:19:55.823 79:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.823 94:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.823 
+20:19:55.824 ./src/app/api/admin/orders/export/route.ts
+20:19:55.824 28:82  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.824 29:76  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.825 64:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.825 64:57  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.825 65:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.825 67:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.826 68:79  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.826 71:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.827 73:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.827 76:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.827 79:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.827 79:64  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.828 
+20:19:55.828 ./src/app/api/admin/orders/route.ts
+20:19:55.828 27:65  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.828 30:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.829 33:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.829 68:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.829 130:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.829 138:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.830 145:18  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.830 173:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.830 180:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.830 
+20:19:55.831 ./src/app/api/admin/product-colors/[id]/route.ts
+20:19:55.831 18:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.831 34:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.832 60:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.832 
+20:19:55.832 ./src/app/api/admin/product-colors/route.ts
+20:19:55.832 39:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.833 
+20:19:55.833 ./src/app/api/admin/product-templates/[id]/route.ts
+20:19:55.833 18:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.833 40:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.834 69:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.834 
+20:19:55.834 ./src/app/api/admin/product-templates/route.ts
+20:19:55.834 44:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.835 
+20:19:55.835 ./src/app/api/admin/products/[id]/route.ts
+20:19:55.835 18:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.835 106:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.836 133:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.836 
+20:19:55.836 ./src/app/api/admin/products/bulk/route.ts
+20:19:55.836 51:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.837 
+20:19:55.837 ./src/app/api/admin/products/route.ts
+20:19:55.837 157:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.837 
+20:19:55.838 ./src/app/api/admin/reviews/route.ts
+20:19:55.838 15:9  Error: 'conditions' is never reassigned. Use 'const' instead.  prefer-const
+20:19:55.838 
+20:19:55.838 ./src/app/api/admin/theme-settings/route.ts
+20:19:55.839 14:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.839 25:7  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+20:19:55.839 35:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.839 
+20:19:55.840 ./src/app/api/admin/zayelle-edit/[id]/route.ts
+20:19:55.840 17:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.840 35:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.840 56:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.841 
+20:19:55.841 ./src/app/api/admin/zayelle-edit/route.ts
+20:19:55.842 39:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.843 
+20:19:55.843 ./src/app/api/auth/me/route.ts
+20:19:55.843 31:30  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.843 
+20:19:55.844 ./src/app/api/auth/reset-password/route.ts
+20:19:55.844 4:14  Warning: 'and' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.844 
+20:19:55.844 ./src/app/api/banners/route.ts
+20:19:55.845 14:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.845 
+20:19:55.845 ./src/app/api/categories/route.ts
+20:19:55.845 30:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.846 
+20:19:55.846 ./src/app/api/checkout/route.ts
+20:19:55.846 14:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.847 21:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.847 71:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.847 
+20:19:55.847 ./src/app/api/cron/abandoned-cart/route.ts
+20:19:55.848 2:10  Warning: 'db' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.848 3:10  Warning: 'orders' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.848 3:18  Warning: 'orderItems' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.849 4:10  Warning: 'eq' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.849 4:14  Warning: 'and' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.849 4:19  Warning: 'isNull' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.849 4:27  Warning: 'lt' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.850 4:31  Warning: 'sql' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.850 5:10  Warning: 'sendAbandonedCartEmail' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.850 8:27  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.850 10:11  Warning: 'now' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.851 
+20:19:55.851 ./src/app/api/gift-hampers/route.ts
+20:19:55.851 6:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.851 
+20:19:55.852 ./src/app/api/new-arrivals/route.ts
+20:19:55.852 64:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.852 
+20:19:55.852 ./src/app/api/orders/[id]/invoice/route.ts
+20:19:55.853 115:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.853 116:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.853 117:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.853 118:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.854 
+20:19:55.854 ./src/app/api/orders/route.ts
+20:19:55.854 27:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.854 60:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.855 109:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.855 135:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.855 174:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.855 
+20:19:55.855 ./src/app/api/razorpay/verify/route.ts
+20:19:55.856 45:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.856 80:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.856 129:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.856 155:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.856 
+20:19:55.857 ./src/app/api/reviews/upload/route.ts
+20:19:55.857 31:11  Warning: 'ext' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.857 
+20:19:55.857 ./src/app/api/test-email/route.ts
+20:19:55.857 1:10  Warning: 'NextRequest' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.858 41:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.858 
+20:19:55.858 ./src/app/api/zayelle-edit/route.ts
+20:19:55.858 14:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.859 
+20:19:55.859 ./src/app/cart/page.tsx
+20:19:55.859 12:25  Warning: 'setIsRedirecting' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.859 33:62  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.860 94:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.860 176:23  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+20:19:55.860 176:47  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+20:19:55.860 194:19  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.861 216:15  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.861 
+20:19:55.861 ./src/app/checkout/page.tsx
+20:19:55.861 16:15  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.861 66:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.861 67:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.862 68:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.862 89:58  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.862 90:58  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.862 112:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.862 125:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.863 130:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.863 155:14  Warning: 'err' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.863 172:71  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.863 227:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.863 228:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.863 229:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.864 230:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.864 235:9  Warning: 'handleCODOrder' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.864 293:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.864 
+20:19:55.864 ./src/app/collections/[slug]/page.tsx
+20:19:55.864 34:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.865 109:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.865 136:9  Warning: The 'filteredProducts' conditional could make the dependencies of useMemo Hook (at line 143) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'filteredProducts' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+20:19:55.865 157:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.865 159:15  Error: Do not use an `<a>` element to navigate to `/collections/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.865 250:15  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.865 
+20:19:55.865 ./src/app/collections/page.tsx
+20:19:55.865 42:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.866 
+20:19:55.866 ./src/app/gift-hampers/page.tsx
+20:19:55.866 81:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.866 106:15  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.866 
+20:19:55.866 ./src/app/layout.tsx
+20:19:55.866 80:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.866 
+20:19:55.866 ./src/app/letsgetsuccessin2026/banners/page.tsx
+20:19:55.866 99:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.866 
+20:19:55.866 ./src/app/letsgetsuccessin2026/dashboard/page.tsx
+20:19:55.866 8:10  Warning: 'Label' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.866 37:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.866 146:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.866 
+20:19:55.866 ./src/app/letsgetsuccessin2026/dm-testimonials/page.tsx
+20:19:55.866 213:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.866 303:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.866 
+20:19:55.866 ./src/app/letsgetsuccessin2026/invoice/[id]/page.tsx
+20:19:55.866 8:10  Warning: 'getItemConfigLines' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.866 232:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.866 
+20:19:55.866 ./src/app/letsgetsuccessin2026/invoice/demo/page.tsx
+20:19:55.867 138:62  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 139:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 145:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 146:98  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 164:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 165:122  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.867 
+20:19:55.867 ./src/app/letsgetsuccessin2026/layout.tsx
+20:19:55.867 62:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.867 
+20:19:55.867 ./src/app/letsgetsuccessin2026/login/page.tsx
+20:19:55.867 36:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.867 
+20:19:55.867 ./src/app/letsgetsuccessin2026/media/page.tsx
+20:19:55.867 158:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.868 
+20:19:55.868 ./src/app/letsgetsuccessin2026/orders/page.tsx
+20:19:55.868 878:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.874 880:66  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.874 885:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.874 887:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.875 890:64  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.875 898:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.875 902:43  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.875 903:204  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.875 905:43  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.875 915:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 918:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 918:72  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 919:96  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 959:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 961:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.876 964:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.877 967:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.877 968:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.877 974:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.877 
+20:19:55.877 ./src/app/letsgetsuccessin2026/page.tsx
+20:19:55.877 43:7  Warning: 'paymentColors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.877 
+20:19:55.878 ./src/app/letsgetsuccessin2026/products/page.tsx
+20:19:55.878 39:11  Warning: 'ColorVariant' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.878 125:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 126:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 127:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 128:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 129:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 130:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 132:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 134:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 137:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 140:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 146:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 147:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 148:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 149:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.878 150:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 151:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 152:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 153:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 154:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 155:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.879 606:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.886 633:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.886 635:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.886 637:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.886 639:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.888 640:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.888 641:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.888 642:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.889 643:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.889 645:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.889 646:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.889 647:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.890 648:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.890 649:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.890 650:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.890 651:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.891 652:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.891 653:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.891 654:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.892 655:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.892 656:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.894 1085:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.894 1134:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.894 1664:87  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+20:19:55.895 1664:100  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+20:19:55.895 
+20:19:55.895 ./src/app/letsgetsuccessin2026/reviews/page.tsx
+20:19:55.895 5:55  Warning: 'Clock' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.895 48:6  Warning: React Hook useEffect has a missing dependency: 'fetchReviews'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+20:19:55.896 
+20:19:55.896 ./src/app/letsgetsuccessin2026/site-settings/page.tsx
+20:19:55.896 5:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.896 27:10  Warning: 'settings' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.896 181:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.897 385:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.897 
+20:19:55.897 ./src/app/letsgetsuccessin2026/theme/page.tsx
+20:19:55.897 4:40  Warning: 'Layout' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.897 
+20:19:55.898 ./src/app/new-arrivals/page.tsx
+20:19:55.898 51:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.898 
+20:19:55.899 ./src/app/pages/about-us/page.tsx
+20:19:55.899 102:15  Error: Do not use an `<a>` element to navigate to `/collections/new-arrivals/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.899 
+20:19:55.900 ./src/app/pages/track-order/page.tsx
+20:19:55.900 11:7  Warning: 'STEPS' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.900 238:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.901 
+20:19:55.901 ./src/app/products/[handle]/page.tsx
+20:19:55.901 15:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.901 39:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.902 86:13  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.902 118:43  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.902 120:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.903 138:62  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.903 138:89  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.903 154:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.903 173:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.904 174:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.904 175:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.904 176:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.904 196:33  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.905 281:13  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.905 283:13  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.905 336:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.905 486:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.905 486:55  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 490:107  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 495:53  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 496:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 585:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 585:54  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.906 589:106  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.907 594:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.907 863:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.907 874:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.907 893:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.907 904:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.908 923:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.908 930:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.908 936:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.908 939:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.908 939:79  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.909 941:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.909 943:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.909 952:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.909 954:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.909 
+20:19:55.909 ./src/app/products/page.tsx
+20:19:55.910 8:52  Warning: 'Filter' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.910 36:41  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.910 215:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.910 219:19  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.910 280:17  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.910 409:17  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.910 
+20:19:55.910 ./src/app/wishlist/page.tsx
+20:19:55.910 160:15  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.910 
+20:19:55.911 ./src/components/admin/image-crop-modal.tsx
+20:19:55.911 175:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.911 
+20:19:55.911 ./src/components/admin/media-picker-modal.tsx
+20:19:55.911 142:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.911 
+20:19:55.912 ./src/components/product-reviews.tsx
+20:19:55.912 94:6  Warning: React Hook useEffect has a missing dependency: 'fetchReviews'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+20:19:55.912 
+20:19:55.912 ./src/components/sections/header.tsx
+20:19:55.912 211:15  Error: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.912 212:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+20:19:55.913 267:25  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.913 326:29  Error: Do not use an `<a>` element to navigate to `/products/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+20:19:55.913 
+20:19:55.913 ./src/lib/email.ts
+20:19:55.913 51:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.913 328:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.917 339:75  Warning: 'retryCount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:19:55.917 420:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.917 488:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.917 636:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.917 641:98  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.918 692:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:19:55.918 
+20:19:55.918 ./src/lib/products.ts
+20:19:55.918 1:10  Warning: 'client' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.918 2:10  Warning: 'gql' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.918 
+20:19:55.919 ./src/middleware.ts
+20:19:55.919 20:18  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.919 41:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+20:19:55.919 
+20:19:55.919 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+20:19:55.924 Error: Command "npm run build" exited with 1
