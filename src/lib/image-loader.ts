@@ -15,9 +15,9 @@ export default function imageLoader({ src, width, quality }: LoaderArgs): string
       rest = rest.replace(EXISTING_TRANSFORM_RE, "");
     }
 
-    const q = Math.min(Math.max(quality || 70, 1), 100);
-    const w = Math.min(Math.max(Math.round(width), 16), 3840);
-    const transforms = `f_auto,q_${q},w_${w},c_limit,dpr_auto`;
+    const w = Math.min(Math.max(Math.round(width), 16), 1920);
+    const q = quality ? `q_${Math.min(Math.max(quality, 1), 100)}` : "q_auto";
+    const transforms = `f_auto,${q},w_${w},c_limit,dpr_auto`;
     return `${base}${transforms}/${rest}`;
   }
 

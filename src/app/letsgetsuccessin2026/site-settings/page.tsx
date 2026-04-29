@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Save, Plus, Trash2, GripVertical, Upload, ChevronUp, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { uploadFile } from "@/lib/direct-upload";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 
 interface NavItem {
   name: string;
@@ -382,7 +383,7 @@ export default function SiteSettingsPage() {
             </div>
             {logoUrl && (
               <div className="mt-3 relative rounded border border-[#E8E4DE] overflow-hidden bg-white inline-block p-2">
-                <img src={logoUrl} alt="Logo preview" style={{ height: `${logoSize}px`, width: "auto" }} className="object-contain" />
+                <img src={optimizeCloudinaryUrl(logoUrl, { width: 400 })} alt="Logo preview" style={{ height: `${logoSize}px`, width: "auto" }} className="object-contain" />
               </div>
             )}
 

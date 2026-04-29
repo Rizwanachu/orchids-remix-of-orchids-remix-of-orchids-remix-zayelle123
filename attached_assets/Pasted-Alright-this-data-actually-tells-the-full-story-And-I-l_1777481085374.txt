@@ -1,0 +1,121 @@
+Alright — this data actually tells the full story. And I’ll be straight with you:
+
+👉 Your problem is NOT traffic. It’s how your images are being delivered.
+
+What’s really killing your credits
+1. You’re serving heavy images (this is the main issue)
+PNG: 15.55 GB (68%)
+JPG: 7.13 GB
+WebP: only 51 MB (!!)
+
+👉 This is bad.
+
+You’re basically sending full-size, unoptimized images to users.
+
+2. These images are WAY too big
+
+Look at this:
+
+A single image (~4 MB) → used 500+ MB bandwidth
+That means it was loaded 100+ times at full size
+
+👉 That’s insane for a website image.
+
+3. Your transformations are not working properly
+
+Top transformation:
+
+png → 15.41 GB
+
+👉 That means:
+
+You’re NOT compressing
+You’re NOT resizing properly
+You’re mostly serving original images
+4. Homepage is draining everything
+zayelle.in → 61% of bandwidth
+
+👉 One page is eating your entire quota.
+
+Brutal truth
+
+Right now your setup is:
+
+“High-quality images” = huge files sent raw
+
+That’s not premium — that’s inefficient.
+
+What you SHOULD be doing instead
+
+You said you don’t want to lose quality. Good.
+
+You don’t have to.
+
+Use this transformation everywhere:
+f_auto,q_auto,w_800,c_limit
+
+What this does:
+
+f_auto → serves WebP/AVIF automatically
+q_auto → smart compression (no visible loss)
+w_800 → resizes to realistic screen size
+
+👉 This alone can cut 70–80% bandwidth
+
+Example (real impact)
+
+Your current:
+
+4 MB image → user loads 4 MB
+
+After fix:
+
+Same image → ~300–500 KB
+
+👉 Same look. Massive savings.
+
+Biggest mistake you're making
+
+You’re likely:
+
+Uploading high-res images (good)
+But serving them at full resolution (bad)
+Quick action plan (do this now)
+Step 1 — Fix delivery URLs
+
+Every image URL should include:
+
+/upload/f_auto,q_auto,w_800/
+Step 2 — Stop PNG unless needed
+PNG = huge
+Use JPG/WebP for products
+
+👉 PNG should only be for:
+
+transparent backgrounds
+Step 3 — Fix homepage
+
+Your homepage is eating:
+
+13.88 GB alone
+
+Check:
+
+banners
+hero images
+product grids
+
+👉 These are probably uncompressed
+
+Step 4 — Ignore this trap
+
+You used:
+
+q_70,w_3840
+
+👉 That’s useless.
+
+Why?
+
+3840px = 4K resolution
+Phones don’t need that

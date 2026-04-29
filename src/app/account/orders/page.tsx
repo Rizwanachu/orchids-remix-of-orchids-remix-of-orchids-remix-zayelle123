@@ -8,6 +8,7 @@ import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Package, ChevronRight, FileDown, Loader2, Truck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 import { getItemConfigLines } from "@/lib/order-item-display";
 
 interface DbOrderItem {
@@ -170,7 +171,7 @@ export default function MyOrdersPage() {
                         return (
                           <div key={item.id} className="flex items-start gap-3 text-[13px] text-[#757575]">
                             {item.image && (
-                              <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded flex-shrink-0" />
+                              <img src={optimizeCloudinaryUrl(item.image, { width: 80 })} alt={item.productName} className="w-10 h-10 object-cover rounded flex-shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
                               <p className="truncate text-[#1A1A1A]">{item.productName}</p>

@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
@@ -235,7 +236,7 @@ function TrackOrderContent() {
                       <div key={idx} className="flex items-center gap-3 p-3 bg-white border border-[#E8E4DE] rounded-[8px]">
                         <div className="w-12 h-12 rounded-[6px] bg-[#F5F2ED] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.image ? (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img src={optimizeCloudinaryUrl(item.image, { width: 96 })} alt={item.name} className="w-full h-full object-cover" />
                           ) : (
                             <Package size={16} className="text-[#5C4B3D]" />
                           )}

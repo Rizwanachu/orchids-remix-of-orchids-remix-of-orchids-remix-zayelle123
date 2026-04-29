@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Pencil, Trash2, X, Save, Upload, Image as ImageIcon, MessageSquare } from "lucide-react";
 import { uploadFile } from "@/lib/direct-upload";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 
 interface DmTestimonial {
   id: number;
@@ -210,7 +211,7 @@ export default function AdminDmTestimonialsPage() {
                 </label>
                 <div className="flex items-center gap-3">
                   {form.imageUrl && (
-                    <img src={form.imageUrl} alt="Preview" className="w-16 h-20 object-cover rounded border border-[#E8E4DE]" />
+                    <img src={optimizeCloudinaryUrl(form.imageUrl, { width: 160 })} alt="Preview" className="w-16 h-20 object-cover rounded border border-[#E8E4DE]" />
                   )}
                   <label className="flex items-center gap-2 cursor-pointer bg-[#F5F2ED] px-4 py-2 rounded-sm text-[13px] text-[#5C4B3D] hover:bg-[#EDE8E0] transition-colors">
                     <Upload size={14} />
@@ -300,7 +301,7 @@ export default function AdminDmTestimonialsPage() {
                 >
                   {t.imageUrl ? (
                     <div className="aspect-[3/4] relative">
-                      <img src={t.imageUrl} alt={t.alt} className="w-full h-full object-cover" />
+                      <img src={optimizeCloudinaryUrl(t.imageUrl, { width: 320 })} alt={t.alt} className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="aspect-[3/4] bg-[#F5F2ED] flex items-center justify-center">

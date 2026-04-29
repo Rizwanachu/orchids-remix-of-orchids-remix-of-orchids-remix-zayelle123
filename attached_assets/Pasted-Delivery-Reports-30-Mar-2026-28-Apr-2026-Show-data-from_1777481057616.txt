@@ -1,0 +1,332 @@
+Delivery Reports
+30 Mar 2026 - 28 Apr 2026
+Show data from: Last 30 days
+Bandwidth & Requests
+Breakdown of bandwidth and requests by delivered asset type.
+Total Requests
+13.15K
+ Significantly more than usual 
+Total Bandwidth
+22.75 GB
+ Significantly more than usual 
+Video
+0
+0 Bytes
+Requests
+Bandwidth
+Images
+13.15K
+22.75 GB
+Requests
+Bandwidth
+Top Original Assets
+Original assets uploaded to Cloudinary before transformation and delivery.
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Asset
+Bandwidth
+Percentage
+1.	
+preview of 7b5a4165e86624ca07aa480b9dbb2c3d.png
+7b5a4165e86624ca07aa480b9dbb2c3d.png
+4.11 MB png
+531.02 MB	
+2.28%
+2.	
+preview of 27101d64c25a1dae0ae2f9189dc1a2ce.png
+27101d64c25a1dae0ae2f9189dc1a2ce.png
+3 MB png
+393.92 MB	
+1.69%
+3.	
+preview of 880514334aa8c7dc772a83ee4f50a3a9.jpg
+880514334aa8c7dc772a83ee4f50a3a9.jpg
+2.55 MB jpg
+331.4 MB	
+1.42%
+4.	
+preview of 2c89b96de369ab47a4eac760c15939c4.jpg
+2c89b96de369ab47a4eac760c15939c4.jpg
+2.58 MB jpg
+321.89 MB	
+1.38%
+5.	
+preview of 88908b4be0ec02e0b01eec4802ccc8cd.png
+88908b4be0ec02e0b01eec4802ccc8cd.png
+4 MB png
+315.98 MB	
+1.36%
+Show more
+Top Transformations
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Transformation
+Bandwidth
+Percentage
+1.	
+png
+15.41 GB	
+67.75%
+2.	
+jpg
+7.12 GB	
+31.28%
+3.	
+f_auto,q_70,w_3840,c_limit,dpr_auto/png
+141.11 MB	
+0.61%
+4.	
+f_auto,q_70,w_640,c_limit,dpr_auto/webp
+20.66 MB	
+0.09%
+5.	
+f_auto,q_70,w_3840,c_limit,dpr_auto/jpg
+15.08 MB	
+0.06%
+Show more
+Top Delivered Assets
+Delivered versions of the original assets.
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Asset
+Bandwidth
+Percentage
+1.	
+preview of 7b5a4165e86624ca07aa480b9dbb2c3d.png
+7b5a4165e86624ca07aa480b9dbb2c3d.png
+png
+526.84 MB	
+2.26%
+2.	
+preview of 27101d64c25a1dae0ae2f9189dc1a2ce.png
+27101d64c25a1dae0ae2f9189dc1a2ce.png
+png
+390.92 MB	
+1.68%
+3.	
+preview of 880514334aa8c7dc772a83ee4f50a3a9.jpg
+880514334aa8c7dc772a83ee4f50a3a9.jpg
+jpg
+325.83 MB	
+1.40%
+4.	
+preview of 88908b4be0ec02e0b01eec4802ccc8cd.png
+88908b4be0ec02e0b01eec4802ccc8cd.png
+png
+315.98 MB	
+1.36%
+5.	
+preview of 12cc0e8bd9f83d7384ce1c452c70d177.jpg
+12cc0e8bd9f83d7384ce1c452c70d177.jpg
+jpg
+312.43 MB	
+1.34%
+Show more
+Top Referral Domains
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Domain
+Bandwidth
+Percentage
+1.	
+www.zayelle.in
+13.88 GB	
+61.02%
+2.	
+No Referral Domain
+3.48 GB	
+15.31%
+3.	
+zayelle.in
+1.16 GB	
+5.11%
+4.	
+2d704233-6e0c-465d-b914-be7047c20cd9-00-2lqsab2p1gwab.worf.replit.dev
+992.15 MB	
+4.26%
+5.	
+localhost
+656.55 MB	
+2.82%
+Show more
+Top Referral Pages
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Page
+Bandwidth
+Percentage
+1.	
+https://www.zayelle.in/
+13.88 GB	
+61.02%
+2.	
+No Referral Page
+3.48 GB	
+15.31%
+3.	
+https://zayelle.in/
+1.15 GB	
+5.04%
+4.	
+https://2d704233-6e0c-465d-b914-be7047c20cd9-00-2lqsab2p1gwab.worf.replit.dev/
+992.15 MB	
+4.26%
+5.	
+http://localhost:5000/
+656.55 MB	
+2.82%
+Show more
+Resource Types
+Breakdown by delivered asset type.
+Based on:
+Bandwidth
+Requests
+
+#
+Resource Type
+Bandwidth
+Percentage
+1.	
+Image
+22.75 GB	
+100.00%
+2.	
+Video
+0 Bytes	
+0.00%
+3.	
+Raw
+0 Bytes	
+0.00%
+Top Formats
+Breakdown by delivered asset format.
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Format
+Bandwidth
+Percentage
+1.	
+png
+15.55 GB	
+68.37%
+2.	
+jpg
+7.13 GB	
+31.36%
+3.	
+webp
+51.32 MB	
+0.22%
+4.	
+jxl
+11.44 MB	
+0.05%
+Top Browsers
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Browser
+Bandwidth
+Percentage
+1.	
+Chrome
+13.04 GB	
+57.33%
+2.	
+Chrome Mobile
+2.55 GB	
+11.20%
+3.	
+vercel-image-optimization
+1.67 GB	
+7.34%
+4.	
+Instagram
+1.65 GB	
+7.26%
+5.	
+HeadlessChrome
+1.06 GB	
+4.66%
+Show more
+Top Countries
+Type:
+All
+Image
+Video
+Based on:
+Bandwidth
+Requests
+
+#
+Country
+Bandwidth
+Percentage
+1.	
+India
+16.84 GB	
+74.03%
+2.	
+United States
+5.39 GB	
+23.70%
+3.	
+Hong Kong
+322.42 MB	
+1.38%
+4.	
+Ireland
+72.42 MB	
+0.31%
+5.	
+Taiwan
+70.03 MB	
+0.30%

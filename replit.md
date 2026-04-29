@@ -49,6 +49,21 @@
 - Migration script at `scripts/migrate-base64-images.ts` can be re-run safely (skips products already using URLs).
 - Lightweight `/api/products/search` endpoint added for header search bar (2.6KB vs 47KB full endpoint).
 
+## Image Delivery Optimization (April 2026)
+- **Problem**: Cloudinary report showed ~99% of bandwidth was raw originals (PNG 67.75% / JPG 31.28%, only ~0.6% transformed) — 22.75 GB / 13.15K requests in 30 days.
+- **Root causes**:
+  1. `next/image` loader used fixed `q_70` and allowed `w_3840` (4K downloads).
+  2. `/api/media/serve/[filename]` 301-redirected to the **raw** Cloudinary URL (no transforms) — emails, OG scrapers, and old links all pulled multi-MB originals.
+  3. Many raw `<img>` tags in admin/account pages and email templates pointed straight at the original Cloudinary URL.
+- **Fixes**:
+  - `src/lib/optimize-cloudinary.ts` — new helper `optimizeCloudinaryUrl(url, { width })` that injects `f_auto,q_auto,w_W,c_limit,dpr_auto`, stripping any pre-existing transforms. Width is clamped to 1920.
+  - `src/lib/image-loader.ts` — switched from `q_70` → `q_auto` (smart compression) and capped width at 1920 (was 3840).
+  - `next.config.ts` — explicit `deviceSizes: [360, 640, 750, 828, 1080, 1200, 1600, 1920]` and `imageSizes` so `<Image srcset>` never requests 4K variants.
+  - `src/app/api/media/serve/[filename]/route.ts` — wraps the redirect target with `optimizeCloudinaryUrl` (default `w=1600`, overridable via `?w=` query param).
+  - `src/lib/email.ts` — `toAbsoluteUrl` now optimizes Cloudinary URLs to `w=144` for email thumbnails.
+  - All raw `<img>` tags in `src/app/pages/track-order/page.tsx`, `src/app/account/orders/page.tsx`, and admin pages (`orders`, `dm-testimonials`, `products`, `dashboard`, `site-settings`) wrapped with `optimizeCloudinaryUrl({ width: thumb-size })`.
+- **Expected impact**: bandwidth reduction of ~70–85% (raw 4 MB PNG → ~300–500 KB WebP/AVIF served by Cloudinary CDN with smart quality).
+
 ## Image Storage — Cloudinary Migration (COMPLETE — March 2026)
 - **291 of 292 images migrated** from Neon PostgreSQL bytea → Cloudinary. 1 file failed (corrupted: `10b7e479585a40f92e6e3ad46af6b4ef.jpg`).
 - All 9 affected table columns updated to direct Cloudinary URLs (no more `/api/media/serve/` indirection for migrated images).

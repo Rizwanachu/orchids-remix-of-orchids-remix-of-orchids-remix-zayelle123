@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 import {
   Search,
   Filter,
@@ -895,7 +896,7 @@ export default function AdminOrdersPage() {
                             <td className="px-4 py-2.5">
                               <div className="flex items-start gap-3">
                               {item.image && (
-                                <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
+                                <img src={optimizeCloudinaryUrl(item.image, { width: 80 })} alt={item.productName} className="w-10 h-10 object-cover rounded" />
                               )}
                               <div className="flex flex-col gap-1">
                                 <span className="text-sm">{item.productName}</span>
@@ -971,7 +972,7 @@ export default function AdminOrdersPage() {
                               <td className="px-4 py-2.5">
                                 <div className="flex items-start gap-3">
                                   {item.image && (
-                                    <img src={item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />
+                                    <img src={optimizeCloudinaryUrl(item.image, { width: 80 })} alt={item.productName} className="w-10 h-10 object-cover rounded" />
                                   )}
                                   <div className="flex flex-col gap-1">
                                     <span className="text-sm">{item.productName}</span>

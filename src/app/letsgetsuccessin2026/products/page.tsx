@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { uploadFile } from "@/lib/direct-upload";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -1082,7 +1083,7 @@ export default function AdminProductsPage() {
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 {imgs.map((src, imgIdx) => (
                                   <div key={imgIdx} className="relative group/img flex-shrink-0">
-                                    <img src={src} alt={`${color.name} ${imgIdx + 1}`} className="w-10 h-10 object-cover rounded-md border border-[#E8E4DE]" />
+                                    <img src={optimizeCloudinaryUrl(src, { width: 80 })} alt={`${color.name} ${imgIdx + 1}`} className="w-10 h-10 object-cover rounded-md border border-[#E8E4DE]" />
                                     <button
                                       type="button"
                                       onClick={() => removeVariantImage(idx, imgIdx)}
@@ -1131,7 +1132,7 @@ export default function AdminProductsPage() {
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {newVariantImages.map((src, i) => (
                       <div key={i} className="relative group/nimg flex-shrink-0">
-                        <img src={src} alt={`img ${i + 1}`} className="w-9 h-9 object-cover rounded-md border border-[#E8E4DE]" />
+                        <img src={optimizeCloudinaryUrl(src, { width: 80 })} alt={`img ${i + 1}`} className="w-9 h-9 object-cover rounded-md border border-[#E8E4DE]" />
                         <button
                           type="button"
                           onClick={() => setNewVariantImages(prev => prev.filter((_, j) => j !== i))}

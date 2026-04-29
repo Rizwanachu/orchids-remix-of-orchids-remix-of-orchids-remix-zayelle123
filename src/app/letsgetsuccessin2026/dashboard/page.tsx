@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Search, Filter, Edit, Trash2, Package } from "lucide-react";
+import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
@@ -144,7 +145,7 @@ export default function AdminDashboard() {
                           <div className="w-10 h-10 rounded bg-muted overflow-hidden flex-shrink-0">
                             {product.featuredImage ? (
                               <img 
-                                src={product.featuredImage.url} 
+                                src={optimizeCloudinaryUrl(product.featuredImage.url, { width: 80 })} 
                                 alt={product.featuredImage.altText}
                                 className="w-full h-full object-cover"
                               />

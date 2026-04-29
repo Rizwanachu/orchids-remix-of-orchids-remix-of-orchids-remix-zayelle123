@@ -3,6 +3,7 @@ import { db } from "@/../server/db";
 import { orders } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
 import { getItemConfigLines } from "./order-item-display";
+import { optimizeCloudinaryUrl } from "./optimize-cloudinary";
 
 function escHtml(s: string): string {
   return String(s)
@@ -36,10 +37,13 @@ const FROM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || "zayelle.in
 const LOGO_URL = "https://www.zayelle.in/logo.png";
 const SITE_URL = "https://www.zayelle.in";
 
-function toAbsoluteUrl(url: string | null | undefined): string {
+function toAbsoluteUrl(url: string | null | undefined, width: number = 144): string {
   if (!url) return "https://placehold.co/80x80/f5f2ed/8c6f5a?text=Item";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  return `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+  const absolute = url.startsWith("http://") || url.startsWith("https://")
+    ? url
+    : `${SITE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+  // Optimize Cloudinary URLs so emails don't pull multi-MB originals.
+  return optimizeCloudinaryUrl(absolute, { width });
 }
 
 export async function verifyConnection() {
