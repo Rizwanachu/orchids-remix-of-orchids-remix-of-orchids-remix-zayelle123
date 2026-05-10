@@ -50,6 +50,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <body
+        className={`${inter.variable} ${cormorant.variable} antialiased`}
+        >
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=GT-NBJ3X3R8"
         strategy="afterInteractive"
@@ -62,7 +65,7 @@ export default function RootLayout({
           gtag('config', 'GT-NBJ3X3R8');
         `}
       </Script>
-      <Script id="meta-pixel" strategy="beforeInteractive">
+      <Script id="meta-pixel" strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -76,18 +79,6 @@ export default function RootLayout({
           fbq('track', 'PageView');
         `}
       </Script>
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=1957976071510679&ev=PageView&noscript=1"
-          alt=""
-        />
-      </noscript>
-      <body
-        className={`${inter.variable} ${cormorant.variable} antialiased`}
-        >
           <AuthProvider>
               <ProductsProvider>
                 <OrdersProvider>
