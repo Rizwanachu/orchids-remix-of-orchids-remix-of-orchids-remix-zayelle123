@@ -49,6 +49,51 @@ const nextConfig: NextConfig = {
         destination: "/pages/shipping-policy",
         permanent: true,
       },
+      {
+        source: "/about",
+        destination: "/pages/about-us",
+        permanent: true,
+      },
+      {
+        source: "/contact",
+        destination: "/pages/contact",
+        permanent: true,
+      },
+      {
+        source: "/track-order",
+        destination: "/pages/track-order",
+        permanent: true,
+      },
+      {
+        source: "/hijabs",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/abayas",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/accessories",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/faq",
+        destination: "/pages/faq",
+        permanent: true,
+      },
+      {
+        source: "/privacy-policy",
+        destination: "/pages/privacy-policy",
+        permanent: true,
+      },
+      {
+        source: "/terms",
+        destination: "/pages/terms-of-service",
+        permanent: true,
+      },
     ];
   },
 } as NextConfig;
