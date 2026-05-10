@@ -22,11 +22,11 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Zayelle - Premium Hijabs & Modest Accessories | India",
+  title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
   description:
-    "Zayelle offers premium hijabs and modest accessories in India. Shop chiffon, satin silk, jersey wraps, and elegant everyday essentials with all-India delivery.",
+    "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Zayelle offers modest fashion for the modern Indian woman. Free delivery above ₹1,950. All-India shipping.",
   keywords:
-    "premium hijabs India, buy hijabs online India, satin hijabs India, chiffon hijabs online, modest fashion India, hijab accessories India, luxury hijabs India",
+    "best hijab in india, buy hijabs online india, premium satin hijab, best jersey hijab india, chiffon hijab india, best abaya brand india, modest fashion india, soft jersey hijab india, hijab brand india, best hijab brand india, premium hijab online india",
   icons: {
     icon: [
       { url: "/favicon.png", sizes: "any", type: "image/png" },

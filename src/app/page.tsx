@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Header from "@/components/sections/header";
 import HeroSection from "@/components/sections/hero";
 import CollectionsGrid from "@/components/sections/collections-grid";
@@ -14,6 +15,70 @@ import { homepageSections } from "../../shared/schema";
 import { asc } from "drizzle-orm";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
+  description: "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Zayelle offers modest fashion for the modern Indian woman. Free delivery above ₹1,950. All-India shipping.",
+  keywords: "best hijab in india, buy hijabs online india, premium satin hijab, jersey hijab india, chiffon hijab, best abaya india, modest fashion india, hijab brand india, soft jersey hijab, premium hijab online, best hijab brand india",
+  openGraph: {
+    title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
+    description: "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Free delivery above ₹1,950.",
+    url: "https://zayelle.in",
+    siteName: "Zayelle",
+    type: "website",
+    images: [
+      {
+        url: "https://zayelle.in/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Zayelle — Premium Hijabs India",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Best Hijabs in India | Zayelle",
+    description: "Shop India's best premium hijabs — satin, jersey, chiffon. Free delivery above ₹1,950.",
+  },
+  alternates: {
+    canonical: "https://zayelle.in",
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Zayelle",
+  url: "https://zayelle.in",
+  logo: "https://zayelle.in/logo.png",
+  description: "India's premium hijab and modest fashion brand. Shop chiffon, satin silk, jersey hijabs and abayas with all-India delivery.",
+  foundingDate: "2023",
+  areaServed: "IN",
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer service",
+    email: "zayelle.in@gmail.com",
+    availableLanguage: ["English", "Hindi"],
+  },
+  sameAs: [
+    "https://www.instagram.com/zayelle.in",
+  ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Zayelle",
+  url: "https://zayelle.in",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://zayelle.in/products?q={search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
 
 const SECTION_MAP: Record<string, React.ComponentType> = {
   hero: HeroSection,
@@ -59,6 +124,14 @@ export default async function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <Header />
       {sectionNames.map((name) => {
         const Component = SECTION_MAP[name];
