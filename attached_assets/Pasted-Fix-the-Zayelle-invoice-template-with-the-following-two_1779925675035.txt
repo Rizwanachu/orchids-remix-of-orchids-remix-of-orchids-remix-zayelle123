@@ -1,0 +1,46 @@
+Fix the Zayelle invoice template with the following two changes only.
+Do NOT change the layout, colours, logo, borders, or overall design.
+
+--- ISSUE 1: FONT TOO SMALL FOR PRINTING ---
+
+Increase font sizes throughout the invoice so it is clearly readable when printed on A4 paper. Apply these sizes:
+
+- "ZAYELLE" logo/brand name at top left: keep bold, increase to at least 28px
+- "Premium Hijabs & Modest Accessories" tagline: at least 12px
+- "INVOICE" heading top right: keep bold, increase to at least 22px
+- "CUSTOMER COPY" label: at least 11px
+- Section labels (ORDER ID, DATE, PAYMENT, BILL TO, SHIP TO, ITEM, QTY, PRICE, TOTAL): at least 11px, bold/uppercase as they already are
+- Order values (ZAY-10017, 26 May 2026, Paid): at least 14px — "Paid" keep green
+- Customer name (Maryam): at least 15px bold
+- Customer email, phone, and shipping address lines: at least 13px
+- Item name in table (Hijab Hamper Set of 3): at least 14px
+- Qty, Price, Total values in table: at least 14px
+- Subtotal, Shipping, Total rows: at least 13px; grand Total line at least 16px bold
+- "Thank you for shopping with Zayelle!" footer text: at least 12px
+- Website/Instagram footer line: at least 11px
+
+Add a print stylesheet:
+@media print {
+  @page { size: A4; margin: 18mm; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+Make sure no font shrinks when printing.
+
+--- ISSUE 2: ADD RETURN ADDRESS ---
+
+Add a return address section on the invoice. Place it just below the BILL TO / SHIP TO section and above the items table, spanning the full width, with a thin top border to separate it.
+
+The text should read exactly like this:
+
+  If this product is not delivered, please return to:
+  Zayelle
+  Thoppumpady Post Office, Kochi, Kerala – 682005
+  Contact at 8891485648
+  Email at zayelle.in@gmail.com
+
+Style guide for this section:
+- "If this product is not delivered, please return to:" — small, uppercase, bold label (same style as BILL TO / SHIP TO labels), font size 11px
+- "Zayelle" — bold, font size 13px
+- Address, contact, and email lines — normal weight, font size 12–13px
+- Keep text colour the same dark/black as the rest of the invoice body text
+- No background colour — keep it plain white like the rest of the invoice

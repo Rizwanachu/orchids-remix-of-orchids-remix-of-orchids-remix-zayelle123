@@ -71,7 +71,7 @@ function InvoiceContent({ order }: { order: OrderData }) {
 
         <div className="w-full h-[2px] bg-[#5C4B3D] mb-8" />
 
-        <div className="grid grid-cols-2 gap-8 mb-10">
+        <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
             <h3 className="text-[11px] font-semibold text-[#757575] uppercase tracking-widest mb-3">Bill To</h3>
             <p className="text-[15px] font-semibold text-[#1A1A1A]">{order.customerName}</p>
@@ -108,6 +108,16 @@ function InvoiceContent({ order }: { order: OrderData }) {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="border-t border-[#E8E4DE] pt-5 mb-8">
+          <p className="text-[11px] font-semibold text-[#757575] uppercase tracking-widest mb-2">
+            If this product is not delivered, please return to:
+          </p>
+          <p className="text-[13px] font-semibold text-[#1A1A1A]">Zayelle</p>
+          <p className="text-[13px] text-[#1A1A1A] mt-0.5">Thoppumpady Post Office, Kochi, Kerala – 682005</p>
+          <p className="text-[13px] text-[#1A1A1A] mt-0.5">Contact at 8891485648</p>
+          <p className="text-[13px] text-[#1A1A1A] mt-0.5">Email at zayelle.in@gmail.com</p>
         </div>
 
         <table className="w-full mb-8">
@@ -294,9 +304,21 @@ export default function InvoicePage() {
 
       <style jsx global>{`
         @media print {
+          @page { size: A4; margin: 18mm; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           body * { visibility: hidden; }
           #invoice-content, #invoice-content * { visibility: visible; }
-          #invoice-content { position: absolute; left: 0; top: 0; width: 100%; }
+          #invoice-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            font-size: 13px !important;
+          }
+          #invoice-content * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
           nav, header, aside, .print\\:hidden { display: none !important; }
         }
       `}</style>
