@@ -199,7 +199,7 @@ function renderInvoice(
   y += 4;
 
   doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text("Total:", sumX, y, { width: 58, align: "right" });
-  doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text(rupees(totalAmount), sumValX, y, { width: 55, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text(rupees(totalAmount), right - 82, y, { width: 82, align: "right" });
 
   y += 20;
 
