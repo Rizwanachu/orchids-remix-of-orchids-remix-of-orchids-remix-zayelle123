@@ -1,4 +1,5 @@
 import PDFDocument from "pdfkit";
+import QRCode from "qrcode";
 import { getItemConfigLines, type OrderItemConfig } from "./order-item-display";
 
 interface OrderItem extends OrderItemConfig {
@@ -38,7 +39,8 @@ function renderInvoice(
   ox: number,
   oy: number,
   width: number,
-  copyLabel: string
+  copyLabel: string,
+  qrBuffer: Buffer
 ) {
   const innerPad = 18;
   const left = ox + innerPad;
@@ -201,16 +203,32 @@ function renderInvoice(
   doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text("Total:", sumX, y, { width: 58, align: "right" });
   doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text(rupees(totalAmount), right - 82, y, { width: 82, align: "right" });
 
-  y += 20;
+  y += 22;
 
-  // ── Footer ───────────────────────────────────────────────────
+  // ── Footer: QR code + thank you text ────────────────────────
+  const qrSize = 52;
+  doc.image(qrBuffer, left, y, { width: qrSize, height: qrSize });
+  doc.font("Helvetica").fontSize(6).fillColor(mutedColor)
+    .text("Scan to track order", left, y + qrSize + 2, { width: qrSize, align: "center" });
+
+  const textX = left + qrSize + 10;
+  const textW = contentW - qrSize - 10;
+  const textMidY = y + (qrSize / 2) - 10;
   doc.font("Helvetica").fontSize(8).fillColor(brandColor)
-    .text("Thank you for shopping with Zayelle!", left, y, { width: contentW, align: "center" });
+    .text("Thank you for shopping with Zayelle!", textX, textMidY, { width: textW, align: "center" });
   doc.font("Helvetica").fontSize(7).fillColor(mutedColor)
-    .text("www.zayelle.in  |  @zayelle.in", left, y + 11, { width: contentW, align: "center" });
+    .text("www.zayelle.in  |  @zayelle.in", textX, textMidY + 13, { width: textW, align: "center" });
 }
 
-export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
+export async function generateInvoicePDF(order: OrderData): Promise<PDFKit.PDFDocument> {
+  const trackUrl = `https://www.zayelle.in/pages/track-order?orderId=${order.orderId}`;
+  const qrBuffer = await QRCode.toBuffer(trackUrl, {
+    type: "png",
+    width: 156,
+    margin: 1,
+    color: { dark: "#5C4B3D", light: "#FFFFFF" },
+  });
+
   const doc = new PDFDocument({ size: "A4", margin: 0, autoFirstPage: true, bufferPages: false });
 
   const pageWidth = doc.page.width;
@@ -219,7 +237,7 @@ export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
   const usableW = pageWidth - 2 * marginX;
   const halfH = pageHeight / 2;
 
-  renderInvoice(doc, order, marginX, 16, usableW, "CUSTOMER COPY");
+  renderInvoice(doc, order, marginX, 16, usableW, "CUSTOMER COPY", qrBuffer);
 
   const midY = halfH;
   doc.save();
@@ -231,7 +249,7 @@ export function generateInvoicePDF(order: OrderData): PDFKit.PDFDocument {
     .text("\u2702  cut here", marginX, midY - 4, { width: usableW, align: "center" });
   doc.restore();
 
-  renderInvoice(doc, order, marginX, halfH + 16, usableW, "MERCHANT COPY");
+  renderInvoice(doc, order, marginX, halfH + 16, usableW, "MERCHANT COPY", qrBuffer);
 
   return doc;
 }

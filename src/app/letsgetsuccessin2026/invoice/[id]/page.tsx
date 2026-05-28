@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Loader2, Printer, Download, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import QRCode from "qrcode";
 
 import { getItemConfigLines, parseColorSelections, parseSelectedColor } from "@/lib/order-item-display";
 
@@ -54,6 +55,16 @@ function InvoiceContent({ order }: { order: OrderData }) {
   const discount = order.discountAmount ? Number(order.discountAmount) : 0;
   const total = Number(order.totalAmount);
   const invoiceDate = formatDate(order.createdAt);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  useEffect(() => {
+    const trackUrl = `https://www.zayelle.in/pages/track-order?orderId=${order.orderId}`;
+    QRCode.toDataURL(trackUrl, {
+      width: 96,
+      margin: 1,
+      color: { dark: "#5C4B3D", light: "#FFFFFF" },
+    }).then(setQrDataUrl).catch(() => {});
+  }, [order.orderId]);
 
   return (
     <div id="invoice-content" className="bg-white max-w-[800px] mx-auto">
@@ -215,11 +226,17 @@ function InvoiceContent({ order }: { order: OrderData }) {
           </div>
         </div>
 
-        <div className="mt-10 text-center border-t border-[#E8E4DE] pt-6">
-          <p className="text-[11px] text-[#757575] uppercase tracking-widest">
-            Zayelle — Premium Hijabs & Modest Accessories
-          </p>
-          <p className="text-[11px] text-[#999] mt-1">www.zayelle.in</p>
+        <div className="mt-8 border-t border-[#E8E4DE] pt-6 flex items-center gap-6">
+          {qrDataUrl && (
+            <div className="flex-shrink-0 text-center">
+              <img src={qrDataUrl} alt="Track Order QR Code" className="w-[80px] h-[80px]" />
+              <p className="text-[10px] text-[#999] mt-1">Scan to track order</p>
+            </div>
+          )}
+          <div className="flex-1 text-center">
+            <p className="text-[12px] text-[#5C4B3D] font-medium">Thank you for shopping with Zayelle!</p>
+            <p className="text-[11px] text-[#757575] mt-1">www.zayelle.in  |  @zayelle.in</p>
+          </div>
         </div>
       </div>
     </div>
