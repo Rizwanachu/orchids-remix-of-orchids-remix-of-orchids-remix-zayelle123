@@ -198,8 +198,8 @@ function renderInvoice(
   doc.moveTo(sumX, y).lineTo(right, y).strokeColor(brandColor).lineWidth(1).stroke();
   y += 4;
 
-  doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text("Total:", sumX, y, { width: 58, align: "right" });
-  doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor).text(rupees(totalAmount), right - 82, y, { width: 82, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(11).fillColor(brandColor)
+    .text(`Total:  ${rupees(totalAmount)}`, left, y, { width: contentW, align: "right" });
 
   y += 20;
 
