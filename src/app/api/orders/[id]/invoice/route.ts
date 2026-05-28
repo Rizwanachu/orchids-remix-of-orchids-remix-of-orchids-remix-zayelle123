@@ -95,7 +95,7 @@ async function handleInvoice(
     .from(orderItems)
     .where(eq(orderItems.orderId, order.id));
 
-  const doc = await generateInvoicePDF({
+  const doc = generateInvoicePDF({
     orderId: order.orderId,
     customerName: order.customerName,
     customerEmail: order.customerEmail,
