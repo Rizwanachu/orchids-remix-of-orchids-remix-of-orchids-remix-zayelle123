@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Search, Users, ChevronLeft, ChevronRight, Pencil, Trash2, X, ShoppingBag, Eye } from "lucide-react";
+import { Search, Users, ChevronLeft, ChevronRight, Pencil, Trash2, X, ShoppingBag, Eye, Download } from "lucide-react";
 
 interface Customer {
   userId: number | null;
@@ -185,6 +185,24 @@ export default function AdminCustomersPage() {
               className="w-full h-[40px] pl-10 pr-4 border border-[#E8E4DE] rounded-sm text-[13px] focus:outline-none focus:border-[#5C4B3D] bg-white"
             />
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#757575]" />
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <a
+              href="/api/admin/customers/export?format=csv"
+              download
+              className="flex items-center gap-1.5 px-3 py-2 border border-[#E8E4DE] rounded-sm text-[13px] text-[#5C4B3D] font-medium hover:border-[#5C4B3D] hover:bg-[#F5F2ED] transition-colors"
+            >
+              <Download size={14} />
+              CSV
+            </a>
+            <a
+              href="/api/admin/customers/export?format=pdf"
+              download
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#5C4B3D] text-white rounded-sm text-[13px] font-medium hover:bg-[#4A3C31] transition-colors"
+            >
+              <Download size={14} />
+              PDF
+            </a>
           </div>
         </div>
 
