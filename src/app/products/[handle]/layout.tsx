@@ -132,7 +132,6 @@ export default async function ProductHandleLayout({ params, children }: Props) {
           url: `${BASE_URL}/products/${handle}`,
           priceCurrency: "INR",
           price: product.price,
-          ...(product.compareAt ? { highPrice: product.compareAt } : {}),
           availability: inStock
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
@@ -151,11 +150,6 @@ export default async function ProductHandleLayout({ params, children }: Props) {
               "@type": "MonetaryAmount",
               currency: "INR",
               value: "49",
-            },
-            freeShippingThreshold: {
-              "@type": "MonetaryAmount",
-              currency: "INR",
-              value: "1950",
             },
             shippingDestination: {
               "@type": "DefinedRegion",
