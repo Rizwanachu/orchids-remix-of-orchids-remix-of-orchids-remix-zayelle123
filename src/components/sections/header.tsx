@@ -45,14 +45,30 @@ const Header = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Hydrate from cache immediately (synchronous, no flash on repeat visits)
+    try {
+      const cached = sessionStorage.getItem("zayelle-site-settings");
+      if (cached) setCmsSettings(JSON.parse(cached));
+      const cachedCols = sessionStorage.getItem("zayelle-dropdown-collections");
+      if (cachedCols) setDropdownCollections(JSON.parse(cachedCols));
+    } catch {}
+
+    // Fetch fresh data in background and update cache
     fetch("/api/site-settings")
       .then((res) => res.ok ? res.json() : Promise.reject())
-      .then((data: Record<string, string>) => setCmsSettings(data))
+      .then((data: Record<string, string>) => {
+        setCmsSettings(data);
+        try { sessionStorage.setItem("zayelle-site-settings", JSON.stringify(data)); } catch {}
+      })
       .catch(() => {});
 
     fetch("/api/collections")
       .then((res) => res.ok ? res.json() : Promise.reject())
-      .then((data: { collections: CollectionDropdownItem[] }) => setDropdownCollections(data.collections || []))
+      .then((data: { collections: CollectionDropdownItem[] }) => {
+        const cols = data.collections || [];
+        setDropdownCollections(cols);
+        try { sessionStorage.setItem("zayelle-dropdown-collections", JSON.stringify(cols)); } catch {}
+      })
       .catch(() => {});
   }, []);
 
