@@ -1,0 +1,128 @@
+Build an enterprise-grade website designed for maximum search engine visibility, technical SEO excellence, local SEO dominance, conversion optimization, and future scalability.
+
+SEO REQUIREMENTS (ADVANCED)
+
+Implement everything from Basic and Intermediate SEO PLUS:
+
+ADVANCED TECHNICAL SEO
+
+* Dynamic XML sitemap generation.
+* Dynamic robots.txt generation.
+* Canonical tag management.
+* Hreflang implementation for multilingual support.
+* Advanced structured data:
+
+  * Organization
+  * LocalBusiness
+  * Service
+  * FAQ
+  * Breadcrumb
+  * Review
+  * Article
+  * Product
+  * WebSite
+  * WebPage
+* Schema validation.
+* Crawl optimization.
+* Indexability audits.
+* Pagination optimization.
+* URL structure optimization.
+
+ADVANCED CONTENT SEO
+
+* Automatically generate:
+
+  * Service pages
+  * Location pages
+  * Blog category pages
+  * Author pages
+* SEO content architecture.
+* Topic cluster structure.
+* Pillar page strategy.
+* Internal linking automation.
+* Related content suggestions.
+
+LOCAL SEO DOMINATION
+
+* Multi-location support.
+* Dynamic location pages.
+* Geo-targeted schema.
+* Google Maps integration.
+* Review schema implementation.
+* Local keyword optimization.
+
+CORE WEB VITALS OPTIMIZATION
+
+Target:
+
+* LCP under 2.5s
+* CLS under 0.1
+* INP under 200ms
+
+Implement:
+
+* Code splitting
+* Asset preloading
+* Image optimization
+* WebP support
+* Lazy loading
+* Critical CSS loading
+* Resource prioritization
+* Browser caching
+* CDN-ready configuration
+
+ADVANCED CONVERSION SEO
+
+* Sticky CTAs
+* Multi-step lead forms
+* Exit-intent lead capture
+* Appointment booking integration
+* Conversion tracking setup
+* Thank-you page optimization
+
+AI & PROGRAMMATIC SEO
+
+* Dynamic SEO page generation.
+* Scalable landing page architecture.
+* Automated metadata generation.
+* Dynamic schema generation.
+* SEO-friendly CMS structure.
+
+ANALYTICS & TRACKING
+
+* Google Analytics 4 integration.
+* Google Search Console verification.
+* Google Tag Manager integration.
+* Event tracking setup.
+* Conversion tracking setup.
+
+SECURITY & TRUST SEO
+
+* HTTPS-ready.
+* Security headers.
+* Trust badges.
+* Review integration.
+* E-E-A-T optimization elements.
+* Author profiles.
+* Business credibility sections.
+
+SEO DELIVERABLES
+
+✓ Enterprise Technical SEO
+✓ Full Schema Ecosystem
+✓ Core Web Vitals Optimization
+✓ Programmatic SEO Architecture
+✓ Topic Cluster Framework
+✓ Multi-Location SEO
+✓ Advanced Internal Linking
+✓ GA4 + GSC Setup
+✓ Conversion Tracking
+✓ Rich Snippet Optimization
+✓ AI Metadata Generation
+✓ Future SEO Scalability
+
+Target Lighthouse Score:
+Performance: 95+
+SEO: 100
+Accessibility: 95+
+Best Practices: 95+

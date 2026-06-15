@@ -11,8 +11,8 @@ import TrustBar from "@/components/sections/trust-bar";
 import GiftHampers from "@/components/sections/gift-hampers";
 import Footer from "@/components/sections/footer";
 import { db } from "../../server/db";
-import { homepageSections } from "../../shared/schema";
-import { asc } from "drizzle-orm";
+import { homepageSections, communityTestimonials } from "../../shared/schema";
+import { asc, eq, avg, count } from "drizzle-orm";
 
 export const revalidate = 3600;
 
@@ -70,44 +70,50 @@ const organizationJsonLd = {
   ],
 };
 
-const localBusinessJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ClothingStore",
-  name: "Zayelle",
-  url: "https://zayelle.in",
-  logo: "https://zayelle.in/logo.png",
-  image: "https://zayelle.in/logo.png",
-  description: "India's premium hijab and modest fashion brand — satin silk, jersey, chiffon hijabs, abayas and accessories with all-India delivery.",
-  email: "zayelle.in@gmail.com",
-  areaServed: {
-    "@type": "Country",
-    name: "India",
-  },
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "IN",
-  },
-  priceRange: "₹₹",
-  currenciesAccepted: "INR",
-  paymentAccepted: "Cash, Credit Card, Debit Card, UPI, Net Banking",
-  openingHoursSpecification: {
-    "@type": "OpeningHoursSpecification",
-    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-    opens: "00:00",
-    closes: "23:59",
-  },
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "Hijabs & Modest Fashion",
-    itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Satin Silk Hijabs" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Jersey Hijabs" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Chiffon Hijabs" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijab Gift Hampers" } },
-    ],
-  },
-  sameAs: ["https://www.instagram.com/zayelle.in"],
-};
+function buildLocalBusinessJsonLd(ratingValue: number | null, reviewCount: number) {
+  const base: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "ClothingStore",
+    name: "Zayelle",
+    url: "https://zayelle.in",
+    logo: "https://zayelle.in/logo.png",
+    image: "https://zayelle.in/logo.png",
+    description: "India's premium hijab and modest fashion brand — satin silk, jersey, chiffon hijabs, abayas and accessories with all-India delivery.",
+    email: "zayelle.in@gmail.com",
+    areaServed: { "@type": "Country", name: "India" },
+    address: { "@type": "PostalAddress", addressCountry: "IN" },
+    priceRange: "₹₹",
+    currenciesAccepted: "INR",
+    paymentAccepted: "Cash, Credit Card, Debit Card, UPI, Net Banking",
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "00:00",
+      closes: "23:59",
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Hijabs & Modest Fashion",
+      itemListElement: [
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Satin Silk Hijabs" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Jersey Hijabs" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Chiffon Hijabs" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijab Gift Hampers" } },
+      ],
+    },
+    sameAs: ["https://www.instagram.com/zayelle.in"],
+  };
+  if (ratingValue !== null && reviewCount > 0) {
+    base.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: ratingValue.toFixed(1),
+      reviewCount,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+  return base;
+}
 
 const websiteJsonLd = {
   "@context": "https://schema.org",
@@ -150,21 +156,37 @@ const DEFAULT_ORDER = [
 
 export default async function Home() {
   let sectionNames: string[] = DEFAULT_ORDER;
+  let avgRating: number | null = null;
+  let reviewCount = 0;
 
   try {
-    const rows = await db
-      .select()
-      .from(homepageSections)
-      .orderBy(asc(homepageSections.displayOrder));
+    const [sectionsRows, ratingRows] = await Promise.all([
+      db.select().from(homepageSections).orderBy(asc(homepageSections.displayOrder)),
+      db
+        .select({
+          avgRating: avg(communityTestimonials.rating),
+          total: count(),
+        })
+        .from(communityTestimonials)
+        .where(eq(communityTestimonials.isActive, 1)),
+    ]);
 
-    if (rows.length > 0) {
-      sectionNames = rows
+    if (sectionsRows.length > 0) {
+      sectionNames = sectionsRows
         .filter((s) => s.isVisible === 1)
         .map((s) => s.sectionName);
+    }
+
+    const ratingRow = ratingRows[0];
+    if (ratingRow && ratingRow.total > 0 && ratingRow.avgRating) {
+      avgRating = parseFloat(String(ratingRow.avgRating));
+      reviewCount = ratingRow.total;
     }
   } catch {
     sectionNames = DEFAULT_ORDER;
   }
+
+  const localBusinessJsonLd = buildLocalBusinessJsonLd(avgRating, reviewCount);
 
   return (
     <>
