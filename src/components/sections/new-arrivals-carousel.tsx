@@ -24,7 +24,7 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
 
   return (
     <div 
-      className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
+      className="embla__slide flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -36,7 +36,7 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
               alt={product.name}
               fill
               priority={isPriority}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 1024px) 50vw, 25vw"
               className={`object-cover transition-opacity duration-500 scale-100 group-hover:scale-105 ${
                 isHovered ? "opacity-0" : "opacity-100"
               }`}
@@ -45,7 +45,7 @@ const ProductCard = ({ product, isPriority }: { product: CarouselProduct; isPrio
               src={product.hoverImage}
               alt={`${product.name} alternate view`}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 1024px) 50vw, 25vw"
               className={`object-cover transition-opacity duration-500 scale-105 group-hover:scale-100 ${
                 isHovered ? "opacity-100" : "opacity-0"
               }`}
@@ -109,9 +109,8 @@ export default function NewArrivalsCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
     align: "start",
-    slidesToScroll: 1,
+    slidesToScroll: 2,
     breakpoints: {
-      "(min-width: 640px)": { slidesToScroll: 2 },
       "(min-width: 1024px)": { slidesToScroll: 4 }
     }
   }, [Autoplay({ delay: 4000, stopOnInteraction: false })]);
@@ -168,7 +167,7 @@ export default function NewArrivalsCarousel() {
             <p className="text-[14px] text-[#757575] mb-4">{sectionSubtitle}</p>
             <div className="w-[60px] h-[1px] bg-border mb-8"></div>
           </header>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="animate-pulse px-2">
                 <div className="aspect-square bg-[#F5F2ED] rounded-[12px]" />
