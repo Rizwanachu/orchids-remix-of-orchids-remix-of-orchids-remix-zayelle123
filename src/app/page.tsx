@@ -50,7 +50,12 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "Zayelle",
   url: "https://zayelle.in",
-  logo: "https://zayelle.in/logo.png",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://zayelle.in/logo.png",
+    width: 200,
+    height: 60,
+  },
   description: "India's premium hijab and modest fashion brand. Shop chiffon, satin silk, jersey hijabs and abayas with all-India delivery.",
   foundingDate: "2023",
   areaServed: "IN",
@@ -63,6 +68,45 @@ const organizationJsonLd = {
   sameAs: [
     "https://www.instagram.com/zayelle.in",
   ],
+};
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ClothingStore",
+  name: "Zayelle",
+  url: "https://zayelle.in",
+  logo: "https://zayelle.in/logo.png",
+  image: "https://zayelle.in/logo.png",
+  description: "India's premium hijab and modest fashion brand — satin silk, jersey, chiffon hijabs, abayas and accessories with all-India delivery.",
+  email: "zayelle.in@gmail.com",
+  areaServed: {
+    "@type": "Country",
+    name: "India",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "IN",
+  },
+  priceRange: "₹₹",
+  currenciesAccepted: "INR",
+  paymentAccepted: "Cash, Credit Card, Debit Card, UPI, Net Banking",
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    opens: "00:00",
+    closes: "23:59",
+  },
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Hijabs & Modest Fashion",
+    itemListElement: [
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Satin Silk Hijabs" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Jersey Hijabs" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Chiffon Hijabs" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijab Gift Hampers" } },
+    ],
+  },
+  sameAs: ["https://www.instagram.com/zayelle.in"],
 };
 
 const websiteJsonLd = {
@@ -131,6 +175,10 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
       <Header />
       {sectionNames.map((name) => {

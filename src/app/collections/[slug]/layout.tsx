@@ -99,11 +99,81 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Fail silently
   }
 
-  return {
-    alternates: { canonical: `${BASE_URL}/collections/${slug}` },
-  };
+  return { alternates: { canonical: `${BASE_URL}/collections/${slug}` } };
 }
 
-export default function CollectionSlugLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+export default async function CollectionSlugLayout({ params, children }: Props) {
+  const { slug } = await params;
+
+  let collectionJsonLd: object | null = null;
+  let breadcrumbJsonLd: object | null = null;
+
+  try {
+    const rows = await db
+      .select({ title: collections.title, subtitle: collections.subtitle, imageUrl: collections.imageUrl })
+      .from(collections)
+      .where(eq(collections.slug, slug))
+      .limit(1);
+
+    const collection = rows[0];
+    const seo = SLUG_SEO[slug];
+
+    const collectionTitle = collection?.title || seo?.title || slug;
+    const collectionDescription =
+      seo?.description ||
+      collection?.subtitle ||
+      `Shop Zayelle's ${collectionTitle} collection. Premium modest fashion with free delivery above ₹1,950 across India.`;
+
+    collectionJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: collectionTitle,
+      description: collectionDescription,
+      url: `${BASE_URL}/collections/${slug}`,
+      ...(collection?.imageUrl ? { image: collection.imageUrl } : {}),
+      breadcrumb: {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          { "@type": "ListItem", position: 2, name: "Collections", item: `${BASE_URL}/collections` },
+          { "@type": "ListItem", position: 3, name: collectionTitle, item: `${BASE_URL}/collections/${slug}` },
+        ],
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Zayelle",
+        logo: { "@type": "ImageObject", url: "https://zayelle.in/logo.png" },
+      },
+    };
+
+    breadcrumbJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+        { "@type": "ListItem", position: 2, name: "Collections", item: `${BASE_URL}/collections` },
+        { "@type": "ListItem", position: 3, name: collectionTitle, item: `${BASE_URL}/collections/${slug}` },
+      ],
+    };
+  } catch {
+    // Fail silently
+  }
+
+  return (
+    <>
+      {collectionJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        />
+      )}
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
+      )}
+      {children}
+    </>
+  );
 }

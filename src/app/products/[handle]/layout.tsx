@@ -30,9 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const product = rows[0];
 
     if (!product) {
-      return {
-        alternates: { canonical: `${BASE_URL}/products/${handle}` },
-      };
+      return { alternates: { canonical: `${BASE_URL}/products/${handle}` } };
     }
 
     const title = `${product.name} | Buy Online India — Zayelle`;
@@ -41,51 +39,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : product.subtitle || "";
     const material = product.material ? ` Made from ${product.material}.` : "";
     const description = `${product.name} — ${descBase}${material} Shop premium modest wear at Zayelle. Free delivery above ₹1,950. All-India shipping.`.slice(0, 160);
-
-    const inStock = (product.stockQuantity ?? 0) > 0;
-
-    const productJsonLd = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: product.name,
-      description: descBase || product.subtitle,
-      image: product.image,
-      brand: {
-        "@type": "Brand",
-        name: "Zayelle",
-      },
-      offers: {
-        "@type": "Offer",
-        url: `${BASE_URL}/products/${handle}`,
-        priceCurrency: "INR",
-        price: product.price,
-        ...(product.compareAt ? { highPrice: product.compareAt } : {}),
-        availability: inStock
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-        seller: {
-          "@type": "Organization",
-          name: "Zayelle",
-        },
-        shippingDetails: {
-          "@type": "OfferShippingDetails",
-          shippingRate: {
-            "@type": "MonetaryAmount",
-            currency: "INR",
-            value: "49",
-          },
-          freeShippingThreshold: {
-            "@type": "MonetaryAmount",
-            currency: "INR",
-            value: "1950",
-          },
-          shippingDestination: {
-            "@type": "DefinedRegion",
-            addressCountry: "IN",
-          },
-        },
-      },
-    };
 
     return {
       title,
@@ -112,13 +65,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         "product:price:amount": String(product.price),
         "product:price:currency": "INR",
       },
-      // Embed JSON-LD via a custom field (rendered in layout JSX below)
-      _productJsonLd: JSON.stringify(productJsonLd),
-    } as Metadata;
-  } catch {
-    return {
-      alternates: { canonical: `${BASE_URL}/products/${handle}` },
     };
+  } catch {
+    return { alternates: { canonical: `${BASE_URL}/products/${handle}` } };
   }
 }
 
@@ -126,6 +75,7 @@ export default async function ProductHandleLayout({ params, children }: Props) {
   const { handle } = await params;
 
   let productJsonLd: object | null = null;
+  let breadcrumbJsonLd: object | null = null;
 
   try {
     const rows = await db
@@ -137,6 +87,7 @@ export default async function ProductHandleLayout({ params, children }: Props) {
         compareAt: products.compareAt,
         image: products.image,
         material: products.material,
+        category: products.category,
         stockQuantity: products.stockQuantity,
       })
       .from(products)
@@ -151,22 +102,49 @@ export default async function ProductHandleLayout({ params, children }: Props) {
         ? product.description.replace(/<[^>]*>/g, "").slice(0, 200)
         : product.subtitle || "";
 
+      const additionalProperty: object[] = [];
+      if (product.material) {
+        additionalProperty.push({
+          "@type": "PropertyValue",
+          name: "Material",
+          value: product.material,
+        });
+      }
+      if (product.category) {
+        additionalProperty.push({
+          "@type": "PropertyValue",
+          name: "Category",
+          value: product.category,
+        });
+      }
+
       productJsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
         name: product.name,
         description: descBase || product.subtitle,
+        sku: handle,
         image: product.image,
         brand: { "@type": "Brand", name: "Zayelle" },
+        ...(additionalProperty.length > 0 ? { additionalProperty } : {}),
         offers: {
           "@type": "Offer",
           url: `${BASE_URL}/products/${handle}`,
           priceCurrency: "INR",
           price: product.price,
+          ...(product.compareAt ? { highPrice: product.compareAt } : {}),
           availability: inStock
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
           seller: { "@type": "Organization", name: "Zayelle" },
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "IN",
+            returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: 7,
+            returnMethod: "https://schema.org/ReturnByMail",
+            returnFees: "https://schema.org/FreeReturn",
+          },
           shippingDetails: {
             "@type": "OfferShippingDetails",
             shippingRate: {
@@ -183,8 +161,33 @@ export default async function ProductHandleLayout({ params, children }: Props) {
               "@type": "DefinedRegion",
               addressCountry: "IN",
             },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 1,
+                maxValue: 2,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 3,
+                maxValue: 7,
+                unitCode: "DAY",
+              },
+            },
           },
         },
+      };
+
+      breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+          { "@type": "ListItem", position: 2, name: "Products", item: `${BASE_URL}/products` },
+          { "@type": "ListItem", position: 3, name: product.name, item: `${BASE_URL}/products/${handle}` },
+        ],
       };
     }
   } catch {
@@ -197,6 +200,12 @@ export default async function ProductHandleLayout({ params, children }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
       )}
       {children}
