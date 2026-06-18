@@ -1,0 +1,367 @@
+You are a senior Shopify CRO (Conversion Rate Optimization), UX, Ecommerce, and Fashion Brand Designer.
+
+Redesign and optimize the existing Zayelle website to increase trust, average order value, email/WhatsApp leads, and conversions while preparing the brand to expand from hijabs into a broader women's fashion and accessories store.
+
+Maintain the current elegant beige/neutral luxury aesthetic.
+
+BUSINESS CONTEXT
+
+Current Problems:
+
+Very limited inventory
+Low traffic
+No consistent online sales
+Customers abandon because of shipping surprises
+Customers ask for unavailable colors
+Small business with limited budget
+
+Future Direction:
+
+Hijabs
+Abayas
+Kurtis
+Churidars
+Handbags
+Women's Accessories
+Gift Hampers
+
+Brand Positioning:
+
+"Elegant Women's Fashion & Modest Wear for Modern Indian Women"
+
+HOMEPAGE IMPROVEMENTS
+Hero Section
+
+Replace current hero with:
+
+Headline:
+Grace. Elegance. Confidence.
+
+Subheadline:
+Premium Hijabs, Women's Fashion, Accessories & Curated Gift Hampers Delivered Across India.
+
+Primary CTA:
+Shop Best Sellers
+
+Secondary CTA:
+Chat on WhatsApp
+
+Add:
+
+Trust Badge
+Secure Payments
+Pan India Shipping
+Small Business Support
+
+under hero.
+
+WhatsApp Section
+
+Immediately below hero add:
+
+Need Help Choosing?
+
+✓ Product Recommendations
+✓ Color Availability
+✓ Shipping Assistance
+✓ Personal Styling Help
+
+Button:
+
+Chat on WhatsApp
+
+Best Sellers Section
+
+Move above Collections.
+
+Display:
+
+Premium Jersey Hijab
+Premium Satin Hijab
+Magnetic Pins
+Tube Undercap
+
+Add badges:
+
+Best Seller
+Customer Favorite
+Limited Stock
+
+Bundle Section (NEW)
+
+Create dedicated homepage section.
+
+Title:
+
+Most Loved Bundles
+
+Cards:
+
+Starter Bundle
+
+Hijab
+Undercap
+
+₹349
+
+Styling Bundle
+
+Hijab
+Magnetic Pin
+
+₹399
+
+Complete Essentials Bundle
+
+Hijab
+Undercap
+Magnetic Pin
+
+₹499
+
+Gift Bundle
+
+Hijab
+Scrunchie
+Tasbeeh
+
+₹449
+
+Social Proof
+
+Move reviews much higher.
+
+Place after Best Sellers.
+
+Add:
+
+Customer Photos
+WhatsApp Testimonials
+Instagram Mentions
+Limited Stock Banner
+
+Add section:
+
+Limited Edition Collection
+
+We source premium styles in small batches.
+
+Once sold out, some colors may not return.
+
+COLLECTION PAGE IMPROVEMENTS
+
+Create separate collection categories:
+
+Hijabs
+
+Abayas
+
+Kurtis
+
+Churidars
+
+Accessories
+
+Gift Hampers
+
+New Arrivals
+
+Best Sellers
+
+Limited Stock
+
+PRODUCT PAGE IMPROVEMENTS
+
+Current product page is clean but missing CRO features.
+
+Add:
+
+Sticky Add To Cart
+
+Desktop + Mobile
+
+Delivery Estimate
+
+Show:
+
+Ships within 24-48 hours
+
+Estimated Delivery:
+3-7 Business Days
+
+WhatsApp CTA
+
+Place directly under Add To Cart
+
+Need help choosing a color?
+
+Chat on WhatsApp
+
+Upsells
+
+Before Add To Cart
+
+Frequently Bought Together
+
+Add:
+
+□ Matching Undercap (+₹29)
+
+□ Magnetic Pin (+₹99)
+
+□ Satin Scrunchie (+₹39)
+
+Trust Section
+
+Below Add To Cart
+
+✓ Secure Payments
+
+✓ Fast Shipping
+
+✓ Quality Checked
+
+✓ Easy Returns
+
+Stock Urgency
+
+Display:
+
+Only X Left In Stock
+
+when inventory < 5
+
+Customer Questions
+
+Add FAQ accordion:
+
+Will this slip?
+
+Is it breathable?
+
+Is it suitable for daily wear?
+
+Can I exchange colors?
+
+How long is delivery?
+
+CART PAGE IMPROVEMENTS
+
+Add progress bar:
+
+₹XXX away from FREE SHIPPING
+
+Add Upsell Section
+
+Complete Your Order
+
+Suggested:
+
+Undercaps
+
+Scrunchies
+
+Magnetic Pins
+
+Tasbeeh
+
+CHECKOUT IMPROVEMENTS
+
+Current checkout lacks urgency.
+
+Add:
+
+Secure Checkout
+
+Trusted By Customers Across India
+
+Fast Shipping
+
+Small Business Made With Love
+
+Show:
+
+Estimated Delivery Date
+
+WHATSAPP LEAD CAPTURE
+
+Add:
+
+Floating WhatsApp button
+
+Abandoned Cart WhatsApp popup
+
+Exit Intent popup:
+
+Need help deciding?
+
+Chat with us on WhatsApp
+
+EMAIL CAPTURE
+
+Add popup:
+
+Get 5% Off Your First Order
+
+Enter Email
+
+Join VIP List
+
+FASHION EXPANSION PREPARATION
+
+Update website copy globally.
+
+Replace:
+
+Premium Hijabs & Modest Fashion
+
+with
+
+Women's Fashion, Hijabs & Accessories
+
+where appropriate.
+
+Keep hijabs as the hero category while allowing future expansion.
+
+PERFORMANCE
+
+Optimize:
+
+Images
+Lazy Loading
+Core Web Vitals
+Mobile Speed
+
+Target:
+
+90+ Google PageSpeed
+
+SEO
+
+Create structured data for:
+
+Products
+
+Reviews
+
+FAQ
+
+Breadcrumbs
+
+Organization
+
+Local Business
+
+Generate optimized meta titles and descriptions.
+
+FINAL GOAL
+
+Increase:
+
+Conversion Rate
+Average Order Value
+WhatsApp Leads
+Trust
+Repeat Purchases
+
+while maintaining a premium, elegant, feminine luxury aesthetic.
