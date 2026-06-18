@@ -43,6 +43,9 @@ interface Banner {
   titleFontSizeMobile: string;
   createdAt: string;
   productIds: string[];
+  bannerType: string;
+  scheduleStart: string;
+  scheduleEnd: string;
 }
 
 const emptyForm = {
@@ -58,6 +61,9 @@ const emptyForm = {
   subtitleColor: "#5C4B3D",
   titleFontSizeDesktop: "64px",
   titleFontSizeMobile: "32px",
+  bannerType: "homepage",
+  scheduleStart: "",
+  scheduleEnd: "",
 };
 
 export default function BannersPage() {
@@ -235,6 +241,9 @@ export default function BannersPage() {
       subtitleColor: banner.subtitleColor || "#5C4B3D",
       titleFontSizeDesktop: banner.titleFontSizeDesktop || "64px",
       titleFontSizeMobile: banner.titleFontSizeMobile || "32px",
+      bannerType: banner.bannerType || "homepage",
+      scheduleStart: banner.scheduleStart || "",
+      scheduleEnd: banner.scheduleEnd || "",
     });
     setEditingId(banner.id);
     setErrorMessage("");
@@ -547,6 +556,48 @@ export default function BannersPage() {
                     {form.titleFontSizeMobile}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                Banner Type
+              </label>
+              <select
+                value={form.bannerType}
+                onChange={(e) => setForm({ ...form, bannerType: e.target.value })}
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+              >
+                <option value="homepage">Homepage</option>
+                <option value="sale">Sale</option>
+                <option value="new-arrivals">New Arrivals</option>
+                <option value="collection">Collection</option>
+                <option value="seasonal">Seasonal</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Schedule Start (optional)
+                </label>
+                <input
+                  type="datetime-local"
+                  value={form.scheduleStart}
+                  onChange={(e) => setForm({ ...form, scheduleStart: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">
+                  Schedule End (optional)
+                </label>
+                <input
+                  type="datetime-local"
+                  value={form.scheduleEnd}
+                  onChange={(e) => setForm({ ...form, scheduleEnd: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+                />
               </div>
             </div>
 

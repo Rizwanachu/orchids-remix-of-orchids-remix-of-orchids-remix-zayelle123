@@ -24,6 +24,8 @@
 - Product image upload uses server-side upload via `/api/admin/upload` (not base64 encoding).
 - Save button shows loading state and validation errors for missing required fields.
 - Form includes shippingPolicy and returnPolicy text fields (UI only, not yet in DB schema).
+- **Inventory section extended**: `costPrice` (NUMERIC), `weight` (TEXT), `estimatedShipping` (TEXT) columns added to products table. Admin form shows all three fields plus a live-calculated Profit Margin display.
+- **"Only X Left" badge**: Product detail page shows an animated red badge when `stockQuantity > 0 && stockQuantity <= lowStockThreshold`.
 - Products context (`src/lib/products-context.tsx`) properly throws errors on failed API calls.
 - Multi-image gallery support: `gallery` TEXT column in products table stores JSON array of image URLs. Admin form supports upload/browse for gallery images. Product detail page shows all gallery images in the image selector.
 - Collections page shows product count per collection, allows viewing/adding/removing products from collections.
@@ -38,11 +40,24 @@
 - **Kerala / Outside Kerala Shipping**: Products have two shipping cost fields: `shippingCostKerala` (default 49) and `shippingCost` (outside Kerala). Admin form shows both fields side by side. Checkout page dynamically switches shipping cost based on selected state — uses Kerala rate when state is "Kerala", outside Kerala rate otherwise. Shipping label shows which rate is applied.
 - **Product Colors**: Global color pool stored in `product_colors` table (id, name, hexValue). Products store selected colors as JSON array of `{name, hex}` in `colors` TEXT column. Admin form has a "Color Variants" section with clickable swatch selector + "Manage" panel for CRUD. Product detail page shows color swatches with hover tooltips. API: `/api/admin/product-colors` (GET/POST), `/api/admin/product-colors/[id]` (PATCH/DELETE).
 
+## Admin Panel - Abandoned Carts
+- `abandoned_carts` table (id, customer_name, phone, email, products JSON, cart_value, status, notes, created_at).
+- Admin CRUD at `/letsgetsuccessin2026/abandoned-carts`: status pipeline (Pending → Contacted → Recovered → Lost), filter tabs, expandable rows with cart items + notes, one-click WhatsApp follow-up, inline status dropdown.
+- Admin API: `/api/admin/abandoned-carts` (GET/POST) and `/api/admin/abandoned-carts/[id]` (PATCH/DELETE).
+- Public capture: POST to `/api/admin/abandoned-carts` when a cart is abandoned.
+
+## Admin Panel - SEO Manager
+- `seo_settings` table (page_path UNIQUE, meta_title, meta_description, keywords, canonical_url, og_image, updated_at).
+- Admin CRUD at `/letsgetsuccessin2026/seo`: card per page (Homepage, Products, Collections, etc. + custom paths), inline edit with character-count indicators, live Google search preview.
+- Admin API: `/api/admin/seo` (GET + upsert POST). Sidebar: "SEO Manager" link added.
+
 ## Admin Panel - Banners
 - Banner image upload limit: 10MB (via `/api/admin/upload`).
 - Position options: Hero (horizontal/wide), Mid Left (square/vertical), Mid Right (square/vertical).
 - Form shows error/success messages for uploads and save operations.
 - Image preview uses `object-contain` to show any aspect ratio.
+- **Banner Type** dropdown (Homepage / Sale / New Arrivals / Collection / Seasonal) — stored in `banner_type` column.
+- **Schedule Start / End** datetime inputs for timed banners — stored in `schedule_start` / `schedule_end` columns.
 
 ## Performance Notes
 - All product images migrated from base64 to media URLs (March 2026). API response dropped from 25-74s to <200ms.

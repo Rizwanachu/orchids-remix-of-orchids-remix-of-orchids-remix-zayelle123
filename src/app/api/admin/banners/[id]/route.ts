@@ -30,6 +30,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.titleFontSizeDesktop !== undefined) updateData.titleFontSizeDesktop = body.titleFontSizeDesktop;
     if (body.titleFontSizeMobile !== undefined) updateData.titleFontSizeMobile = body.titleFontSizeMobile;
     if (body.productIds !== undefined) updateData.productIds = JSON.stringify(body.productIds);
+    if (body.bannerType !== undefined) updateData.bannerType = body.bannerType || "homepage";
+    if (body.scheduleStart !== undefined) updateData.scheduleStart = body.scheduleStart || null;
+    if (body.scheduleEnd !== undefined) updateData.scheduleEnd = body.scheduleEnd || null;
 
     const [updated] = await db.update(banners).set(updateData).where(eq(banners.id, parseInt(id))).returning();
 

@@ -55,6 +55,9 @@ export async function GET() {
     customHamperBody: p.customHamperBody || "",
     customHamperInstagram: p.customHamperInstagram || "",
     customHamperContact: p.customHamperContact || "",
+    costPrice: p.costPrice ? Number(p.costPrice) : null,
+    weight: (p as any).weight || "",
+    estimatedShipping: (p as any).estimatedShipping || "",
   }));
   return NextResponse.json(formatted);
 }
@@ -107,6 +110,9 @@ export async function POST(request: NextRequest) {
       customHamperBody: body.customHamperBody || null,
       customHamperInstagram: body.customHamperInstagram || null,
       customHamperContact: body.customHamperContact || null,
+      costPrice: body.costPrice != null && body.costPrice !== "" ? String(body.costPrice) : null,
+      weight: body.weight || "",
+      estimatedShipping: body.estimatedShipping || "",
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "product_added", `Added product: ${body.name}`);

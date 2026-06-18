@@ -50,6 +50,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.customHamperBody !== undefined) updateData.customHamperBody = body.customHamperBody || null;
     if (body.customHamperInstagram !== undefined) updateData.customHamperInstagram = body.customHamperInstagram || null;
     if (body.customHamperContact !== undefined) updateData.customHamperContact = body.customHamperContact || null;
+    if (body.costPrice !== undefined) updateData.costPrice = body.costPrice != null && body.costPrice !== "" ? String(body.costPrice) : null;
+    if (body.weight !== undefined) updateData.weight = body.weight || "";
+    if (body.estimatedShipping !== undefined) updateData.estimatedShipping = body.estimatedShipping || "";
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
 

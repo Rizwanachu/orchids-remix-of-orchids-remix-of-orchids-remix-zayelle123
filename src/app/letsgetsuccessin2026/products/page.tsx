@@ -73,6 +73,9 @@ interface ProductFormData {
   customHamperBody: string;
   customHamperInstagram: string;
   customHamperContact: string;
+  costPrice: string;
+  weight: string;
+  estimatedShipping: string;
 }
 
 const emptyForm: ProductFormData = {
@@ -108,6 +111,9 @@ const emptyForm: ProductFormData = {
   customHamperBody: "Looking for a specific hijab color or a personalized hamper?\n\nDM us on Instagram or contact us through our Contact Page, and we'll help you create your perfect hamper.\n\nCustom hampers are one of our most requested gifts.",
   customHamperInstagram: "",
   customHamperContact: "",
+  costPrice: "",
+  weight: "",
+  estimatedShipping: "",
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -154,6 +160,9 @@ function toFormData(product: Product): ProductFormData {
     customHamperBody: (product as any).customHamperBody || "",
     customHamperInstagram: (product as any).customHamperInstagram || "",
     customHamperContact: (product as any).customHamperContact || "",
+    costPrice: (product as any).costPrice?.toString() || "",
+    weight: (product as any).weight || "",
+    estimatedShipping: (product as any).estimatedShipping || "",
   };
 }
 
@@ -593,6 +602,9 @@ export default function AdminProductsPage() {
       customHamperBody: form.customHamperBody,
       customHamperInstagram: form.customHamperInstagram,
       customHamperContact: form.customHamperContact,
+      costPrice: form.costPrice ? Number(form.costPrice) : null,
+      weight: form.weight,
+      estimatedShipping: form.estimatedShipping,
     };
 
     try {
@@ -1706,6 +1718,55 @@ export default function AdminProductsPage() {
                     placeholder="10"
                   />
                   <p className="mt-1 text-[11px] text-[#757575]">You&apos;ll see a warning when stock falls below this number</p>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Cost Price (Rs.)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.costPrice}
+                    onChange={(e) => updateField("costPrice", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. 350"
+                  />
+                  <p className="mt-1 text-[11px] text-[#757575]">Your purchase cost — used for profit margin calculation</p>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Profit Margin
+                  </label>
+                  <div className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] bg-[#FAFAF8] flex items-center text-[#5C4B3D] font-medium">
+                    {form.costPrice && form.price
+                      ? `${Math.round(((Number(form.price) - Number(form.costPrice)) / Number(form.price)) * 100)}%  (Rs. ${(Number(form.price) - Number(form.costPrice)).toFixed(0)} profit)`
+                      : "Enter cost price to calculate"}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Weight
+                  </label>
+                  <input
+                    type="text"
+                    value={form.weight}
+                    onChange={(e) => updateField("weight", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. 200g"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Estimated Shipping
+                  </label>
+                  <input
+                    type="text"
+                    value={form.estimatedShipping}
+                    onChange={(e) => updateField("estimatedShipping", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. 3–5 business days"
+                  />
                 </div>
               </div>
             </div>

@@ -106,6 +106,9 @@ export const products = pgTable("products", {
   customHamperBody: text("custom_hamper_body"),
   customHamperInstagram: text("custom_hamper_instagram"),
   customHamperContact: text("custom_hamper_contact"),
+  costPrice: numeric("cost_price", { precision: 10, scale: 2 }),
+  weight: text("weight").notNull().default(""),
+  estimatedShipping: text("estimated_shipping").notNull().default(""),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -166,6 +169,9 @@ export const banners = pgTable("banners", {
   titleFontSizeMobile: text("title_font_size_mobile").notNull().default("32px"),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   productIds: text("product_ids").default("[]"),
+  bannerType: text("banner_type").notNull().default("homepage"),
+  scheduleStart: text("schedule_start"),
+  scheduleEnd: text("schedule_end"),
 });
 
 export const giftHampers = pgTable("gift_hampers", {
@@ -346,6 +352,29 @@ export const whatsappLeads = pgTable("whatsapp_leads", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const abandonedCarts = pgTable("abandoned_carts", {
+  id: serial("id").primaryKey(),
+  customerName: text("customer_name").notNull().default(""),
+  phone: text("phone").notNull().default(""),
+  email: text("email").notNull().default(""),
+  products: text("products").notNull().default("[]"),
+  cartValue: numeric("cart_value", { precision: 10, scale: 2 }).notNull().default("0"),
+  status: text("status").notNull().default("pending"),
+  notes: text("notes").notNull().default(""),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const seoSettings = pgTable("seo_settings", {
+  id: serial("id").primaryKey(),
+  pagePath: text("page_path").notNull().unique(),
+  metaTitle: text("meta_title").notNull().default(""),
+  metaDescription: text("meta_description").notNull().default(""),
+  keywords: text("keywords").notNull().default(""),
+  canonicalUrl: text("canonical_url").notNull().default(""),
+  ogImage: text("og_image").notNull().default(""),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -372,6 +401,8 @@ export type PageContent = typeof pageContents.$inferSelect;
 export type Media = typeof media.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Badge = typeof badges.$inferSelect;
+export type AbandonedCart = typeof abandonedCarts.$inferSelect;
+export type SeoSetting = typeof seoSettings.$inferSelect;
 export type ProductTemplate = typeof productTemplates.$inferSelect;
 export type ProductColor = typeof productColors.$inferSelect;
 export type ContactMessage = typeof contactMessages.$inferSelect;

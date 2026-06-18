@@ -305,7 +305,12 @@ export default function ProductDetailPage() {
                     Out of Stock
                   </span>
                 )}
-                {!isOutOfStock && product.badge && (
+                {!isOutOfStock && (product as any).stockQuantity > 0 && (product as any).stockQuantity <= (product as any).lowStockThreshold && (
+                  <span className="absolute top-4 left-4 px-3 py-1.5 text-[11px] uppercase tracking-wider font-medium rounded-full bg-red-600 text-white animate-pulse">
+                    Only {(product as any).stockQuantity} Left!
+                  </span>
+                )}
+                {!isOutOfStock && !((product as any).stockQuantity > 0 && (product as any).stockQuantity <= (product as any).lowStockThreshold) && product.badge && (
                   <span className={`absolute top-4 left-4 px-3 py-1.5 text-[11px] uppercase tracking-wider font-medium rounded-full ${product.badge === "Sale" ? "bg-[#991B1B] text-white" : "bg-[#5C4B3D] text-white"}`}>
                     {product.badge}
                   </span>

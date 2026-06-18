@@ -14,12 +14,21 @@ import {
   Loader2,
   PackageOpen,
   MessageCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 interface AnalyticsData {
   totalRevenue: number;
   totalOrders: number;
   averageOrderValue: number;
+}
+
+interface LowStockProduct {
+  id: string;
+  name: string;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  handle: string;
 }
 
 interface Order {
@@ -67,6 +76,7 @@ export default function AdminDashboard() {
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
   const [activeBundles, setActiveBundles] = useState<number>(0);
   const [newLeads, setNewLeads] = useState<number>(0);
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,6 +119,17 @@ export default function AdminDashboard() {
           const data = await leadsRes.json();
           setNewLeads((data.leads || data || []).length);
         }
+
+        try {
+          const productsRes = await fetch("/api/admin/products");
+          if (productsRes.ok) {
+            const prods = await productsRes.json();
+            const low = (prods as any[]).filter(
+              p => p.stockQuantity != null && p.lowStockThreshold != null && p.stockQuantity > 0 && p.stockQuantity <= p.lowStockThreshold
+            ).map(p => ({ id: p.id, name: p.name, stockQuantity: p.stockQuantity, lowStockThreshold: p.lowStockThreshold, handle: p.handle }));
+            setLowStockProducts(low);
+          }
+        } catch {}
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       } finally {
@@ -301,6 +322,45 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {lowStockProducts.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle size={18} className="text-orange-500" />
+            <h2 className="text-[16px] font-serif font-semibold text-[#1A1A1A]">
+              Low Stock Alert ({lowStockProducts.length})
+            </h2>
+          </div>
+          <div className="bg-white border border-orange-200 rounded-[12px] overflow-hidden">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-orange-100 bg-orange-50">
+                  <th className="px-5 py-2.5 text-[11px] font-semibold text-orange-700 uppercase tracking-wider">Product</th>
+                  <th className="px-5 py-2.5 text-[11px] font-semibold text-orange-700 uppercase tracking-wider text-center">Stock</th>
+                  <th className="px-5 py-2.5 text-[11px] font-semibold text-orange-700 uppercase tracking-wider text-center">Threshold</th>
+                  <th className="px-5 py-2.5 text-[11px] font-semibold text-orange-700 uppercase tracking-wider"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {lowStockProducts.map(p => (
+                  <tr key={p.id} className="border-b border-orange-50 last:border-b-0 hover:bg-orange-50 transition-colors">
+                    <td className="px-5 py-3 text-[13px] font-medium text-[#1A1A1A]">{p.name}</td>
+                    <td className="px-5 py-3 text-center">
+                      <span className="inline-block px-2 py-0.5 bg-red-100 text-red-700 text-[12px] font-bold rounded-full">{p.stockQuantity}</span>
+                    </td>
+                    <td className="px-5 py-3 text-center text-[13px] text-[#757575]">{p.lowStockThreshold}</td>
+                    <td className="px-5 py-3 text-right">
+                      <Link href={`/letsgetsuccessin2026/products?edit=${p.id}`} className="text-[12px] text-[#5C4B3D] hover:underline">
+                        Update Stock →
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div>
         <h2 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-4">

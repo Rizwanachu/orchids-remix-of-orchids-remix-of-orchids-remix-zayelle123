@@ -29,6 +29,8 @@ import {
   Gift,
   PackageOpen,
   MessageCircle,
+  ShoppingBag,
+  Search,
 } from "lucide-react";
 
 const navItems = [
@@ -42,6 +44,7 @@ const navItems = [
   { href: "/letsgetsuccessin2026/bundles", label: "Bundles", icon: PackageOpen },
   { href: "/letsgetsuccessin2026/new-arrivals", label: "New Arrivals", icon: Star },
   { href: "/letsgetsuccessin2026/whatsapp-leads", label: "WhatsApp Leads", icon: MessageCircle },
+  { href: "/letsgetsuccessin2026/abandoned-carts", label: "Abandoned Carts", icon: ShoppingBag },
   { href: "/letsgetsuccessin2026/banners", label: "Banners", icon: Megaphone },
   { href: "/letsgetsuccessin2026/zayelle-edit", label: "Zayelle Edit", icon: Image },
   { href: "/letsgetsuccessin2026/media", label: "Media Library", icon: Image },
@@ -51,6 +54,7 @@ const navItems = [
   { href: "/letsgetsuccessin2026/coupons", label: "Coupons", icon: Ticket },
   { href: "/letsgetsuccessin2026/homepage-settings", label: "Homepage Settings", icon: Settings },
   { href: "/letsgetsuccessin2026/homepage-layout", label: "Homepage Layout", icon: Layers },
+  { href: "/letsgetsuccessin2026/seo", label: "SEO Manager", icon: Search },
   { href: "/letsgetsuccessin2026/site-settings", label: "Site Settings", icon: Settings2 },
   { href: "/letsgetsuccessin2026/theme", label: "Theme & Styling", icon: Palette },
   { href: "/letsgetsuccessin2026/page-contents", label: "Pages", icon: FileText },

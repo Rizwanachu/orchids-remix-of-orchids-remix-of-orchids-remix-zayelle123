@@ -17,7 +17,7 @@ interface FooterLink {
   href: string;
 }
 
-type TabKey = "header" | "footer";
+type TabKey = "header" | "footer" | "integrations";
 
 export default function SiteSettingsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("header");
@@ -49,6 +49,9 @@ export default function SiteSettingsPage() {
   const [copyrightText, setCopyrightText] = useState("");
   const [whatsappFloatUrl, setWhatsappFloatUrl] = useState("");
   const [whatsappFloatText, setWhatsappFloatText] = useState("");
+  const [gaId, setGaId] = useState("");
+  const [metaPixelId, setMetaPixelId] = useState("");
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState("");
 
   const showSuccess = (msg: string) => {
     setSuccessMessage(msg);
@@ -91,6 +94,9 @@ export default function SiteSettingsPage() {
         setCopyrightText(map["footer_copyright"] || "");
         setWhatsappFloatUrl(map["footer_whatsapp_float_url"] || "");
         setWhatsappFloatText(map["footer_whatsapp_float_text"] || "");
+        setGaId(map["integrations_ga_id"] || "");
+        setMetaPixelId(map["integrations_meta_pixel_id"] || "");
+        setFreeShippingThreshold(map["integrations_free_shipping_threshold"] || "");
       }
     } catch (err) {
       console.error("Error fetching settings:", err);
@@ -126,6 +132,22 @@ export default function SiteSettingsPage() {
       showSuccess("Header settings saved successfully");
     } catch (err) {
       console.error("Error saving header settings:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveIntegrations = async () => {
+    setSaving(true);
+    try {
+      await Promise.all([
+        saveSetting("integrations_ga_id", gaId),
+        saveSetting("integrations_meta_pixel_id", metaPixelId),
+        saveSetting("integrations_free_shipping_threshold", freeShippingThreshold),
+      ]);
+      showSuccess("Integration settings saved successfully");
+    } catch (err) {
+      console.error("Error saving integration settings:", err);
     } finally {
       setSaving(false);
     }
@@ -309,8 +331,8 @@ export default function SiteSettingsPage() {
         </div>
       )}
 
-      <div className="flex gap-1 mb-6 bg-[#F5F2ED] p-1 rounded-lg w-fit">
-        {(["header", "footer"] as TabKey[]).map((tab) => (
+      <div className="flex gap-1 mb-6 bg-[#F5F2ED] p-1 rounded-lg w-fit flex-wrap">
+        {(["header", "footer", "integrations"] as TabKey[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -665,6 +687,70 @@ export default function SiteSettingsPage() {
             >
               <Save size={16} />
               {saving ? "Saving..." : "Save Footer Settings"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "integrations" && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Google Analytics</h3>
+            <p className="text-[13px] text-[#757575] mb-4">Add your Google Analytics 4 Measurement ID to track visitors and conversions.</p>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">GA4 Measurement ID</label>
+              <input
+                type="text"
+                value={gaId}
+                onChange={(e) => setGaId(e.target.value)}
+                placeholder="G-XXXXXXXXXX"
+                className="w-full max-w-sm px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+              <p className="mt-1 text-[12px] text-[#A8A095]">Found in Google Analytics → Admin → Data Streams → Measurement ID</p>
+            </div>
+          </div>
+
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Meta Pixel</h3>
+            <p className="text-[13px] text-[#757575] mb-4">Track Facebook/Instagram ad conversions and build remarketing audiences.</p>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Meta Pixel ID</label>
+              <input
+                type="text"
+                value={metaPixelId}
+                onChange={(e) => setMetaPixelId(e.target.value)}
+                placeholder="1234567890123456"
+                className="w-full max-w-sm px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+              <p className="mt-1 text-[12px] text-[#A8A095]">Found in Meta Business Suite → Events Manager → your Pixel ID</p>
+            </div>
+          </div>
+
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Free Shipping</h3>
+            <p className="text-[13px] text-[#757575] mb-4">Set the cart value above which free shipping is automatically applied.</p>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Free Shipping Threshold (Rs.)</label>
+              <input
+                type="number"
+                min="0"
+                value={freeShippingThreshold}
+                onChange={(e) => setFreeShippingThreshold(e.target.value)}
+                placeholder="999"
+                className="w-full max-w-sm px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+              <p className="mt-1 text-[12px] text-[#A8A095]">Orders above this amount get free shipping. Used in the cart progress bar and checkout.</p>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSaveIntegrations}
+              disabled={saving}
+              className="flex items-center gap-2 bg-[#5C4B3D] text-white px-6 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors disabled:opacity-50"
+            >
+              <Save size={16} />
+              {saving ? "Saving..." : "Save Integration Settings"}
             </button>
           </div>
         </div>
