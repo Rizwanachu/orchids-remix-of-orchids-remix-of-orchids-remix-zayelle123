@@ -163,7 +163,7 @@ export default function CartPage() {
                         <span className="text-[13px] text-[#1A1A1A] font-medium md:hidden mt-1 block">
                           Rs. {item.price.toLocaleString("en-IN")}.00
                         </span>
-                        {(item as any).isFreeShipping && (
+                        {!!(item as any).isFreeShipping && (
                           <span className="text-[11px] text-green-600 font-medium mt-1 block">Free Shipping</span>
                         )}
                       </div>
