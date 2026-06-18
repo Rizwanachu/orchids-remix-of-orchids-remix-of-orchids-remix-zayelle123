@@ -10,7 +10,6 @@ interface Section {
   displayOrder: number;
 }
 
-const ALWAYS_ON = new Set(["hero", "whatsapp-strip", "bundles", "limited-edition"]);
 
 const DEFAULT_SECTIONS: Section[] = [
   { sectionName: "hero", label: "Hero Banner", isVisible: true, displayOrder: 0 },
@@ -247,11 +246,6 @@ export default function AdminHomepageLayoutPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-medium text-[#1A1A1A]">{section.label}</p>
-                  {ALWAYS_ON.has(section.sectionName) && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-[#5C4B3D]/10 text-[#5C4B3D] rounded-full">
-                      Always On
-                    </span>
-                  )}
                 </div>
                 <p className="text-xs text-[#757575]">{section.sectionName}</p>
               </div>
@@ -265,23 +259,19 @@ export default function AdminHomepageLayoutPage() {
                 />
                 <button
                   onClick={() => toggleVisibility(index)}
-                  disabled={ALWAYS_ON.has(section.sectionName)}
                   className={`p-2 rounded-lg transition-colors ${
-                    ALWAYS_ON.has(section.sectionName)
-                      ? "text-[#5C4B3D] bg-[#F5F2ED] opacity-40 cursor-not-allowed"
-                      : section.isVisible
+                    section.isVisible
                       ? "text-[#5C4B3D] bg-[#F5F2ED] hover:bg-[#EAE5DD]"
                       : "text-[#757575] bg-gray-100 hover:bg-gray-200"
                   }`}
-                  title={ALWAYS_ON.has(section.sectionName) ? "Always visible — cannot hide" : section.isVisible ? "Visible - click to hide" : "Hidden - click to show"}
+                  title={section.isVisible ? "Visible - click to hide" : "Hidden - click to show"}
                 >
                   {section.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
                 <button
                   onClick={() => handleRemoveSection(index)}
-                  disabled={ALWAYS_ON.has(section.sectionName)}
-                  className={`p-2 rounded-lg transition-colors ${ALWAYS_ON.has(section.sectionName) ? "opacity-20 cursor-not-allowed text-[#757575]" : "text-[#757575] hover:text-red-500 hover:bg-red-50"}`}
-                  title={ALWAYS_ON.has(section.sectionName) ? "Cannot remove always-on section" : "Remove section"}
+                  className="p-2 rounded-lg transition-colors text-[#757575] hover:text-red-500 hover:bg-red-50"
+                  title="Remove section"
                 >
                   <Trash2 size={16} />
                 </button>
