@@ -24,65 +24,62 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://zayelle.in"),
-  title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
-  description:
-    "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Zayelle offers modest fashion for the modern Indian woman. Free delivery above ₹1,950. All-India shipping.",
-  keywords:
-    "best hijab in india, buy hijabs online india, premium satin hijab, best jersey hijab india, chiffon hijab india, best abaya brand india, modest fashion india, soft jersey hijab india, hijab brand india, best hijab brand india, premium hijab online india",
-  authors: [{ name: "Zayelle", url: "https://zayelle.in" }],
-  creator: "Zayelle",
-  publisher: "Zayelle",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
-  },
-  openGraph: {
-    siteName: "Zayelle",
-    locale: "en_IN",
-    type: "website",
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.png", sizes: "any", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Zayelle",
-  },
-};
-
-async function getVerificationCodes() {
+export async function generateMetadata(): Promise<Metadata> {
+  let searchConsoleCode = "";
+  let merchantCenterCode = "";
   try {
-    const rows = await db.select().from(siteSettings).where(
-      eq(siteSettings.key, "analytics_search_console_verification")
-    );
-    const mcRows = await db.select().from(siteSettings).where(
-      eq(siteSettings.key, "analytics_merchant_center_verification")
-    );
-    return {
-      searchConsole: rows[0]?.value ?? "",
-      merchantCenter: mcRows[0]?.value ?? "",
-    };
-  } catch {
-    return { searchConsole: "", merchantCenter: "" };
-  }
+    const [scRows, mcRows] = await Promise.all([
+      db.select().from(siteSettings).where(eq(siteSettings.key, "analytics_search_console_verification")),
+      db.select().from(siteSettings).where(eq(siteSettings.key, "analytics_merchant_center_verification")),
+    ]);
+    searchConsoleCode = scRows[0]?.value ?? "";
+    merchantCenterCode = mcRows[0]?.value ?? "";
+  } catch {}
+
+  return {
+    metadataBase: new URL("https://zayelle.in"),
+    title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
+    description:
+      "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Zayelle offers modest fashion for the modern Indian woman. Free delivery above ₹1,950. All-India shipping.",
+    keywords:
+      "best hijab in india, buy hijabs online india, premium satin hijab, best jersey hijab india, chiffon hijab india, best abaya brand india, modest fashion india, soft jersey hijab india, hijab brand india, best hijab brand india, premium hijab online india",
+    authors: [{ name: "Zayelle", url: "https://zayelle.in" }],
+    creator: "Zayelle",
+    publisher: "Zayelle",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    },
+    openGraph: {
+      siteName: "Zayelle",
+      locale: "en_IN",
+      type: "website",
+    },
+    icons: {
+      icon: [{ url: "/favicon.png", sizes: "any", type: "image/png" }],
+      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    },
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "Zayelle",
+    },
+    verification: {
+      ...(searchConsoleCode ? { google: searchConsoleCode } : {}),
+    },
+    other: {
+      ...(merchantCenterCode ? { "google-merchant-center-site-verification": merchantCenterCode } : {}),
+    },
+  };
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { searchConsole, merchantCenter } = await getVerificationCodes();
   return (
     <html lang="en">
       <head>
@@ -90,52 +87,48 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {searchConsole && <meta name="google-site-verification" content={searchConsole} />}
-        {merchantCenter && <meta name="google-merchant-center-site-verification" content={merchantCenter} />}
       </head>
-      <body
-        className={`${inter.variable} ${cormorant.variable} antialiased`}
-        >
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=GT-NBJ3X3R8"
-        strategy="afterInteractive"
-      />
-      <Script id="google-tag" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'GT-NBJ3X3R8');
-          gtag('config', 'G-TDCQB6VNVW');
-        `}
-      </Script>
-      <Script id="meta-pixel" strategy="afterInteractive">
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '1957976071510679');
-          fbq('track', 'PageView');
-        `}
-      </Script>
-          <AuthProvider>
-              <ProductsProvider>
-                <OrdersProvider>
-                  <CartProvider>
-                    <ThemeProvider>
-                      <ScrollToTop />
-                      {children}
-                    </ThemeProvider>
-                  </CartProvider>
-                </OrdersProvider>
-              </ProductsProvider>
-            </AuthProvider>
-        </body>
+      <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=GT-NBJ3X3R8"
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'GT-NBJ3X3R8');
+            gtag('config', 'G-TDCQB6VNVW');
+          `}
+        </Script>
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '1957976071510679');
+            fbq('track', 'PageView');
+          `}
+        </Script>
+        <AuthProvider>
+          <ProductsProvider>
+            <OrdersProvider>
+              <CartProvider>
+                <ThemeProvider>
+                  <ScrollToTop />
+                  {children}
+                </ThemeProvider>
+              </CartProvider>
+            </OrdersProvider>
+          </ProductsProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
