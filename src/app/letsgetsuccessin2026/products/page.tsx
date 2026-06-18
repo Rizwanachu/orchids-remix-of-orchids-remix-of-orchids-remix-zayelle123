@@ -768,12 +768,7 @@ export default function AdminProductsPage() {
   const handleToggleSingleActive = async (product: Product) => {
     const newActive = product.active ? 0 : 1;
     try {
-      await fetch(`/api/admin/products/${product.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: newActive }),
-      });
-      await refreshProducts();
+      await updateProduct(product.id, { active: newActive });
     } catch (err) {
       console.error("Error toggling product visibility:", err);
     }
