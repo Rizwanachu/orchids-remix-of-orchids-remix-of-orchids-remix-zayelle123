@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
@@ -9,16 +9,39 @@ import { useCart, getItemTotal } from "@/lib/cart-context";
 
 const FREE_SHIPPING_THRESHOLD = 1000;
 
-const UPSELL_ITEMS = [
-  { name: "Magnetic Pin", subtitle: "Keeps your hijab in place", price: 99, link: "/products" },
-  { name: "Tube Undercap", subtitle: "Soft & breathable underlayer", price: 79, link: "/products" },
-  { name: "Satin Scrunchie", subtitle: "Elegant hair accessory", price: 49, link: "/products" },
-  { name: "Tasbeeh", subtitle: "Premium prayer beads", price: 99, link: "/products" },
-];
+interface UpsellProduct {
+  id: number;
+  name: string;
+  subtitle: string;
+  price: number;
+  image: string;
+  handle: string;
+}
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [upsellProducts, setUpsellProducts] = useState<UpsellProduct[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(r => r.json())
+      .then(data => {
+        const all: UpsellProduct[] = (Array.isArray(data) ? data : data.products || [])
+          .filter((p: any) => p.image)
+          .slice(0, 4)
+          .map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            subtitle: p.subtitle || p.description || "",
+            price: Number(p.price),
+            image: p.image,
+            handle: p.handle,
+          }));
+        setUpsellProducts(all);
+      })
+      .catch(() => {});
+  }, []);
 
   const incompleteBundle = items.find((item) => {
     if (!item.bundleType) return false;
@@ -177,29 +200,38 @@ export default function CartPage() {
                 ))}
 
                 {/* Upsell Section */}
-                <div className="mt-8 pt-4">
-                  <p className="text-[13px] font-semibold text-[#1A1A1A] uppercase tracking-wider mb-4">
-                    Complete Your Order
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {UPSELL_ITEMS.map((item, i) => (
-                      <a
-                        key={i}
-                        href={item.link}
-                        className="group flex flex-col bg-white border border-[#E8E4DE] rounded-[10px] p-3.5 hover:border-[#5C4B3D] hover:shadow-sm transition-all duration-200"
-                      >
-                        <p className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#5C4B3D] transition-colors leading-tight mb-1">
-                          {item.name}
-                        </p>
-                        <p className="text-[11px] text-[#757575] mb-2 leading-tight">{item.subtitle}</p>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="text-[13px] font-semibold text-[#1A1A1A]">+₹{item.price}</span>
-                          <ArrowRight size={13} className="text-[#5C4B3D] opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </a>
-                    ))}
+                {upsellProducts.length > 0 && (
+                  <div className="mt-8 pt-4">
+                    <p className="text-[13px] font-semibold text-[#1A1A1A] uppercase tracking-wider mb-4">
+                      Complete Your Order
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {upsellProducts.map((item) => (
+                        <a
+                          key={item.id}
+                          href={`/products/${item.handle}`}
+                          className="group flex flex-col hover:opacity-90 transition-opacity duration-200"
+                        >
+                          <div className="relative w-full aspect-square overflow-hidden rounded-[10px] bg-[#F5F2ED] mb-2">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              sizes="(max-width:640px) 50vw, 25vw"
+                            />
+                          </div>
+                          <p className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#5C4B3D] transition-colors leading-tight line-clamp-1">
+                            {item.name}
+                          </p>
+                          <span className="text-[13px] font-semibold text-[#1A1A1A] mt-0.5">
+                            ₹{item.price.toLocaleString("en-IN")}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Summary */}
