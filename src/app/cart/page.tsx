@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Minus, Plus, Trash2, ShoppingBag, Loader2, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart, getItemTotal } from "@/lib/cart-context";
 
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -13,35 +13,48 @@ interface UpsellProduct {
   id: number;
   name: string;
   subtitle: string;
-  price: number;
+  customPrice: number;
   image: string;
   handle: string;
 }
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, totalPrice } = useCart();
+  const { items, removeItem, updateQuantity, totalPrice, addItem } = useCart();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [upsellProducts, setUpsellProducts] = useState<UpsellProduct[]>([]);
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    fetch("/api/products")
+    fetch("/api/cart-upsell")
       .then(r => r.json())
-      .then(data => {
-        const all: UpsellProduct[] = (Array.isArray(data) ? data : data.products || [])
-          .filter((p: any) => p.image)
-          .slice(0, 4)
-          .map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            subtitle: p.subtitle || p.description || "",
-            price: Number(p.price),
-            image: p.image,
-            handle: p.handle,
-          }));
-        setUpsellProducts(all);
+      .then((data: any[]) => {
+        if (!Array.isArray(data)) return;
+        setUpsellProducts(
+          data.map(r => ({
+            id: r.id,
+            name: r.name,
+            subtitle: r.subtitle || "",
+            customPrice: Number(r.custom_price),
+            image: r.image,
+            handle: r.handle,
+          }))
+        );
       })
       .catch(() => {});
   }, []);
+
+  const handleUpsellAdd = (item: UpsellProduct) => {
+    addItem({
+      id: `upsell-${item.id}-${item.handle}`,
+      handle: item.handle,
+      name: item.name,
+      subtitle: item.subtitle,
+      price: item.customPrice,
+      image: item.image,
+    });
+    setAddedIds(prev => new Set(prev).add(item.id));
+    setTimeout(() => setAddedIds(prev => { const n = new Set(prev); n.delete(item.id); return n; }), 1500);
+  };
 
   const incompleteBundle = items.find((item) => {
     if (!item.bundleType) return false;
@@ -207,12 +220,8 @@ export default function CartPage() {
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {upsellProducts.map((item) => (
-                        <a
-                          key={item.id}
-                          href={`/products/${item.handle}`}
-                          className="group flex flex-col hover:opacity-90 transition-opacity duration-200"
-                        >
-                          <div className="relative w-full aspect-square overflow-hidden rounded-[10px] bg-[#F5F2ED] mb-2">
+                        <div key={item.id} className="group flex flex-col">
+                          <a href={`/products/${item.handle}`} className="block relative w-full aspect-square overflow-hidden rounded-[10px] bg-[#F5F2ED] mb-2">
                             <Image
                               src={item.image}
                               alt={item.name}
@@ -220,14 +229,36 @@ export default function CartPage() {
                               className="object-cover transition-transform duration-500 group-hover:scale-105"
                               sizes="(max-width:640px) 50vw, 25vw"
                             />
-                          </div>
-                          <p className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#5C4B3D] transition-colors leading-tight line-clamp-1">
+                          </a>
+                          <a
+                            href={`/products/${item.handle}`}
+                            className="text-[13px] font-medium text-[#1A1A1A] hover:text-[#5C4B3D] transition-colors leading-tight line-clamp-1"
+                          >
                             {item.name}
-                          </p>
-                          <span className="text-[13px] font-semibold text-[#1A1A1A] mt-0.5">
-                            ₹{item.price.toLocaleString("en-IN")}
-                          </span>
-                        </a>
+                          </a>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-[13px] font-semibold text-[#1A1A1A]">
+                              ₹{item.customPrice.toLocaleString("en-IN")}
+                            </span>
+                            <button
+                              onClick={() => handleUpsellAdd(item)}
+                              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
+                                addedIds.has(item.id)
+                                  ? "bg-green-500 text-white scale-110"
+                                  : "bg-[#5C4B3D] text-white hover:bg-[#4a3b30] hover:scale-110"
+                              }`}
+                              title="Add to cart"
+                            >
+                              {addedIds.has(item.id) ? (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              ) : (
+                                <Plus size={13} />
+                              )}
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>

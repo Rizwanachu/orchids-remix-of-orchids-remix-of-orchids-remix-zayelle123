@@ -45,6 +45,7 @@ const navItems = [
   { href: "/letsgetsuccessin2026/new-arrivals", label: "New Arrivals", icon: Star },
   { href: "/letsgetsuccessin2026/whatsapp-leads", label: "WhatsApp Leads", icon: MessageCircle },
   { href: "/letsgetsuccessin2026/abandoned-carts", label: "Abandoned Carts", icon: ShoppingBag },
+  { href: "/letsgetsuccessin2026/cart-upsell", label: "Cart Upsell", icon: ShoppingCart },
   { href: "/letsgetsuccessin2026/banners", label: "Banners", icon: Megaphone },
   { href: "/letsgetsuccessin2026/zayelle-edit", label: "Zayelle Edit", icon: Image },
   { href: "/letsgetsuccessin2026/media", label: "Media Library", icon: Image },
