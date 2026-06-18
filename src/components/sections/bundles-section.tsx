@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Search } from 'lucide-react';
 
 interface BundleItem {
   productId: number;
@@ -37,6 +38,187 @@ const FALLBACK_BUNDLES = [
   { name: "Complete Essentials", items: ["1 Hijab", "1 Undercap", "1 Magnetic Pin"], price: "₹499", badge: "Best Value", link: "/products", imageIndexes: [4, 5] },
   { name: "Gift Bundle", items: ["1 Hijab", "1 Scrunchie", "1 Tasbeeh"], price: "₹449", badge: null, link: "/gift-hampers", imageIndexes: [6, 7] },
 ];
+
+const BundleCard = ({ bundle, fallbackProducts }: {
+  bundle: DbBundle;
+  fallbackProducts: FallbackProduct[];
+}) => {
+  const parsedItems: BundleItem[] = (() => { try { return JSON.parse(bundle.items); } catch { return []; } })();
+  const imgA = parsedItems[0];
+  const imgB = parsedItems[1];
+  const savings = bundle.comparePrice
+    ? Math.round(parseFloat(bundle.comparePrice) - parseFloat(bundle.price))
+    : null;
+
+  const itemSummary = parsedItems.length > 0
+    ? parsedItems.map(i => `${i.quantity > 1 ? `${i.quantity}× ` : ""}${i.label || i.productName}`).join(" + ")
+    : bundle.description || "";
+
+  const primaryImage = bundle.imageUrl || imgA?.productImage || fallbackProducts[0]?.image || "";
+  const secondaryImage = !bundle.imageUrl && imgB?.productImage && imgB.productId !== imgA?.productId
+    ? imgB.productImage
+    : "";
+
+  return (
+    <div className="group flex flex-col items-center text-center">
+      <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-[#F5F2ED] transition-premium">
+        {/* Images */}
+        {primaryImage ? (
+          secondaryImage ? (
+            <div className="absolute inset-0 flex">
+              <div className="relative flex-1 overflow-hidden">
+                <Image
+                  src={primaryImage}
+                  alt={bundle.name}
+                  fill
+                  className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
+                  sizes="(max-width:640px) 50vw, (max-width:1024px) 25vw, 12vw"
+                />
+              </div>
+              <div className="relative flex-1 overflow-hidden border-l border-white/40">
+                <Image
+                  src={secondaryImage}
+                  alt={bundle.name}
+                  fill
+                  className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
+                  sizes="(max-width:640px) 50vw, (max-width:1024px) 25vw, 12vw"
+                />
+              </div>
+            </div>
+          ) : (
+            <Image
+              src={primaryImage}
+              alt={bundle.name}
+              fill
+              className="object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
+              sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"
+            />
+          )
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[#8B735B] text-[40px]">✦</span>
+          </div>
+        )}
+
+        {/* Badge */}
+        {bundle.badge && (
+          <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-[#5C4B3D] text-white px-2.5 py-1 rounded-full">
+            {bundle.badge}
+          </span>
+        )}
+
+        {/* Savings badge */}
+        {savings && savings > 0 && (
+          <span className="absolute top-3 right-3 z-10 text-[10px] font-semibold bg-green-600 text-white px-2 py-1 rounded-full">
+            Save ₹{savings}
+          </span>
+        )}
+
+        {/* Quick view icon — top right (when no savings badge) */}
+        {!(savings && savings > 0) && (
+          <div className="absolute top-3 right-3 z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+            <a
+              href="/products"
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-[#5C4B3D] hover:text-white transition-colors"
+            >
+              <Search size={16} />
+            </a>
+          </div>
+        )}
+
+        {/* Slide-up Shop Now button */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
+          <a
+            href="/products"
+            className="pointer-events-auto w-full flex items-center justify-center bg-[#1A1A1A] text-white text-[12px] font-medium uppercase tracking-wider py-3 rounded-sm
+              sm:translate-y-4 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100
+              transition-all duration-300"
+          >
+            Shop Bundle
+          </a>
+        </div>
+      </div>
+
+      {/* Text below */}
+      <div className="mt-4 flex flex-col gap-1 w-full px-2">
+        <h3 className="text-[14px] font-normal text-[#1A1A1A] capitalize tracking-tight line-clamp-1">
+          <a href="/products" className="hover:text-[#5C4B3D] transition-colors">
+            {bundle.name}
+          </a>
+        </h3>
+        {itemSummary && (
+          <p className="text-[12px] text-[#757575] line-clamp-1">{itemSummary}</p>
+        )}
+        <div className="flex flex-col gap-0.5 mt-1">
+          <span className="text-[16px] font-semibold text-[#1A1A1A]">
+            ₹{parseFloat(bundle.price).toLocaleString("en-IN")}.00
+          </span>
+          {bundle.comparePrice && parseFloat(bundle.comparePrice) > parseFloat(bundle.price) && (
+            <span className="text-[13px] text-[#757575] line-through">
+              ₹{parseFloat(bundle.comparePrice).toLocaleString("en-IN")}.00
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FallbackBundleCard = ({ bundle, imgA, imgB }: {
+  bundle: typeof FALLBACK_BUNDLES[number];
+  imgA?: FallbackProduct;
+  imgB?: FallbackProduct;
+}) => (
+  <div className="group flex flex-col items-center text-center">
+    <div className="relative w-full aspect-square overflow-hidden rounded-[12px] bg-[#F5F2ED]">
+      {imgA ? (
+        imgB && imgB.id !== imgA.id ? (
+          <div className="absolute inset-0 flex">
+            <div className="relative flex-1 overflow-hidden">
+              <Image src={imgA.image} alt={imgA.name} fill className="object-cover scale-100 group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 50vw, 200px" />
+            </div>
+            <div className="relative flex-1 overflow-hidden border-l border-white/40">
+              <Image src={imgB.image} alt={imgB.name} fill className="object-cover scale-100 group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 50vw, 200px" />
+            </div>
+          </div>
+        ) : (
+          <Image src={imgA.image} alt={imgA.name} fill className="object-cover scale-100 group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 100vw, 25vw" />
+        )
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[#8B735B] text-[40px]">✦</span>
+        </div>
+      )}
+
+      {bundle.badge && (
+        <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-[#5C4B3D] text-white px-2.5 py-1 rounded-full">
+          {bundle.badge}
+        </span>
+      )}
+
+      <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
+        <a
+          href={bundle.link}
+          className="pointer-events-auto w-full flex items-center justify-center bg-[#1A1A1A] text-white text-[12px] font-medium uppercase tracking-wider py-3 rounded-sm
+            sm:translate-y-4 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100
+            transition-all duration-300"
+        >
+          Shop Bundle
+        </a>
+      </div>
+    </div>
+
+    <div className="mt-4 flex flex-col gap-1 w-full px-2">
+      <h3 className="text-[14px] font-normal text-[#1A1A1A] capitalize tracking-tight line-clamp-1">
+        <a href={bundle.link} className="hover:text-[#5C4B3D] transition-colors">{bundle.name}</a>
+      </h3>
+      <p className="text-[12px] text-[#757575] line-clamp-1">{bundle.items.join(" + ")}</p>
+      <div className="mt-1">
+        <span className="text-[16px] font-semibold text-[#1A1A1A]">{bundle.price}</span>
+      </div>
+    </div>
+  </div>
+);
 
 const BundlesSection = () => {
   const [dbBundles, setDbBundles] = useState<DbBundle[] | null>(null);
@@ -89,166 +271,27 @@ const BundlesSection = () => {
           <h2 className="text-[28px] md:text-[34px] font-serif italic text-[#1A1A1A] mb-2">
             {settings.bundlesTitle || "Most Loved Bundles"}
           </h2>
-          {(settings.bundlesSubtitle) && (
+          {settings.bundlesSubtitle && (
             <p className="text-[14px] text-[#757575] mt-1 max-w-[400px]">{settings.bundlesSubtitle}</p>
           )}
           <div className="w-[50px] h-[1px] bg-[#5C4B3D] opacity-25 mt-3" />
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {useDb
-            ? dbBundles!.map((bundle) => {
-                const parsedItems: BundleItem[] = (() => { try { return JSON.parse(bundle.items); } catch { return []; } })();
-                const imgA = parsedItems[0];
-                const imgB = parsedItems[1];
-                const savings = bundle.comparePrice
-                  ? Math.round(parseFloat(bundle.comparePrice) - parseFloat(bundle.price))
-                  : null;
-
-                return (
-                  <div
-                    key={bundle.id}
-                    className="relative bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-300 group"
-                  >
-                    {bundle.badge && (
-                      <span className="absolute top-3 right-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-[#5C4B3D] text-white px-2.5 py-1 rounded-full">
-                        {bundle.badge}
-                      </span>
-                    )}
-
-                    <div className="relative w-full h-[160px] bg-[#F5F2ED] flex overflow-hidden">
-                      {bundle.imageUrl ? (
-                        <div className="relative flex-1 overflow-hidden">
-                          <Image
-                            src={bundle.imageUrl}
-                            alt={bundle.name}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width:640px) 100vw, 300px"
-                          />
-                        </div>
-                      ) : imgA?.productImage ? (
-                        <>
-                          <div className="relative flex-1 overflow-hidden border-r border-white/60">
-                            <Image
-                              src={imgA.productImage}
-                              alt={imgA.productName}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
-                              sizes="(max-width:640px) 50vw, 150px"
-                            />
-                          </div>
-                          {imgB?.productImage && imgB.productId !== imgA.productId && (
-                            <div className="relative flex-1 overflow-hidden">
-                              <Image
-                                src={imgB.productImage}
-                                alt={imgB.productName}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                sizes="(max-width:640px) 50vw, 150px"
-                              />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="flex-1 flex items-center justify-center">
-                          <span className="text-[#8B735B] text-[28px]">✦</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                    </div>
-
-                    <div className="p-5 flex flex-col flex-1">
-                      <h3 className="text-[15px] font-semibold text-[#1A1A1A] mb-3">{bundle.name}</h3>
-
-                      <ul className="space-y-1.5 mb-5 flex-1">
-                        {parsedItems.length > 0
-                          ? parsedItems.map((item, j) => (
-                              <li key={j} className="flex items-center gap-2 text-[13px] text-[#555]">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#8B735B] flex-shrink-0" />
-                                {item.quantity > 1 ? `${item.quantity}× ` : ""}{item.label || item.productName}
-                              </li>
-                            ))
-                          : bundle.description
-                            ? bundle.description.split(",").map((s, j) => (
-                                <li key={j} className="flex items-center gap-2 text-[13px] text-[#555]">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#8B735B] flex-shrink-0" />
-                                  {s.trim()}
-                                </li>
-                              ))
-                            : null}
-                      </ul>
-
-                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#F5F2ED]">
-                        <div>
-                          <span className="text-[22px] font-semibold text-[#1A1A1A]">₹{bundle.price}</span>
-                          {savings && savings > 0 && (
-                            <span className="ml-2 text-[11px] text-green-600 font-medium">Save ₹{savings}</span>
-                          )}
-                        </div>
-                        <a
-                          href="/products"
-                          className="text-[12px] font-medium uppercase tracking-wider text-[#5C4B3D] border border-[#5C4B3D] px-4 py-2 hover:bg-[#5C4B3D] hover:text-white transition-colors duration-200"
-                        >
-                          Shop Now
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
+            ? dbBundles!.map((bundle) => (
+                <BundleCard key={bundle.id} bundle={bundle} fallbackProducts={fallbackProducts} />
+              ))
             : FALLBACK_BUNDLES.map((bundle, i) => {
                 const [idxA, idxB] = bundle.imageIndexes;
-                const imgA = fallbackProducts[idxA % (fallbackProducts.length || 1)];
-                const imgB = fallbackProducts[idxB % (fallbackProducts.length || 1)];
-
+                const n = fallbackProducts.length || 1;
                 return (
-                  <div
+                  <FallbackBundleCard
                     key={i}
-                    className="relative bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-300 group"
-                  >
-                    {bundle.badge && (
-                      <span className="absolute top-3 right-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-[#5C4B3D] text-white px-2.5 py-1 rounded-full">
-                        {bundle.badge}
-                      </span>
-                    )}
-                    <div className="relative w-full h-[160px] bg-[#F5F2ED] flex overflow-hidden">
-                      {imgA ? (
-                        <>
-                          <div className="relative flex-1 overflow-hidden border-r border-white/60">
-                            <Image src={imgA.image} alt={imgA.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 50vw, 200px" />
-                          </div>
-                          {imgB && imgB.id !== imgA.id ? (
-                            <div className="relative flex-1 overflow-hidden">
-                              <Image src={imgB.image} alt={imgB.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 50vw, 200px" />
-                            </div>
-                          ) : null}
-                        </>
-                      ) : (
-                        <div className="flex-1 flex items-center justify-center">
-                          <span className="text-[#8B735B] text-[28px]">✦</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                      <h3 className="text-[15px] font-semibold text-[#1A1A1A] mb-3">{bundle.name}</h3>
-                      <ul className="space-y-1.5 mb-5 flex-1">
-                        {bundle.items.map((item, j) => (
-                          <li key={j} className="flex items-center gap-2 text-[13px] text-[#555]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#8B735B] flex-shrink-0" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#F5F2ED]">
-                        <span className="text-[22px] font-semibold text-[#1A1A1A]">{bundle.price}</span>
-                        <a href={bundle.link} className="text-[12px] font-medium uppercase tracking-wider text-[#5C4B3D] border border-[#5C4B3D] px-4 py-2 hover:bg-[#5C4B3D] hover:text-white transition-colors duration-200">
-                          Shop Now
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                    bundle={bundle}
+                    imgA={fallbackProducts[idxA % n]}
+                    imgB={fallbackProducts[idxB % n]}
+                  />
                 );
               })}
         </div>
