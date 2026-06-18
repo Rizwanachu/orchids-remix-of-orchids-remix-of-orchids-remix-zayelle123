@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/sections/header";
 import HeroSection from "@/components/sections/hero";
+import WhatsAppStrip from "@/components/sections/whatsapp-strip";
 import CollectionsGrid from "@/components/sections/collections-grid";
 import NewArrivalsCarousel from "@/components/sections/new-arrivals-carousel";
 import PromoBanners from "@/components/sections/promo-banners";
@@ -9,6 +10,8 @@ import InstagramFeed from "@/components/sections/instagram-feed";
 import Testimonials from "@/components/sections/testimonials";
 import TrustBar from "@/components/sections/trust-bar";
 import GiftHampers from "@/components/sections/gift-hampers";
+import BundlesSection from "@/components/sections/bundles-section";
+import LimitedEditionBanner from "@/components/sections/limited-edition-banner";
 import Footer from "@/components/sections/footer";
 import { db } from "../../server/db";
 import { homepageSections, communityTestimonials } from "../../shared/schema";
@@ -17,12 +20,12 @@ import { asc, eq, avg, count } from "drizzle-orm";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
-  description: "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Zayelle offers modest fashion for the modern Indian woman. Free delivery above ₹1,950. All-India shipping.",
-  keywords: "best hijab in india, buy hijabs online india, premium satin hijab, jersey hijab india, chiffon hijab, best abaya india, modest fashion india, hijab brand india, soft jersey hijab, premium hijab online, best hijab brand india",
+  title: "Women's Fashion, Hijabs & Accessories India | Zayelle",
+  description: "Shop India's premium women's fashion — hijabs, abayas, accessories & curated gift hampers. Zayelle delivers elegant modest wear for modern Indian women. Free delivery above ₹1,950. Pan India shipping.",
+  keywords: "best hijab in india, buy hijabs online india, premium satin hijab, jersey hijab india, chiffon hijab, best abaya india, modest fashion india, hijab brand india, women fashion india, premium hijab online, best hijab brand india",
   openGraph: {
-    title: "Best Hijabs in India | Premium Satin, Jersey & Chiffon Hijabs — Zayelle",
-    description: "Shop India's best hijabs — premium satin silk, soft jersey, and chiffon hijabs. Free delivery above ₹1,950.",
+    title: "Women's Fashion, Hijabs & Accessories India | Zayelle",
+    description: "Shop India's premium women's fashion — hijabs, abayas, accessories & gift hampers. Free delivery above ₹1,950.",
     url: "https://zayelle.in",
     siteName: "Zayelle",
     type: "website",
@@ -31,14 +34,14 @@ export const metadata: Metadata = {
         url: "https://zayelle.in/logo.png",
         width: 1200,
         height: 630,
-        alt: "Zayelle — Premium Hijabs India",
+        alt: "Zayelle — Premium Women's Fashion India",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Hijabs in India | Zayelle",
-    description: "Shop India's best premium hijabs — satin, jersey, chiffon. Free delivery above ₹1,950.",
+    title: "Women's Fashion, Hijabs & Accessories | Zayelle",
+    description: "Shop India's best premium hijabs, abayas, accessories. Free delivery above ₹1,950.",
   },
   alternates: {
     canonical: "https://zayelle.in",
@@ -56,7 +59,7 @@ const organizationJsonLd = {
     width: 200,
     height: 60,
   },
-  description: "India's premium hijab and modest fashion brand. Shop chiffon, satin silk, jersey hijabs and abayas with all-India delivery.",
+  description: "India's premium women's fashion brand — hijabs, abayas, accessories and gift hampers with all-India delivery.",
   foundingDate: "2023",
   areaServed: "IN",
   contactPoint: {
@@ -78,7 +81,7 @@ function buildLocalBusinessJsonLd(ratingValue: number | null, reviewCount: numbe
     url: "https://zayelle.in",
     logo: "https://zayelle.in/logo.png",
     image: "https://zayelle.in/logo.png",
-    description: "India's premium hijab and modest fashion brand — satin silk, jersey, chiffon hijabs, abayas and accessories with all-India delivery.",
+    description: "India's premium women's fashion brand — hijabs, abayas, accessories and curated gift hampers with all-India delivery.",
     email: "zayelle.in@gmail.com",
     areaServed: { "@type": "Country", name: "India" },
     address: { "@type": "PostalAddress", addressCountry: "IN" },
@@ -93,11 +96,12 @@ function buildLocalBusinessJsonLd(ratingValue: number | null, reviewCount: numbe
     },
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Hijabs & Modest Fashion",
+      name: "Women's Fashion & Accessories",
       itemListElement: [
         { "@type": "Offer", itemOffered: { "@type": "Product", name: "Satin Silk Hijabs" } },
         { "@type": "Offer", itemOffered: { "@type": "Product", name: "Jersey Hijabs" } },
         { "@type": "Offer", itemOffered: { "@type": "Product", name: "Chiffon Hijabs" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Abayas" } },
         { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijab Gift Hampers" } },
       ],
     },
@@ -132,6 +136,7 @@ const websiteJsonLd = {
 
 const SECTION_MAP: Record<string, React.ComponentType> = {
   hero: HeroSection,
+  "whatsapp-strip": WhatsAppStrip,
   collections: CollectionsGrid,
   "new-arrivals": NewArrivalsCarousel,
   "promo-banners": PromoBanners,
@@ -140,17 +145,22 @@ const SECTION_MAP: Record<string, React.ComponentType> = {
   "instagram-feed": InstagramFeed,
   testimonials: Testimonials,
   "trust-bar": TrustBar,
+  bundles: BundlesSection,
+  "limited-edition": LimitedEditionBanner,
 };
 
 const DEFAULT_ORDER = [
   "hero",
-  "collections",
+  "whatsapp-strip",
   "new-arrivals",
+  "testimonials",
+  "bundles",
+  "collections",
   "promo-banners",
   "gift-hampers",
+  "limited-edition",
   "zayelle-edit",
   "instagram-feed",
-  "testimonials",
   "trust-bar",
 ];
 
@@ -172,9 +182,26 @@ export default async function Home() {
     ]);
 
     if (sectionsRows.length > 0) {
-      sectionNames = sectionsRows
+      const dbSections = sectionsRows
         .filter((s) => s.isVisible === 1)
         .map((s) => s.sectionName);
+      // Inject new sections into DB order if not present
+      if (!dbSections.includes("whatsapp-strip")) {
+        const heroIdx = dbSections.indexOf("hero");
+        if (heroIdx !== -1) dbSections.splice(heroIdx + 1, 0, "whatsapp-strip");
+        else dbSections.unshift("whatsapp-strip");
+      }
+      if (!dbSections.includes("bundles")) {
+        const testimonialsIdx = dbSections.indexOf("testimonials");
+        if (testimonialsIdx !== -1) dbSections.splice(testimonialsIdx + 1, 0, "bundles");
+        else dbSections.push("bundles");
+      }
+      if (!dbSections.includes("limited-edition")) {
+        const giftIdx = dbSections.indexOf("gift-hampers");
+        if (giftIdx !== -1) dbSections.splice(giftIdx + 1, 0, "limited-edition");
+        else dbSections.push("limited-edition");
+      }
+      sectionNames = dbSections;
     }
 
     const ratingRow = ratingRows[0];

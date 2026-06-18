@@ -4,8 +4,17 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
-import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2, ArrowRight } from "lucide-react";
 import { useCart, getItemTotal } from "@/lib/cart-context";
+
+const FREE_SHIPPING_THRESHOLD = 1000;
+
+const UPSELL_ITEMS = [
+  { name: "Magnetic Pin", subtitle: "Keeps your hijab in place", price: 99, link: "/products" },
+  { name: "Tube Undercap", subtitle: "Soft & breathable underlayer", price: 79, link: "/products" },
+  { name: "Satin Scrunchie", subtitle: "Elegant hair accessory", price: 49, link: "/products" },
+  { name: "Tasbeeh", subtitle: "Premium prayer beads", price: 99, link: "/products" },
+];
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
@@ -31,7 +40,11 @@ export default function CartPage() {
   };
 
   const hasFreeShippingProduct = items.some(item => (item as any).isFreeShipping);
-  const effectiveTotalPrice = (totalPrice + (totalPrice >= 1000 || hasFreeShippingProduct ? 0 : 49));
+  const effectiveTotalPrice = (totalPrice + (totalPrice >= FREE_SHIPPING_THRESHOLD || hasFreeShippingProduct ? 0 : 49));
+
+  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - totalPrice);
+  const freeShippingProgress = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
+  const hasFreeShipping = totalPrice >= FREE_SHIPPING_THRESHOLD || hasFreeShippingProduct;
 
   return (
     <>
@@ -48,12 +61,36 @@ export default function CartPage() {
           </div>
         </div>
 
+        {/* Free Shipping Progress Bar */}
+        {items.length > 0 && (
+          <div className={`border-b ${hasFreeShipping ? "bg-[#F0FAF4] border-[#C6E9D5]" : "bg-[#FDF9F5] border-[#E8E4DE]"}`}>
+            <div className="container px-4 md:px-8 py-3.5">
+              {hasFreeShipping ? (
+                <p className="text-[13px] font-medium text-[#22863A] text-center">
+                  🎉 You've unlocked <strong>FREE shipping</strong>!
+                </p>
+              ) : (
+                <div>
+                  <p className="text-[13px] text-[#555] mb-2 text-center">
+                    Add <strong>₹{amountToFreeShipping.toLocaleString("en-IN")}</strong> more to get <strong>FREE shipping</strong>
+                  </p>
+                  <div className="w-full bg-[#E8E4DE] rounded-full h-1.5">
+                    <div
+                      className="bg-[#5C4B3D] h-1.5 rounded-full transition-all duration-500"
+                      style={{ width: `${freeShippingProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="container px-4 md:px-8 py-12 md:py-16">
           {items.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-0">
-                {/* Header */}
                 <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_auto] gap-6 pb-4 border-b border-[#E8E4DE] text-[12px] uppercase tracking-wider font-medium text-[#757575]">
                   <span>Product</span>
                   <span className="text-center">Quantity</span>
@@ -66,7 +103,6 @@ export default function CartPage() {
                     key={item.id}
                     className="grid grid-cols-[80px_1fr] md:grid-cols-[2fr_1fr_1fr_auto] gap-4 md:gap-6 py-6 border-b border-[#E8E4DE] items-center"
                   >
-                    {/* Product */}
                     <div className="col-span-2 md:col-span-1 flex gap-4 items-center">
                       <a href={`/products/${item.handle}`} className="relative w-20 h-20 flex-shrink-0 rounded-[8px] overflow-hidden bg-white">
                         <Image src={item.image} alt={item.name} fill className="object-cover" sizes="80px" />
@@ -97,7 +133,6 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    {/* Quantity */}
                     <div className="flex items-center justify-center col-start-2 md:col-start-auto">
                       <div className="flex items-center border border-[#E8E4DE] rounded-sm">
                         <button
@@ -119,7 +154,6 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    {/* Total */}
                     <div className="hidden md:flex flex-col items-end">
                       <span className="text-[15px] font-semibold text-[#1A1A1A]">
                         Rs. {getItemTotal(item).toLocaleString("en-IN")}.00
@@ -133,7 +167,6 @@ export default function CartPage() {
                       })()}
                     </div>
 
-                    {/* Remove */}
                     <button
                       onClick={() => removeItem(item.id)}
                       className="w-10 h-10 flex items-center justify-center text-[#757575] hover:text-red-500 transition-colors"
@@ -142,6 +175,31 @@ export default function CartPage() {
                     </button>
                   </div>
                 ))}
+
+                {/* Upsell Section */}
+                <div className="mt-8 pt-4">
+                  <p className="text-[13px] font-semibold text-[#1A1A1A] uppercase tracking-wider mb-4">
+                    Complete Your Order
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {UPSELL_ITEMS.map((item, i) => (
+                      <a
+                        key={i}
+                        href={item.link}
+                        className="group flex flex-col bg-white border border-[#E8E4DE] rounded-[10px] p-3.5 hover:border-[#5C4B3D] hover:shadow-sm transition-all duration-200"
+                      >
+                        <p className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#5C4B3D] transition-colors leading-tight mb-1">
+                          {item.name}
+                        </p>
+                        <p className="text-[11px] text-[#757575] mb-2 leading-tight">{item.subtitle}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-[13px] font-semibold text-[#1A1A1A]">+₹{item.price}</span>
+                          <ArrowRight size={13} className="text-[#5C4B3D] opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Summary */}
@@ -156,30 +214,33 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-[#555]">
                       <span>Shipping</span>
-                      <span>{totalPrice >= 1000 || hasFreeShippingProduct ? "Free" : "Rs. 49.00"}</span>
+                      <span className={hasFreeShipping ? "text-green-600 font-medium" : ""}>
+                        {hasFreeShipping ? "Free" : "Rs. 49.00"}
+                      </span>
                     </div>
                   </div>
 
                   <div className="border-t border-[#E8E4DE] mt-4 pt-4 flex justify-between text-[16px] font-semibold text-[#1A1A1A]">
                     <span>Total</span>
-                    <span>
-                      Rs.{" "}
-                        {effectiveTotalPrice.toLocaleString(
-                        "en-IN"
-                      )}
-                      .00
-                    </span>
+                    <span>Rs. {effectiveTotalPrice.toLocaleString("en-IN")}.00</span>
                   </div>
+
+                  {!hasFreeShipping && (
+                    <p className="mt-3 text-[12px] text-[#757575] text-center bg-[#FDF9F5] rounded py-2">
+                      Add ₹{amountToFreeShipping.toLocaleString("en-IN")} more for <strong>free shipping</strong>
+                    </p>
+                  )}
 
                   {incompleteBundle && (
                     <div className="mt-4 text-[12px] text-[#991B1B] bg-[#FBEAE9] border border-[#F1C7C2] rounded px-3 py-2">
                       "{incompleteBundle.name}" needs {String(incompleteBundle.bundleType).match(/(\d+)/)?.[1] || "?"} colors picked. Open the product to complete the bundle.
                     </div>
                   )}
+
                   <button
                     onClick={handleCheckout}
                     disabled={isRedirecting || !!incompleteBundle}
-                    className="mt-6 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="mt-5 w-full bg-[#5C4B3D] text-white py-3.5 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isRedirecting ? (
                       <>
@@ -198,11 +259,20 @@ export default function CartPage() {
                     Continue Shopping
                   </a>
 
-                  {totalPrice < 1000 && (
-                      <p className="mt-4 text-[12px] text-[#757575] text-center">
-                        Add Rs. {(1000 - totalPrice).toLocaleString("en-IN")}.00 more for free shipping
-                      </p>
-                    )}
+                  {/* Checkout trust signals */}
+                  <div className="mt-5 pt-4 border-t border-[#F5F2ED] grid grid-cols-2 gap-2">
+                    {[
+                      "Secure Checkout",
+                      "Fast Shipping",
+                      "Quality Checked",
+                      "Easy Returns",
+                    ].map((t, i) => (
+                      <div key={i} className="flex items-center gap-1.5 text-[11px] text-[#757575]">
+                        <span className="text-[#5C4B3D]">✓</span>
+                        {t}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -211,7 +281,7 @@ export default function CartPage() {
               <ShoppingBag size={48} className="text-[#D4C8BE] mx-auto mb-4" />
               <h2 className="text-[20px] font-serif text-[#1A1A1A] mb-2">Your cart is empty</h2>
               <p className="text-[14px] text-[#757575] mb-6">
-                Explore our beautiful collection and find your perfect hijab.
+                Explore our beautiful collection and find your perfect style.
               </p>
               <a
                 href="/products"

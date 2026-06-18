@@ -713,15 +713,27 @@ function CheckoutContent() {
                   </p>
                 )}
 
-                <div className="mt-5 space-y-3">
-                  <div className="flex items-center gap-3 text-[12px] text-[#757575]">
-                    <ShieldCheck size={16} className="text-[#5C4B3D] flex-shrink-0" />
-                    <span>Secure & encrypted checkout</span>
+                {/* Estimated Delivery */}
+                <div className="mt-4 bg-[#F5F2ED] rounded-lg p-3.5 flex items-start gap-2.5">
+                  <Truck size={15} className="text-[#5C4B3D] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#1A1A1A]">Ships within 24–48 hours</p>
+                    <p className="text-[11px] text-[#757575] mt-0.5">Estimated Delivery: 3–7 Business Days</p>
                   </div>
-                  <div className="flex items-center gap-3 text-[12px] text-[#757575]">
-                    <Truck size={16} className="text-[#5C4B3D] flex-shrink-0" />
-                    <span>Fast delivery across India</span>
-                  </div>
+                </div>
+
+                <div className="mt-4 space-y-2.5">
+                  {[
+                    { icon: <ShieldCheck size={14} className="text-[#5C4B3D] flex-shrink-0" />, text: "Secure & encrypted checkout" },
+                    { icon: <Truck size={14} className="text-[#5C4B3D] flex-shrink-0" />, text: "Fast shipping across India" },
+                    { icon: <span className="text-[#5C4B3D] font-bold text-[13px]">✓</span>, text: "Quality checked before dispatch" },
+                    { icon: <span className="text-[#5C4B3D] font-bold text-[13px]">✓</span>, text: "Small business — made with love" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-[#757575]">
+                      {item.icon}
+                      <span>{item.text}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
