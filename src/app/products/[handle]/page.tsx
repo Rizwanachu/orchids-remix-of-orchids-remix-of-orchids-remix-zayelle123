@@ -782,6 +782,20 @@ export default function ProductDetailPage() {
                 href={`https://wa.me/918891485648?text=${encodeURIComponent(`Hi Zayelle! I need help choosing a color for: ${product.name} — ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  try {
+                    fetch("/api/whatsapp-leads", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        sourcePage: typeof window !== "undefined" ? window.location.pathname : "",
+                        productName: product.name,
+                        productHandle: product.handle,
+                        message: `Hi Zayelle! I need help choosing a color for: ${product.name}`,
+                      }),
+                    }).catch(() => {});
+                  } catch {}
+                }}
                 className="mt-3 w-full border border-[#25D366] text-[#1A1A1A] py-3 rounded-sm font-medium text-[13px] flex items-center justify-center gap-2.5 hover:bg-[#F0FAF4] transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366">

@@ -318,6 +318,34 @@ export const contactMessages = pgTable("contact_messages", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const productBundles = pgTable("product_bundles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  bundleType: text("bundle_type").notNull().default("custom"),
+  items: text("items").notNull().default("[]"),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  comparePrice: numeric("compare_price", { precision: 10, scale: 2 }),
+  badge: text("badge"),
+  imageUrl: text("image_url").notNull().default(""),
+  isActive: integer("is_active").notNull().default(1),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+export const whatsappLeads = pgTable("whatsapp_leads", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().default(""),
+  phone: text("phone").notNull().default(""),
+  sourcePage: text("source_page").notNull().default(""),
+  productName: text("product_name").notNull().default(""),
+  productHandle: text("product_handle").notNull().default(""),
+  message: text("message").notNull().default(""),
+  status: text("status").notNull().default("new"),
+  notes: text("notes").notNull().default(""),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).extend({
   password: z.string().min(6),
 });
@@ -347,3 +375,5 @@ export type Badge = typeof badges.$inferSelect;
 export type ProductTemplate = typeof productTemplates.$inferSelect;
 export type ProductColor = typeof productColors.$inferSelect;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+export type ProductBundle = typeof productBundles.$inferSelect;
+export type WhatsappLead = typeof whatsappLeads.$inferSelect;

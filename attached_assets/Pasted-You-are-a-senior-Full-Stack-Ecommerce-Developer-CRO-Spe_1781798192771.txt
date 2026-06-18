@@ -1,0 +1,464 @@
+You are a senior Full Stack Ecommerce Developer, CRO Specialist, UX Designer and Database Architect.
+
+The website already has a working custom admin panel with the following modules:
+
+Dashboard
+Orders
+Analytics
+Customers
+Products
+Collections
+Gift Hampers
+New Arrivals
+Banners
+Zayelle Edit
+Media Library
+Testimonials
+DM Testimonials
+Reviews
+Coupons
+Homepage Settings
+Homepage Layout
+Site Settings
+Theme & Styling
+Pages
+Activity Log
+
+Do NOT rebuild the admin panel.
+
+Extend and improve the existing admin system.
+
+Maintain all current functionality.
+
+HOMEPAGE LAYOUT MODULE IMPROVEMENTS
+
+Modify Homepage Layout module.
+
+Add drag-and-drop section management.
+
+Allow enabling/disabling sections.
+
+Create new homepage sections:
+
+Hero Banner
+Trust Bar
+WhatsApp Help Section
+Best Sellers
+Bundle Offers
+Customer Reviews
+WhatsApp Testimonials
+Collections
+New Arrivals
+Gift Hampers
+Limited Stock Collection
+Promotional Banner
+Instagram Feed
+FAQ
+Newsletter Signup
+
+Admin should be able to reorder sections.
+
+HOMEPAGE SETTINGS IMPROVEMENTS
+
+Add controls for:
+
+Hero Title
+
+Hero Subtitle
+
+Hero CTA Button
+
+Hero Secondary CTA
+
+Trust Badge Text
+
+WhatsApp Section Content
+
+Free Shipping Threshold
+
+Homepage Announcement Bar
+
+Homepage Popup
+
+Newsletter Settings
+
+Instagram Feed Settings
+
+PRODUCTS MODULE IMPROVEMENTS
+
+Extend Products section.
+
+Add fields:
+
+Inventory Quantity
+
+Low Stock Threshold
+
+Product Badge
+
+Options:
+
+Best Seller
+New Arrival
+Limited Stock
+Trending
+Customer Favorite
+
+Estimated Shipping Time
+
+Weight
+
+Delivery Days
+
+Cost Price
+
+Profit Margin
+
+INVENTORY MANAGEMENT
+
+Create inventory tracking.
+
+Display:
+
+Current Stock
+
+Reserved Stock
+
+Available Stock
+
+Low Stock Alerts
+
+Show red warning:
+
+Only X Left
+
+when inventory is below threshold.
+
+PRODUCT BUNDLES MODULE
+
+Create new admin menu:
+
+Bundles
+
+Allow creating bundles from existing products.
+
+Bundle Types:
+
+Starter Bundle
+
+Styling Bundle
+
+Complete Bundle
+
+Gift Bundle
+
+Custom Bundle
+
+Admin can:
+
+Select products
+
+Apply discount
+
+Set bundle image
+
+Enable/disable bundle
+
+Track bundle sales
+
+COLLECTIONS MODULE
+
+Add collection types:
+
+Hijabs
+
+Abayas
+
+Kurtis
+
+Churidars
+
+Women's Fashion
+
+Accessories
+
+Gift Hampers
+
+Best Sellers
+
+New Arrivals
+
+Limited Stock
+
+Admin can reorder collections.
+
+TESTIMONIALS MODULE IMPROVEMENTS
+
+Merge:
+
+Testimonials
+
+DM Testimonials
+
+Reviews
+
+into a unified review management system.
+
+Allow:
+
+Photo Reviews
+
+Instagram Screenshots
+
+WhatsApp Screenshots
+
+Video Testimonials
+
+Star Ratings
+
+Verified Customer Badge
+
+Homepage Display Toggle
+
+WHATSAPP CRM MODULE
+
+Create new menu:
+
+WhatsApp Leads
+
+Store:
+
+Name
+
+Phone
+
+Source Page
+
+Interested Product
+
+Status
+
+New
+
+Contacted
+
+Interested
+
+Ordered
+
+Closed
+
+Lost
+
+Add notes section.
+
+ABANDONED CART TRACKING
+
+Create admin page:
+
+Abandoned Carts
+
+Track:
+
+Customer
+
+Phone
+
+Email
+
+Products
+
+Cart Value
+
+Date
+
+Allow one-click WhatsApp follow-up.
+
+ANALYTICS IMPROVEMENTS
+
+Add:
+
+Revenue
+
+Orders
+
+Conversion Rate
+
+Average Order Value
+
+Best Selling Product
+
+Best Selling Collection
+
+Most Viewed Product
+
+Most Added To Cart
+
+Most Abandoned Product
+
+Top Traffic Sources
+
+BANNERS MODULE
+
+Support:
+
+Homepage Banner
+
+Collection Banner
+
+Product Banner
+
+Flash Sale Banner
+
+Limited Stock Banner
+
+Popup Banner
+
+Mobile Banner
+
+Desktop Banner
+
+Schedule start/end date.
+
+COUPON SYSTEM IMPROVEMENTS
+
+Add:
+
+First Order Discount
+
+Bundle Discount
+
+Collection Discount
+
+Minimum Purchase Discount
+
+Free Shipping Coupon
+
+Automatic Coupon
+
+MEDIA LIBRARY IMPROVEMENTS
+
+Add:
+
+Image Compression
+
+WebP Conversion
+
+Alt Text Field
+
+SEO Image Title
+
+Lazy Loading Toggle
+
+SEO MODULE
+
+Create new admin section:
+
+SEO Manager
+
+Manage:
+
+Meta Title
+
+Meta Description
+
+Keywords
+
+Canonical URL
+
+Open Graph Image
+
+Schema Settings
+
+Robots Settings
+
+Sitemap Settings
+
+THEME & STYLING
+
+Keep current luxury beige aesthetic.
+
+Allow admin control of:
+
+Primary Color
+
+Secondary Color
+
+Button Style
+
+Font Family
+
+Spacing
+
+Border Radius
+
+Section Width
+
+SITE SETTINGS
+
+Add:
+
+Shipping Rules
+
+Free Shipping Threshold
+
+Estimated Delivery Rules
+
+Return Policy Settings
+
+WhatsApp Number
+
+Instagram Link
+
+Facebook Link
+
+Email Capture Settings
+
+Google Analytics
+
+Google Search Console
+
+Meta Pixel
+
+DASHBOARD IMPROVEMENTS
+
+Add widgets:
+
+Low Stock Products
+
+Recent Reviews
+
+Recent WhatsApp Leads
+
+Recent Orders
+
+Revenue Today
+
+Revenue This Month
+
+Most Viewed Products
+
+Abandoned Cart Count
+
+Bundle Sales
+
+FINAL REQUIREMENT
+
+Do not change existing data.
+
+Perform safe database migration.
+
+Maintain backward compatibility.
+
+Keep all current orders, products, reviews and customers intact.
+
+Focus on increasing:
+
+Conversion Rate
+Average Order Value
+WhatsApp Leads
+Customer Trust
+Inventory Visibility
+Future Fashion Expansion
+
+while preserving the premium Zayelle brand identity.

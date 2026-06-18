@@ -27,6 +27,8 @@ import {
   Palette,
   Quote,
   Gift,
+  PackageOpen,
+  MessageCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -37,7 +39,9 @@ const navItems = [
   { href: "/letsgetsuccessin2026/products", label: "Products", icon: Package },
   { href: "/letsgetsuccessin2026/collections", label: "Collections", icon: FolderOpen },
   { href: "/letsgetsuccessin2026/gift-hampers", label: "Gift Hampers", icon: Gift },
+  { href: "/letsgetsuccessin2026/bundles", label: "Bundles", icon: PackageOpen },
   { href: "/letsgetsuccessin2026/new-arrivals", label: "New Arrivals", icon: Star },
+  { href: "/letsgetsuccessin2026/whatsapp-leads", label: "WhatsApp Leads", icon: MessageCircle },
   { href: "/letsgetsuccessin2026/banners", label: "Banners", icon: Megaphone },
   { href: "/letsgetsuccessin2026/zayelle-edit", label: "Zayelle Edit", icon: Image },
   { href: "/letsgetsuccessin2026/media", label: "Media Library", icon: Image },
