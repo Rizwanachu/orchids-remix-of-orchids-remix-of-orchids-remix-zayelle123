@@ -53,6 +53,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.costPrice !== undefined) updateData.costPrice = body.costPrice != null && body.costPrice !== "" ? String(body.costPrice) : null;
     if (body.weight !== undefined) updateData.weight = body.weight || "";
     if (body.estimatedShipping !== undefined) updateData.estimatedShipping = body.estimatedShipping || "";
+    if (body.deliveryDays !== undefined) updateData.deliveryDays = body.deliveryDays || "";
+    if (body.metaTitle !== undefined) updateData.metaTitle = body.metaTitle || "";
+    if (body.metaDescription !== undefined) updateData.metaDescription = body.metaDescription || "";
 
     const [updated] = await db.update(products).set(updateData).where(eq(products.id, parseInt(id))).returning();
 

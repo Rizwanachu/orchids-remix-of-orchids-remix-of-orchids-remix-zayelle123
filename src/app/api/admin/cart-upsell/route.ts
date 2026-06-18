@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../server/db";
 import { sql } from "drizzle-orm";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(req: NextRequest) {
-  const auth = await verifyAdminToken(req);
+  const auth = await verifyAdmin();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await verifyAdminToken(req);
+  const auth = await verifyAdmin();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {

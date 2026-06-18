@@ -23,6 +23,8 @@ interface CouponFormData {
   minOrderValue: string;
   maxUsage: string;
   expiryDate: string;
+  couponType: string;
+  autoApply: boolean;
 }
 
 const emptyForm: CouponFormData = {
@@ -32,6 +34,8 @@ const emptyForm: CouponFormData = {
   minOrderValue: "",
   maxUsage: "",
   expiryDate: "",
+  couponType: "standard",
+  autoApply: false,
 };
 
 export default function AdminCouponsPage() {
@@ -84,6 +88,8 @@ export default function AdminCouponsPage() {
       minOrderValue: coupon.minOrderValue || "",
       maxUsage: coupon.maxUsage?.toString() || "",
       expiryDate: coupon.expiryDate ? coupon.expiryDate.split("T")[0] : "",
+      couponType: (coupon as any).couponType || "standard",
+      autoApply: !!(coupon as any).autoApply,
     });
   };
 
@@ -105,6 +111,8 @@ export default function AdminCouponsPage() {
         minOrderValue: form.minOrderValue ? parseFloat(form.minOrderValue) : null,
         maxUsage: form.maxUsage ? parseInt(form.maxUsage) : null,
         expiryDate: form.expiryDate || null,
+        couponType: form.couponType,
+        autoApply: form.autoApply,
       };
 
       let res;
@@ -261,6 +269,34 @@ export default function AdminCouponsPage() {
                   className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
                 />
               </div>
+              <div>
+                <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                  Coupon Type
+                </label>
+                <select
+                  value={form.couponType}
+                  onChange={(e) => setForm((f) => ({ ...f, couponType: e.target.value }))}
+                  className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                >
+                  <option value="standard">Standard</option>
+                  <option value="referral">Referral</option>
+                  <option value="influencer">Influencer</option>
+                  <option value="loyalty">Loyalty</option>
+                  <option value="first_order">First Order</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div
+                  onClick={() => setForm((f) => ({ ...f, autoApply: !f.autoApply }))}
+                  className={`w-10 h-6 rounded-full relative transition-colors cursor-pointer ${form.autoApply ? "bg-[#5C4B3D]" : "bg-[#E8E4DE]"}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.autoApply ? "translate-x-5" : "translate-x-1"}`} />
+                </div>
+                <span className="text-[13px] text-[#1A1A1A]">Auto-apply at checkout</span>
+              </label>
+              <p className="text-[11px] text-[#757575]">Automatically apply coupon without customer entering code</p>
             </div>
             <div className="flex items-center gap-3 mt-6">
               <button

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { code, discountType, discountValue, minOrderValue, maxUsage, expiryDate, active } = body;
+    const { code, discountType, discountValue, minOrderValue, maxUsage, expiryDate, active, couponType, autoApply, applicableCollection } = body;
 
     if (!code || !discountType || !discountValue) {
       return NextResponse.json({ error: "Code, discount type, and discount value are required" }, { status: 400 });
@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
         maxUsage: maxUsage || null,
         expiryDate: expiryDate || null,
         active: active !== undefined ? (active ? 1 : 0) : 1,
+        couponType: couponType || "standard",
+        autoApply: autoApply ? 1 : 0,
+        applicableCollection: applicableCollection || "",
       })
       .returning();
 

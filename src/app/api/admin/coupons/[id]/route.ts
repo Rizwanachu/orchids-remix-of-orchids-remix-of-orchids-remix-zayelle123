@@ -22,6 +22,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.maxUsage !== undefined) updateData.maxUsage = body.maxUsage;
     if (body.expiryDate !== undefined) updateData.expiryDate = body.expiryDate || null;
     if (body.active !== undefined) updateData.active = body.active ? 1 : 0;
+    if (body.couponType !== undefined) updateData.couponType = body.couponType || "standard";
+    if (body.autoApply !== undefined) updateData.autoApply = body.autoApply ? 1 : 0;
+    if (body.applicableCollection !== undefined) updateData.applicableCollection = body.applicableCollection || "";
 
     const [updated] = await db
       .update(coupons)

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, Package, UserPlus, UserMinus } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, EyeOff, Package, UserPlus, UserMinus } from "lucide-react";
 import { uploadFile } from "@/lib/direct-upload";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
@@ -14,6 +14,7 @@ interface Collection {
   description: string;
   imageUrl: string;
   isFeatured: boolean;
+  isActive: boolean | number;
   displayOrder: number;
   createdAt: string;
 }
@@ -208,6 +209,20 @@ export default function AdminCollectionsPage() {
       console.error("Error saving collection:", err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleToggleActive = async (collection: Collection) => {
+    const newActive = collection.isActive ? 0 : 1;
+    try {
+      await fetch(`/api/admin/collections/${collection.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: newActive }),
+      });
+      await fetchCollections();
+    } catch (err) {
+      console.error("Error toggling collection visibility:", err);
     }
   };
 
@@ -488,6 +503,17 @@ export default function AdminCollectionsPage() {
                                 title="Add product to collection"
                               >
                                 <UserPlus size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleToggleActive(collection)}
+                                className={`p-2 rounded-lg transition-colors ${
+                                  collection.isActive
+                                    ? "text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED]"
+                                    : "text-amber-500 hover:text-amber-700 hover:bg-amber-50"
+                                }`}
+                                title={collection.isActive ? "Hide collection" : "Show collection"}
+                              >
+                                {collection.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
                               </button>
                               <button
                                 onClick={() => handleStartEdit(collection)}

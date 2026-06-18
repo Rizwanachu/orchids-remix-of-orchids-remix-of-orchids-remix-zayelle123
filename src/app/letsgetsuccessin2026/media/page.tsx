@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, Upload, ImageIcon, Copy, Check, Search } from "lucide-react";
+import { Trash2, Upload, ImageIcon, Copy, Check, Search, Pencil, Save, X } from "lucide-react";
 import { uploadFile } from "@/lib/direct-upload";
 
 interface MediaFile {
@@ -9,7 +9,8 @@ interface MediaFile {
   url: string;
   size: number;
   createdAt: string;
-  modifiedAt: string;
+  altText: string;
+  seoTitle: string;
 }
 
 export default function MediaPage() {
@@ -19,6 +20,8 @@ export default function MediaPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [editingAlt, setEditingAlt] = useState<string | null>(null);
+  const [altDraft, setAltDraft] = useState("");
 
   const fetchFiles = async () => {
     try {
@@ -73,9 +76,29 @@ export default function MediaPage() {
   };
 
   const handleCopyUrl = (url: string) => {
-    navigator.clipboard.writeText(window.location.origin + url);
+    navigator.clipboard.writeText(url);
     setCopiedUrl(url);
     setTimeout(() => setCopiedUrl(null), 2000);
+  };
+
+  const handleStartEditAlt = (file: MediaFile) => {
+    setEditingAlt(file.filename);
+    setAltDraft(file.altText);
+  };
+
+  const handleSaveAlt = async (filename: string) => {
+    try {
+      await fetch("/api/admin/media", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename, altText: altDraft }),
+      });
+      setFiles((prev) => prev.map((f) => f.filename === filename ? { ...f, altText: altDraft } : f));
+    } catch (err) {
+      console.error("Failed to save alt text:", err);
+    } finally {
+      setEditingAlt(null);
+    }
   };
 
   const formatSize = (bytes: number) => {
@@ -190,6 +213,34 @@ export default function MediaPage() {
                 <p className="text-[10px] text-[#757575] mt-0.5">
                   {formatSize(file.size)}
                 </p>
+                {editingAlt === file.filename ? (
+                  <div className="mt-1.5 flex gap-1">
+                    <input
+                      type="text"
+                      value={altDraft}
+                      onChange={(e) => setAltDraft(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveAlt(file.filename); if (e.key === "Escape") setEditingAlt(null); }}
+                      autoFocus
+                      className="flex-1 min-w-0 text-[10px] px-1.5 py-1 border border-[#5C4B3D] rounded bg-white focus:outline-none"
+                      placeholder="Alt text..."
+                    />
+                    <button onClick={() => handleSaveAlt(file.filename)} className="p-1 text-[#5C4B3D] hover:bg-[#F5F2ED] rounded" title="Save">
+                      <Save size={10} />
+                    </button>
+                    <button onClick={() => setEditingAlt(null)} className="p-1 text-[#757575] hover:bg-[#F5F2ED] rounded" title="Cancel">
+                      <X size={10} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleStartEditAlt(file)}
+                    className="mt-1 flex items-center gap-1 text-[10px] text-[#9E8E7E] hover:text-[#5C4B3D] transition-colors"
+                    title="Edit alt text"
+                  >
+                    <Pencil size={9} />
+                    {file.altText ? <span className="truncate max-w-[80px]">{file.altText}</span> : <span className="italic">Add alt text</span>}
+                  </button>
+                )}
               </div>
             </div>
           ))}

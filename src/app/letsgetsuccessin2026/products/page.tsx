@@ -30,6 +30,8 @@ import {
     FileText,
     BookmarkPlus,
     GripVertical,
+    Eye,
+    EyeOff,
   } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 import ImageCropModal from "@/components/admin/image-crop-modal";
@@ -76,6 +78,9 @@ interface ProductFormData {
   costPrice: string;
   weight: string;
   estimatedShipping: string;
+  deliveryDays: string;
+  metaTitle: string;
+  metaDescription: string;
 }
 
 const emptyForm: ProductFormData = {
@@ -114,6 +119,9 @@ const emptyForm: ProductFormData = {
   costPrice: "",
   weight: "",
   estimatedShipping: "",
+  deliveryDays: "",
+  metaTitle: "",
+  metaDescription: "",
 };
 
 function toFormData(product: Product): ProductFormData {
@@ -163,6 +171,9 @@ function toFormData(product: Product): ProductFormData {
     costPrice: (product as any).costPrice?.toString() || "",
     weight: (product as any).weight || "",
     estimatedShipping: (product as any).estimatedShipping || "",
+    deliveryDays: (product as any).deliveryDays || "",
+    metaTitle: (product as any).metaTitle || "",
+    metaDescription: (product as any).metaDescription || "",
   };
 }
 
@@ -605,6 +616,9 @@ export default function AdminProductsPage() {
       costPrice: form.costPrice ? Number(form.costPrice) : null,
       weight: form.weight,
       estimatedShipping: form.estimatedShipping,
+      deliveryDays: form.deliveryDays,
+      metaTitle: form.metaTitle,
+      metaDescription: form.metaDescription,
     };
 
     try {
@@ -751,6 +765,20 @@ export default function AdminProductsPage() {
     }
     setBulkCategoryOpen(false);
     setBulkLoading(false);
+  };
+
+  const handleToggleSingleActive = async (product: Product) => {
+    const newActive = product.active ? 0 : 1;
+    try {
+      await fetch(`/api/admin/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: newActive }),
+      });
+      await refreshProducts();
+    } catch (err) {
+      console.error("Error toggling product visibility:", err);
+    }
   };
 
   const handleBulkToggleActive = async () => {
@@ -1768,6 +1796,53 @@ export default function AdminProductsPage() {
                     placeholder="e.g. 3–5 business days"
                   />
                 </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Delivery Days
+                  </label>
+                  <input
+                    type="text"
+                    value={form.deliveryDays}
+                    onChange={(e) => updateField("deliveryDays", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="e.g. 5–7"
+                  />
+                  <p className="mt-1 text-[11px] text-[#757575]">Shown to customers as estimated delivery</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E4DE] rounded-[12px] p-6">
+              <h2 className="text-[16px] font-semibold text-[#1A1A1A] mb-4">SEO</h2>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Meta Title
+                  </label>
+                  <input
+                    type="text"
+                    value={form.metaTitle}
+                    onChange={(e) => updateField("metaTitle", e.target.value)}
+                    className="w-full h-[42px] px-3 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white"
+                    placeholder="Leave blank to use product name"
+                    maxLength={70}
+                  />
+                  <p className="mt-1 text-[11px] text-[#757575]">{form.metaTitle.length}/70 characters</p>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-[#757575] uppercase tracking-wider mb-1.5">
+                    Meta Description
+                  </label>
+                  <textarea
+                    value={form.metaDescription}
+                    onChange={(e) => updateField("metaDescription", e.target.value)}
+                    className="w-full px-3 py-2.5 border border-[#E8E4DE] rounded-sm text-[14px] focus:outline-none focus:border-[#5C4B3D] bg-white resize-none"
+                    rows={3}
+                    placeholder="Brief description for search engines"
+                    maxLength={160}
+                  />
+                  <p className="mt-1 text-[11px] text-[#757575]">{form.metaDescription.length}/160 characters</p>
+                </div>
               </div>
             </div>
 
@@ -2308,6 +2383,17 @@ export default function AdminProductsPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-1 justify-end">
+                  <button
+                    onClick={() => handleToggleSingleActive(product)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                      product.active
+                        ? "text-[#757575] hover:bg-[#F5F2ED] hover:text-[#5C4B3D]"
+                        : "text-amber-500 hover:bg-amber-50 hover:text-amber-700"
+                    }`}
+                    title={product.active ? "Hide product" : "Show product"}
+                  >
+                    {product.active ? <Eye size={14} /> : <EyeOff size={14} />}
+                  </button>
                   <button
                     onClick={() => handleStartEdit(product)}
                     className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F5F2ED] text-[#757575] hover:text-[#5C4B3D] transition-colors"

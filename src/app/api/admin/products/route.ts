@@ -113,6 +113,9 @@ export async function POST(request: NextRequest) {
       costPrice: body.costPrice != null && body.costPrice !== "" ? String(body.costPrice) : null,
       weight: body.weight || "",
       estimatedShipping: body.estimatedShipping || "",
+      deliveryDays: body.deliveryDays || "",
+      metaTitle: body.metaTitle || "",
+      metaDescription: body.metaDescription || "",
     }).returning();
 
     await logAdminActivity(admin.id, admin.email, "product_added", `Added product: ${body.name}`);

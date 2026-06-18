@@ -68,6 +68,9 @@ export const coupons = pgTable("coupons", {
   currentUsage: integer("current_usage").notNull().default(0),
   expiryDate: text("expiry_date"),
   active: integer("active").notNull().default(1),
+  couponType: text("coupon_type").notNull().default("standard"),
+  autoApply: integer("auto_apply").notNull().default(0),
+  applicableCollection: text("applicable_collection").notNull().default(""),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -109,6 +112,9 @@ export const products = pgTable("products", {
   costPrice: numeric("cost_price", { precision: 10, scale: 2 }),
   weight: text("weight").notNull().default(""),
   estimatedShipping: text("estimated_shipping").notNull().default(""),
+  deliveryDays: text("delivery_days").notNull().default(""),
+  metaTitle: text("meta_title").notNull().default(""),
+  metaDescription: text("meta_description").notNull().default(""),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -129,6 +135,7 @@ export const collections = pgTable("collections", {
   description: text("description").notNull().default(""),
   imageUrl: text("image_url").notNull().default(""),
   isFeatured: integer("is_featured").notNull().default(0),
+  isActive: integer("is_active").notNull().default(1),
   displayOrder: integer("display_order").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
