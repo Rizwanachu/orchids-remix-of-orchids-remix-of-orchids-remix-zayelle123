@@ -10,6 +10,7 @@ interface BundleItem {
   productId: number;
   productName: string;
   productImage: string;
+  productHandle: string;
   quantity: number;
   label: string;
 }
@@ -200,6 +201,7 @@ export default function BundlesAdminPage() {
         productId: product.id,
         productName: product.name,
         productImage: product.image,
+        productHandle: product.handle,
         quantity: 1,
         label: product.name,
       }],

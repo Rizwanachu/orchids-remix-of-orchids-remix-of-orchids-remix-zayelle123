@@ -8,6 +8,7 @@ interface BundleItem {
   productId: number;
   productName: string;
   productImage: string;
+  productHandle?: string;
   quantity: number;
   label: string;
 }
@@ -58,6 +59,11 @@ const BundleCard = ({ bundle, fallbackProducts }: {
   const secondaryImage = !bundle.imageUrl && imgB?.productImage && imgB.productId !== imgA?.productId
     ? imgB.productImage
     : "";
+
+  // Link to the first product's page if handle available, otherwise products listing
+  const bundleLink = parsedItems[0]?.productHandle
+    ? `/products/${parsedItems[0].productHandle}`
+    : "/products";
 
   return (
     <div className="group flex flex-col items-center text-center">
@@ -118,7 +124,7 @@ const BundleCard = ({ bundle, fallbackProducts }: {
         {!(savings && savings > 0) && (
           <div className="absolute top-3 right-3 z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
             <a
-              href="/products"
+              href={bundleLink}
               className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft hover:bg-[#5C4B3D] hover:text-white transition-colors"
             >
               <Search size={16} />
@@ -129,7 +135,7 @@ const BundleCard = ({ bundle, fallbackProducts }: {
         {/* Slide-up Shop Now button */}
         <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
           <a
-            href="/products"
+            href={bundleLink}
             className="pointer-events-auto w-full flex items-center justify-center bg-[#1A1A1A] text-white text-[12px] font-medium uppercase tracking-wider py-3 rounded-sm
               sm:translate-y-4 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100
               transition-all duration-300"
@@ -142,7 +148,7 @@ const BundleCard = ({ bundle, fallbackProducts }: {
       {/* Text below */}
       <div className="mt-4 flex flex-col gap-1 w-full px-2">
         <h3 className="text-[14px] font-normal text-[#1A1A1A] capitalize tracking-tight line-clamp-1">
-          <a href="/products" className="hover:text-[#5C4B3D] transition-colors">
+          <a href={bundleLink} className="hover:text-[#5C4B3D] transition-colors">
             {bundle.name}
           </a>
         </h3>
