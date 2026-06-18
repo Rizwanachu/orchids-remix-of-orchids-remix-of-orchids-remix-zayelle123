@@ -22,7 +22,7 @@ const LimitedEditionBanner = () => {
   const btn2Text = settings.limitedEditionButton2Text || "Get Restock Alerts";
 
   return (
-    <section className="bg-[#2D1F17] py-10 md:py-12">
+    <section className="py-10 md:py-12 bg-[color:var(--color-secondary-foreground)]">
       <div className="container px-5 sm:px-8 text-center">
         <p className="text-[11px] uppercase tracking-[4px] text-[#C4A882] mb-3 font-medium">{eyebrow}</p>
         <h2 className="text-[24px] md:text-[30px] font-serif italic text-white mb-4">
