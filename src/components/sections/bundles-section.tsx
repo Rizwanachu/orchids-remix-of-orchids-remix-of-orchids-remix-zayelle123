@@ -269,7 +269,7 @@ const BundlesSection = () => {
 
   return (
     <section className="py-16 md:py-20 bg-[#FDFCF8]">
-      <div className="container px-5 sm:px-8">
+      <div className="container px-4 md:px-8">
         <header className="flex flex-col items-center mb-10 text-center">
           <p className="text-[11px] uppercase tracking-[3px] text-[#8B735B] mb-3 font-medium">
             {settings.bundlesEyebrow || "Save More Together"}
@@ -283,7 +283,7 @@ const BundlesSection = () => {
           <div className="w-[50px] h-[1px] bg-[#5C4B3D] opacity-25 mt-3" />
         </header>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-5">
           {useDb
             ? dbBundles!.map((bundle) => (
                 <BundleCard key={bundle.id} bundle={bundle} fallbackProducts={fallbackProducts} />
