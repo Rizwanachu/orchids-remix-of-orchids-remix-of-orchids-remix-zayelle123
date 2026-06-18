@@ -17,7 +17,7 @@ import { db } from "../../server/db";
 import { homepageSections, communityTestimonials } from "../../shared/schema";
 import { asc, eq, avg, count } from "drizzle-orm";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Women's Fashion, Hijabs & Accessories India | Zayelle",
@@ -182,29 +182,11 @@ export default async function Home() {
     ]);
 
     if (sectionsRows.length > 0) {
-      const visibleSet = new Set(
-        sectionsRows.filter((s) => s.isVisible === 1).map((s) => s.sectionName)
-      );
-      // Always enforce the canonical CRO order; keep only sections the DB marks visible
-      // plus always-on sections (hero, whatsapp-strip, bundles, limited-edition).
-      const CANONICAL_ORDER = [
-        "hero",
-        "whatsapp-strip",
-        "new-arrivals",
-        "testimonials",
-        "bundles",
-        "collections",
-        "promo-banners",
-        "gift-hampers",
-        "limited-edition",
-        "zayelle-edit",
-        "instagram-feed",
-        "trust-bar",
-      ];
-      const alwaysOn = new Set(["hero", "whatsapp-strip", "bundles", "limited-edition"]);
-      sectionNames = CANONICAL_ORDER.filter(
-        (name) => alwaysOn.has(name) || visibleSet.has(name)
-      );
+      // Use the saved order and visibility from the DB directly
+      sectionNames = sectionsRows
+        .filter((s) => s.isVisible === 1)
+        .map((s) => s.sectionName)
+        .filter((name) => name in SECTION_MAP);
     }
 
     const ratingRow = ratingRows[0];
