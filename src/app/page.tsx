@@ -182,26 +182,29 @@ export default async function Home() {
     ]);
 
     if (sectionsRows.length > 0) {
-      const dbSections = sectionsRows
-        .filter((s) => s.isVisible === 1)
-        .map((s) => s.sectionName);
-      // Inject new sections into DB order if not present
-      if (!dbSections.includes("whatsapp-strip")) {
-        const heroIdx = dbSections.indexOf("hero");
-        if (heroIdx !== -1) dbSections.splice(heroIdx + 1, 0, "whatsapp-strip");
-        else dbSections.unshift("whatsapp-strip");
-      }
-      if (!dbSections.includes("bundles")) {
-        const testimonialsIdx = dbSections.indexOf("testimonials");
-        if (testimonialsIdx !== -1) dbSections.splice(testimonialsIdx + 1, 0, "bundles");
-        else dbSections.push("bundles");
-      }
-      if (!dbSections.includes("limited-edition")) {
-        const giftIdx = dbSections.indexOf("gift-hampers");
-        if (giftIdx !== -1) dbSections.splice(giftIdx + 1, 0, "limited-edition");
-        else dbSections.push("limited-edition");
-      }
-      sectionNames = dbSections;
+      const visibleSet = new Set(
+        sectionsRows.filter((s) => s.isVisible === 1).map((s) => s.sectionName)
+      );
+      // Always enforce the canonical CRO order; keep only sections the DB marks visible
+      // plus always-on sections (hero, whatsapp-strip, bundles, limited-edition).
+      const CANONICAL_ORDER = [
+        "hero",
+        "whatsapp-strip",
+        "new-arrivals",
+        "testimonials",
+        "bundles",
+        "collections",
+        "promo-banners",
+        "gift-hampers",
+        "limited-edition",
+        "zayelle-edit",
+        "instagram-feed",
+        "trust-bar",
+      ];
+      const alwaysOn = new Set(["hero", "whatsapp-strip", "bundles", "limited-edition"]);
+      sectionNames = CANONICAL_ORDER.filter(
+        (name) => alwaysOn.has(name) || visibleSet.has(name)
+      );
     }
 
     const ratingRow = ratingRows[0];
