@@ -155,7 +155,7 @@ const Testimonials = () => {
   }, []);
 
   return (
-    <section className="py-[80px] bg-[#FAF9F6] overflow-hidden">
+    <section className="py-16 md:py-20 bg-[#FAF9F6] overflow-hidden">
       <div className="container">
         <header className="flex flex-col items-center mb-10 text-center">
           <h2 className="text-[32px] font-serif italic text-foreground mb-2">

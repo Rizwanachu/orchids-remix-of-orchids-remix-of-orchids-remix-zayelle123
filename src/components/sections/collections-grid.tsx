@@ -84,7 +84,7 @@ const CollectionsGrid: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="py-16 md:py-24 bg-[#FAF9F6]">
+      <section className="py-16 md:py-20 bg-[#FAF9F6]">
         <div className="container px-4 md:px-8">
           <div className="relative mb-12 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -115,7 +115,7 @@ const CollectionsGrid: React.FC = () => {
 
   if (collections.length === 0) {
     return (
-      <section className="py-16 md:py-24 bg-[#FDFCF8]">
+      <section className="py-16 md:py-20 bg-[#FDFCF8]">
         <div className="container px-4 md:px-8">
           <div className="relative mb-12 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -139,7 +139,7 @@ const CollectionsGrid: React.FC = () => {
   }
 
   return (
-    <section className="py-16 md:py-24 bg-[#FDFCF8]">
+    <section className="py-16 md:py-20 bg-[#FDFCF8]">
       <div className="container px-4 md:px-8">
         <div className="relative mb-12 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">

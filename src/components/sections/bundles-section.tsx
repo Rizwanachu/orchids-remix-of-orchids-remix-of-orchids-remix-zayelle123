@@ -268,7 +268,7 @@ const BundlesSection = () => {
   const useDb = dbBundles && dbBundles.length > 0;
 
   return (
-    <section className="py-[64px] md:py-[80px] bg-[#FDFCF8]">
+    <section className="py-16 md:py-20 bg-[#FDFCF8]">
       <div className="container px-5 sm:px-8">
         <header className="flex flex-col items-center mb-10 text-center">
           <p className="text-[11px] uppercase tracking-[3px] text-[#8B735B] mb-3 font-medium">

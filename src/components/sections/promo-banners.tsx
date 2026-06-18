@@ -88,7 +88,7 @@ const PromoBanners: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="py-10 md:py-20 bg-[#FAF9F6]">
+      <section className="py-16 md:py-20 bg-[#FAF9F6]">
         <div className="container mx-auto px-5 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {[1, 2].map(i => (
@@ -122,7 +122,7 @@ const PromoBanners: React.FC = () => {
     : fallbackBanners;
 
   return (
-    <section className="py-10 md:py-20 bg-[#FAF9F6]">
+    <section className="py-16 md:py-20 bg-[#FAF9F6]">
       <div className="container mx-auto px-5 lg:px-8">
         {(settings.promoBannersTitle || settings.promoBannersSubtitle) && (
           <div className="text-center mb-10 md:mb-16">

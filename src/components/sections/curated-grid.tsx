@@ -48,7 +48,7 @@ const CuratedGrid = () => {
 
   if (loading) {
     return (
-      <section className="py-20 md:py-[100px] bg-[#FAF9F6]">
+      <section className="py-16 md:py-20 bg-[#FAF9F6]">
         <div className="container mx-auto px-5 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-8">
             {[1, 2, 3, 4].map((i) => (
@@ -63,7 +63,7 @@ const CuratedGrid = () => {
   if (gridItems.length === 0) {
     if (!sectionTitle) return null;
     return (
-      <section className="py-20 md:py-[100px] bg-[#FDFCF8]">
+      <section className="py-16 md:py-20 bg-[#FDFCF8]">
         <div className="container mx-auto px-5 lg:px-8">
           <div className="relative mb-12 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -84,7 +84,7 @@ const CuratedGrid = () => {
   }
 
   return (
-    <section className="py-20 md:py-[100px] bg-[#FDFCF8]">
+    <section className="py-16 md:py-20 bg-[#FDFCF8]">
       <div className="container mx-auto px-5 lg:px-8">
         {sectionTitle && (
           <>
