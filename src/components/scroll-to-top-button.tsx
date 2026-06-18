@@ -59,7 +59,7 @@ export default function ScrollToTopButton() {
           style={{ transition: "stroke-dashoffset 0.1s linear" }}
         />
         <path
-          d="M22 24l6-6 6 6"
+          d="M16 25l6-6 6 6"
           fill="none"
           stroke="#5C4B3D"
           strokeWidth="2"
@@ -67,9 +67,9 @@ export default function ScrollToTopButton() {
           strokeLinejoin="round"
         />
         <line
-          x1="28"
-          y1="18"
-          x2="28"
+          x1="22"
+          y1="19"
+          x2="22"
           y2="28"
           stroke="#5C4B3D"
           strokeWidth="2"
