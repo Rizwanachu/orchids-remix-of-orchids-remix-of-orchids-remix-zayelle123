@@ -164,7 +164,7 @@ const CollectionsGrid: React.FC = () => {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-5">
-          {collections.map((collection) => (
+          {collections.slice(0, 8).map((collection) => (
             <CollectionItem
               key={collection.id}
               title={collection.title}
@@ -174,6 +174,17 @@ const CollectionsGrid: React.FC = () => {
             />
           ))}
         </div>
+
+        {collections.length > 0 && (
+          <div className="flex justify-center mt-10">
+            <Link
+              href="/collections"
+              className="inline-flex items-center gap-2 border border-[#5C4B3D] text-[#5C4B3D] text-[13px] font-medium uppercase tracking-widest px-8 py-3 rounded-sm hover:bg-[#5C4B3D] hover:text-white transition-colors duration-300"
+            >
+              View All Collections
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
