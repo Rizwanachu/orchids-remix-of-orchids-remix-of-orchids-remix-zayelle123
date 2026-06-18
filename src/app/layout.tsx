@@ -8,6 +8,7 @@ import { ProductsProvider } from "@/lib/products-context";
 import { OrdersProvider } from "@/lib/orders-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import ScrollToTop from "@/components/scroll-to-top";
+import ScrollToTopButton from "@/components/scroll-to-top-button";
 import { db } from "@/../server/db";
 import { siteSettings } from "@/../shared/schema";
 import { eq } from "drizzle-orm";
@@ -122,6 +123,7 @@ export default function RootLayout({
               <CartProvider>
                 <ThemeProvider>
                   <ScrollToTop />
+                  <ScrollToTopButton />
                   {children}
                 </ThemeProvider>
               </CartProvider>
