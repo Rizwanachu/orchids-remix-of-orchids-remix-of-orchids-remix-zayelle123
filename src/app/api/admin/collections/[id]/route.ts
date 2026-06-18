@@ -22,6 +22,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured ? 1 : 0;
     if (body.isActive !== undefined) updateData.isActive = body.isActive ? 1 : 0;
+    if (body.showOnHomepage !== undefined) updateData.showOnHomepage = body.showOnHomepage ? 1 : 0;
     if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
 
     const [updated] = await db

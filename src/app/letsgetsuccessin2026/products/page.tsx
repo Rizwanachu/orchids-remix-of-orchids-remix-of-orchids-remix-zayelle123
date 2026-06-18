@@ -30,8 +30,6 @@ import {
     FileText,
     BookmarkPlus,
     GripVertical,
-    Eye,
-    EyeOff,
   } from "lucide-react";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 import ImageCropModal from "@/components/admin/image-crop-modal";
@@ -2385,14 +2383,12 @@ export default function AdminProductsPage() {
                 <div className="flex items-center gap-1 justify-end">
                   <button
                     onClick={() => handleToggleSingleActive(product)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-                      product.active
-                        ? "text-[#757575] hover:bg-[#F5F2ED] hover:text-[#5C4B3D]"
-                        : "text-amber-500 hover:bg-amber-50 hover:text-amber-700"
-                    }`}
+                    className="flex-shrink-0 px-1"
                     title={product.active ? "Hide product" : "Show product"}
                   >
-                    {product.active ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <div className={`w-8 h-4 rounded-full relative transition-colors ${product.active ? "bg-[#5C4B3D]" : "bg-[#D4C8BE]"}`}>
+                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${product.active ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </div>
                   </button>
                   <button
                     onClick={() => handleStartEdit(product)}

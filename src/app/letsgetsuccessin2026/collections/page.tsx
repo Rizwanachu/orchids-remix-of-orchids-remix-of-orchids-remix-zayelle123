@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, EyeOff, Package, UserPlus, UserMinus } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderOpen, Save, Upload, Star, ImageIcon, Eye, Package, UserPlus, UserMinus } from "lucide-react";
 import { uploadFile } from "@/lib/direct-upload";
 import MediaPickerModal from "@/components/admin/media-picker-modal";
 
@@ -15,6 +15,7 @@ interface Collection {
   imageUrl: string;
   isFeatured: boolean;
   isActive: boolean | number;
+  showOnHomepage: boolean | number;
   displayOrder: number;
   createdAt: string;
 }
@@ -212,17 +213,18 @@ export default function AdminCollectionsPage() {
     }
   };
 
-  const handleToggleActive = async (collection: Collection) => {
-    const newActive = collection.isActive ? 0 : 1;
+  const handleToggleField = async (collection: Collection, field: "isActive" | "showOnHomepage") => {
+    const current = field === "isActive" ? collection.isActive : collection.showOnHomepage;
+    const newVal = current ? 0 : 1;
     try {
       await fetch(`/api/admin/collections/${collection.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: newActive }),
+        body: JSON.stringify({ [field]: newVal }),
       });
       await fetchCollections();
     } catch (err) {
-      console.error("Error toggling collection visibility:", err);
+      console.error("Error toggling collection field:", err);
     }
   };
 
@@ -449,7 +451,7 @@ export default function AdminCollectionsPage() {
                     <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Title</th>
                     <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Slug</th>
                     <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Products</th>
-                    <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Featured</th>
+                    <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Visibility</th>
                     <th className="text-center px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Order</th>
                     <th className="text-right px-4 py-3 text-[11px] font-semibold text-[#757575] uppercase tracking-wider">Actions</th>
                   </tr>
@@ -489,7 +491,28 @@ export default function AdminCollectionsPage() {
                             </button>
                           </td>
                           <td className="px-4 py-3 text-center">
-                            {collection.isFeatured && <Star size={14} className="inline text-amber-500 fill-amber-500" />}
+                            <div className="flex flex-col items-start gap-1.5 min-w-[110px]">
+                              <button
+                                onClick={() => handleToggleField(collection, "isActive")}
+                                className="flex items-center gap-2 group"
+                                title={collection.isActive ? "Hide from Collections page" : "Show on Collections page"}
+                              >
+                                <div className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${collection.isActive ? "bg-[#5C4B3D]" : "bg-[#D4C8BE]"}`}>
+                                  <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${collection.isActive ? "translate-x-4" : "translate-x-0.5"}`} />
+                                </div>
+                                <span className="text-[10px] text-[#757575] group-hover:text-[#1A1A1A] transition-colors whitespace-nowrap">Collections page</span>
+                              </button>
+                              <button
+                                onClick={() => handleToggleField(collection, "showOnHomepage")}
+                                className="flex items-center gap-2 group"
+                                title={collection.showOnHomepage ? "Hide from Homepage" : "Show on Homepage"}
+                              >
+                                <div className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${collection.showOnHomepage ? "bg-[#5C4B3D]" : "bg-[#D4C8BE]"}`}>
+                                  <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${collection.showOnHomepage ? "translate-x-4" : "translate-x-0.5"}`} />
+                                </div>
+                                <span className="text-[10px] text-[#757575] group-hover:text-[#1A1A1A] transition-colors whitespace-nowrap">Homepage</span>
+                              </button>
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-center text-[13px] text-[#757575]">{collection.displayOrder}</td>
                           <td className="px-4 py-3">
@@ -503,17 +526,6 @@ export default function AdminCollectionsPage() {
                                 title="Add product to collection"
                               >
                                 <UserPlus size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleToggleActive(collection)}
-                                className={`p-2 rounded-lg transition-colors ${
-                                  collection.isActive
-                                    ? "text-[#757575] hover:text-[#5C4B3D] hover:bg-[#F5F2ED]"
-                                    : "text-amber-500 hover:text-amber-700 hover:bg-amber-50"
-                                }`}
-                                title={collection.isActive ? "Hide collection" : "Show collection"}
-                              >
-                                {collection.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
                               </button>
                               <button
                                 onClick={() => handleStartEdit(collection)}

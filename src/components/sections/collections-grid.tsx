@@ -60,7 +60,7 @@ const CollectionsGrid: React.FC = () => {
     async function fetchData() {
       try {
         const [collectionsRes, settingsRes] = await Promise.all([
-          fetch("/api/collections"),
+          fetch("/api/collections?homepage=1"),
           fetch("/api/homepage-settings").catch(() => null),
         ]);
         if (collectionsRes.ok) {

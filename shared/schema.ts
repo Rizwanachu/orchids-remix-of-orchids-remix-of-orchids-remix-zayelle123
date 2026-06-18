@@ -136,6 +136,7 @@ export const collections = pgTable("collections", {
   imageUrl: text("image_url").notNull().default(""),
   isFeatured: integer("is_featured").notNull().default(0),
   isActive: integer("is_active").notNull().default(1),
+  showOnHomepage: integer("show_on_homepage").notNull().default(1),
   displayOrder: integer("display_order").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
