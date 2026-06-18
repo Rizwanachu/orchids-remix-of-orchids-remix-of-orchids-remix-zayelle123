@@ -182,10 +182,29 @@ export default async function Home() {
     ]);
 
     if (sectionsRows.length > 0) {
-      // Use the exact order and visibility saved by the admin — no overrides.
-      sectionNames = sectionsRows
-        .filter((s) => s.isVisible === 1)
-        .map((s) => s.sectionName);
+      const visibleSet = new Set(
+        sectionsRows.filter((s) => s.isVisible === 1).map((s) => s.sectionName)
+      );
+      // Always enforce the canonical CRO order; keep only sections the DB marks visible
+      // plus always-on sections (hero, whatsapp-strip, bundles, limited-edition).
+      const CANONICAL_ORDER = [
+        "hero",
+        "whatsapp-strip",
+        "new-arrivals",
+        "testimonials",
+        "bundles",
+        "collections",
+        "promo-banners",
+        "gift-hampers",
+        "limited-edition",
+        "zayelle-edit",
+        "instagram-feed",
+        "trust-bar",
+      ];
+      const alwaysOn = new Set(["hero", "whatsapp-strip", "bundles", "limited-edition"]);
+      sectionNames = CANONICAL_ORDER.filter(
+        (name) => alwaysOn.has(name) || visibleSet.has(name)
+      );
     }
 
     const ratingRow = ratingRows[0];
