@@ -41,11 +41,16 @@ export default function AdminHomepageLayoutPage() {
       const res = await fetch("/api/admin/homepage-layout");
       if (res.ok) {
         const data = await res.json();
-        if (data.sections && data.sections.length > 0) {
-          setSections(data.sections);
-        } else {
-          setSections([...DEFAULT_SECTIONS]);
-        }
+        const saved: Section[] = data.sections ?? [];
+
+        // Merge: start with saved sections (preserving user order/visibility),
+        // then append any DEFAULT_SECTIONS entries that are missing from the DB.
+        const savedNames = new Set(saved.map((s) => s.sectionName));
+        const missing = DEFAULT_SECTIONS.filter((d) => !savedNames.has(d.sectionName)).map(
+          (d, i) => ({ ...d, displayOrder: saved.length + i })
+        );
+        const merged = [...saved, ...missing];
+        setSections(merged.length > 0 ? merged : [...DEFAULT_SECTIONS]);
       } else {
         setSections([...DEFAULT_SECTIONS]);
       }
