@@ -335,6 +335,7 @@ export const contactMessages = pgTable("contact_messages", {
 export const productBundles = pgTable("product_bundles", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  handle: text("handle").notNull().default(""),
   description: text("description").notNull().default(""),
   bundleType: text("bundle_type").notNull().default("custom"),
   items: text("items").notNull().default("[]"),
@@ -344,6 +345,8 @@ export const productBundles = pgTable("product_bundles", {
   imageUrl: text("image_url").notNull().default(""),
   isActive: integer("is_active").notNull().default(1),
   displayOrder: integer("display_order").notNull().default(0),
+  viewCount: integer("view_count").notNull().default(0),
+  cartCount: integer("cart_count").notNull().default(0),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 

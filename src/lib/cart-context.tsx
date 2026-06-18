@@ -13,6 +13,15 @@ export interface ColorSelection {
   quantity: number;
 }
 
+export interface BundleSelection {
+  slotLabel: string;
+  productId: number;
+  productName: string;
+  productHandle: string;
+  productImage: string;
+  quantity: number;
+}
+
 export interface CartItem {
   id: string;
   handle: string;
@@ -30,6 +39,10 @@ export interface CartItem {
   shippingCost?: number;
   shippingCostKerala?: number;
   deliveryCharges?: { zones?: { pincodes: string[]; charge: number }[] } | null;
+  bundleId?: number;
+  bundleHandle?: string;
+  bundleSelections?: BundleSelection[];
+  bundleSavings?: number;
 }
 
 export function getItemTotal(item: CartItem): number {
@@ -88,15 +101,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [wishlist, loaded]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">, qty: number = 1) => {
-    const baseId = String(item.id).split("|")[0];
-    const mixFp = item.colorSelections && item.colorSelections.length > 0
-      ? [...item.colorSelections]
-          .map((c) => ({ n: c.name || "", q: Number(c.quantity) || 0 }))
-          .sort((a, b) => a.n.localeCompare(b.n))
-          .map((c) => `${c.n}:${c.q}`)
-          .join(",")
-      : "";
-    const variantKey = `${baseId}|${item.bundleType || ""}|${item.selectedColor?.name || ""}|${item.selectedSize || ""}|${mixFp}`;
+    let variantKey: string;
+
+    if (item.bundleId) {
+      const selFp = (item.bundleSelections || [])
+        .map(s => `${s.productId}:${s.quantity}`)
+        .join(",");
+      variantKey = `bundle-${item.bundleId}|${selFp}`;
+    } else {
+      const baseId = String(item.id).split("|")[0];
+      const mixFp = item.colorSelections && item.colorSelections.length > 0
+        ? [...item.colorSelections]
+            .map((c) => ({ n: c.name || "", q: Number(c.quantity) || 0 }))
+            .sort((a, b) => a.n.localeCompare(b.n))
+            .map((c) => `${c.n}:${c.q}`)
+            .join(",")
+        : "";
+      variantKey = `${baseId}|${item.bundleType || ""}|${item.selectedColor?.name || ""}|${item.selectedSize || ""}|${mixFp}`;
+    }
+
     const itemWithKey = { ...item, id: variantKey };
     setItems((prev) => {
       const existing = prev.find((i) => i.id === variantKey);
