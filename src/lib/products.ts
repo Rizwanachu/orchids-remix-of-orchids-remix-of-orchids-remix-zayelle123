@@ -29,6 +29,7 @@ export interface Product {
   lowStockThreshold?: number;
   shippingPolicy?: string;
   returnPolicy?: string;
+  active?: number;
   customHamperEnabled?: number;
   customHamperTitle?: string;
   customHamperBody?: string;

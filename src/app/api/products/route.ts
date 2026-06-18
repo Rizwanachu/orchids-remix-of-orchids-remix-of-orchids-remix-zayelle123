@@ -37,6 +37,7 @@ export async function GET() {
       careInstructions: p.careInstructions || "",
       shippingPolicy: p.shippingPolicy || "",
       returnPolicy: p.returnPolicy || "",
+      active: p.active,
       category: p.category,
       stockQuantity: p.stockQuantity,
       lowStockThreshold: p.lowStockThreshold,
