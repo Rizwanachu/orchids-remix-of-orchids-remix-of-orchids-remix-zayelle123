@@ -147,7 +147,7 @@ function AllProductsContent() {
   }, [selectedCategory, priceMin, priceMax]);
 
   const displayProducts = useMemo(() => {
-    let filtered = query ? searchProducts(query) : [...products];
+    let filtered = (query ? searchProducts(query) : [...products]).filter((p) => p.active !== 0);
 
     if (selectedCategory) {
       filtered = filtered.filter(

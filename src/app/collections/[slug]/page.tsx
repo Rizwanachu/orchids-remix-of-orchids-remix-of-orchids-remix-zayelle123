@@ -132,12 +132,12 @@ export default function CollectionPage() {
     collectionTitles[slug] ||
     slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
-  const byCategory = allProducts.filter((p) => p.category === slug);
+  const byCategory = allProducts.filter((p) => p.active !== 0 && p.category === slug);
   const filteredProducts =
     byCategory.length > 0
       ? byCategory
       : zayelleProductIds !== null
-      ? allProducts.filter((p) => zayelleProductIds.includes(String(p.id)))
+      ? allProducts.filter((p) => p.active !== 0 && zayelleProductIds.includes(String(p.id)))
       : [];
 
   const cards = useMemo(() => expandToVariantCards(filteredProducts), [filteredProducts]);
