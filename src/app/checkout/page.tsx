@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProducts } from "@/lib/products-context";
 import Script from "next/script";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -187,6 +188,19 @@ function CheckoutContent() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackBeginCheckout({
+      value: subtotal,
+      items: items.map((item: any) => ({
+        item_id: item.id,
+        item_name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    });
+  }, [items.length]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -252,6 +266,16 @@ function CheckoutContent() {
 
     if (res.ok) {
       const data = await res.json();
+      trackPurchase({
+        transactionId: data.order.orderId,
+        value: totalPrice,
+        items: items.map((item: any) => ({
+          item_id: item.id,
+          item_name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      });
       if (!isDirect) clearCart();
       router.push(`/order-confirmed?orderId=${encodeURIComponent(data.order.orderId)}`);
     } else {
@@ -312,6 +336,16 @@ function CheckoutContent() {
 
           if (verifyRes.ok) {
             const data = await verifyRes.json();
+            trackPurchase({
+              transactionId: data.order.orderId,
+              value: totalPrice,
+              items: items.map((item: any) => ({
+                item_id: item.id,
+                item_name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+              })),
+            });
             if (!isDirect) clearCart();
             router.push(`/order-confirmed?orderId=${encodeURIComponent(data.order.orderId)}`);
           } else {

@@ -76,6 +76,7 @@ const Header = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      import("@/lib/analytics").then(({ trackSearch }) => trackSearch(searchQuery.trim()));
       window.location.href = `/products?q=${encodeURIComponent(searchQuery.trim())}`;
       setIsSearchFocused(false);
     }

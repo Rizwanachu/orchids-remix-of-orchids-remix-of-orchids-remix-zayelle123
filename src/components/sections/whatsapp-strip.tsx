@@ -45,6 +45,7 @@ const WhatsAppStrip = () => {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => import("@/lib/analytics").then(({ trackWhatsAppClick }) => trackWhatsAppClick("whatsapp_strip"))}
             className="inline-flex items-center gap-3 bg-[#25D366] text-white px-7 py-3.5 font-medium text-[13px] uppercase tracking-wider transition-all hover:bg-[#20b858] flex-shrink-0 shadow-md hover:shadow-lg"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

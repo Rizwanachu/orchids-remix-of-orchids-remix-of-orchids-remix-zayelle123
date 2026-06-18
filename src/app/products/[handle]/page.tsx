@@ -9,6 +9,7 @@ import { Heart, Minus, Plus, ShoppingCart, Truck, RotateCcw, Shield, Loader2, Ch
 import { useCart } from "@/lib/cart-context";
 import { useProducts } from "@/lib/products-context";
 import ProductReviews, { ProductReviewSummary } from "@/components/product-reviews";
+import { trackProductView, trackAddToCart, trackWhatsAppClick } from "@/lib/analytics";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -52,6 +53,17 @@ export default function ProductDetailPage() {
   useEffect(() => {
     setBundleColorSelections({});
   }, [selectedBundleIdx]);
+
+  useEffect(() => {
+    if (product) {
+      trackProductView({
+        productId: product.id,
+        productName: product.name,
+        category: (product as any).category ?? "",
+        price: product.price,
+      });
+    }
+  }, [product?.id]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -175,6 +187,13 @@ export default function ProductDetailPage() {
       shippingCostKerala: (product as any).shippingCostKerala,
       deliveryCharges: (product as any).deliveryCharges ?? null,
     }, effectiveQty);
+    trackAddToCart({
+      productId: product.id,
+      productName: product.name,
+      category: (product as any).category ?? "",
+      price: selectedBundle ? Number(selectedBundle.price) : product.price,
+      quantity: effectiveQty,
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -788,6 +807,7 @@ export default function ProductDetailPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
+                  trackWhatsAppClick("product_page");
                   try {
                     fetch("/api/whatsapp-leads", {
                       method: "POST",

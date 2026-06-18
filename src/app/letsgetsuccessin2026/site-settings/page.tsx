@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Save, Plus, Trash2, GripVertical, Upload, ChevronUp, ChevronDown } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Upload, ChevronUp, ChevronDown, CheckCircle2, XCircle, ExternalLink, Zap } from "lucide-react";
 import Image from "next/image";
 import { uploadFile } from "@/lib/direct-upload";
 import { optimizeCloudinaryUrl } from "@/lib/optimize-cloudinary";
+import { sendTestEvent } from "@/lib/analytics";
 
 interface NavItem {
   name: string;
@@ -17,7 +18,7 @@ interface FooterLink {
   href: string;
 }
 
-type TabKey = "header" | "footer" | "integrations";
+type TabKey = "header" | "footer" | "integrations" | "analytics";
 
 export default function SiteSettingsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("header");
@@ -52,6 +53,10 @@ export default function SiteSettingsPage() {
   const [gaId, setGaId] = useState("");
   const [metaPixelId, setMetaPixelId] = useState("");
   const [freeShippingThreshold, setFreeShippingThreshold] = useState("");
+  const [searchConsoleVerification, setSearchConsoleVerification] = useState("");
+  const [merchantCenterVerification, setMerchantCenterVerification] = useState("");
+  const [lastEventData, setLastEventData] = useState<{ event: string; time: string } | null>(null);
+  const [testEventSent, setTestEventSent] = useState(false);
 
   const showSuccess = (msg: string) => {
     setSuccessMessage(msg);
@@ -97,6 +102,8 @@ export default function SiteSettingsPage() {
         setGaId(map["integrations_ga_id"] || "");
         setMetaPixelId(map["integrations_meta_pixel_id"] || "");
         setFreeShippingThreshold(map["integrations_free_shipping_threshold"] || "");
+        setSearchConsoleVerification(map["analytics_search_console_verification"] || "");
+        setMerchantCenterVerification(map["analytics_merchant_center_verification"] || "");
       }
     } catch (err) {
       console.error("Error fetching settings:", err);
@@ -151,6 +158,31 @@ export default function SiteSettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSaveAnalytics = async () => {
+    setSaving(true);
+    try {
+      await Promise.all([
+        saveSetting("analytics_search_console_verification", searchConsoleVerification),
+        saveSetting("analytics_merchant_center_verification", merchantCenterVerification),
+      ]);
+      showSuccess("Analytics settings saved successfully");
+    } catch (err) {
+      console.error("Error saving analytics settings:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestEvent = () => {
+    sendTestEvent();
+    setTestEventSent(true);
+    try {
+      const raw = localStorage.getItem("ga4_last_event");
+      if (raw) setLastEventData(JSON.parse(raw));
+    } catch {}
+    setTimeout(() => setTestEventSent(false), 3000);
   };
 
   const handleSaveFooter = async () => {
@@ -332,10 +364,18 @@ export default function SiteSettingsPage() {
       )}
 
       <div className="flex gap-1 mb-6 bg-[#F5F2ED] p-1 rounded-lg w-fit flex-wrap">
-        {(["header", "footer", "integrations"] as TabKey[]).map((tab) => (
+        {(["header", "footer", "integrations", "analytics"] as TabKey[]).map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab);
+              if (tab === "analytics") {
+                try {
+                  const raw = localStorage.getItem("ga4_last_event");
+                  if (raw) setLastEventData(JSON.parse(raw));
+                } catch {}
+              }
+            }}
             className={`px-5 py-2 rounded-md text-[13px] font-medium transition-colors capitalize ${
               activeTab === tab
                 ? "bg-white text-[#1A1A1A] shadow-sm"
@@ -751,6 +791,145 @@ export default function SiteSettingsPage() {
             >
               <Save size={16} />
               {saving ? "Saving..." : "Save Integration Settings"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "analytics" && (
+        <div className="space-y-6">
+
+          {/* GA4 Status */}
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Google Analytics 4</h3>
+                <p className="text-[13px] text-[#757575]">Measurement ID: <span className="font-mono text-[#1A1A1A] font-medium">G-TDCQB6VNVW</span></p>
+              </div>
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold ${
+                true ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
+              }`}>
+                <CheckCircle2 size={13} />
+                Connected
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+              <div className="bg-[#FAF9F6] rounded-lg p-4 border border-[#E8E4DE]">
+                <p className="text-[11px] uppercase tracking-wider text-[#A8A095] font-medium mb-1">Last Event Sent</p>
+                <p className="text-[14px] font-medium text-[#1A1A1A]">
+                  {lastEventData
+                    ? new Date(lastEventData.time).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+                    : "—"}
+                </p>
+                {lastEventData && (
+                  <p className="text-[11px] text-[#A8A095] mt-0.5 font-mono">{lastEventData.event}</p>
+                )}
+              </div>
+              <div className="bg-[#FAF9F6] rounded-lg p-4 border border-[#E8E4DE]">
+                <p className="text-[11px] uppercase tracking-wider text-[#A8A095] font-medium mb-1">Active Users Today</p>
+                <a
+                  href="https://analytics.google.com/analytics/web/#/realtime/overview"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[13px] text-[#5C4B3D] font-medium hover:underline mt-1"
+                >
+                  View in GA4 <ExternalLink size={11} />
+                </a>
+              </div>
+              <div className="bg-[#FAF9F6] rounded-lg p-4 border border-[#E8E4DE]">
+                <p className="text-[11px] uppercase tracking-wider text-[#A8A095] font-medium mb-1">Page Views Today</p>
+                <a
+                  href="https://analytics.google.com/analytics/web/#/report/content-pages"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[13px] text-[#5C4B3D] font-medium hover:underline mt-1"
+                >
+                  View in GA4 <ExternalLink size={11} />
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={handleTestEvent}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors ${
+                  testEventSent
+                    ? "bg-green-600 text-white"
+                    : "bg-[#5C4B3D] text-white hover:bg-[#4A3C31]"
+                }`}
+              >
+                <Zap size={14} />
+                {testEventSent ? "✓ Test Event Sent!" : "Send Test Event"}
+              </button>
+              <a
+                href="https://analytics.google.com/analytics/web/#/realtime/overview"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-5 py-2.5 border border-[#E8E4DE] rounded-lg text-[13px] text-[#5C4B3D] font-medium hover:bg-[#F5F2ED] transition-colors"
+              >
+                Open Google Analytics <ExternalLink size={13} />
+              </a>
+            </div>
+
+            <div className="mt-4 p-3 bg-[#F5F2ED] rounded-lg">
+              <p className="text-[12px] text-[#757575]">
+                <strong className="text-[#1A1A1A]">Events being tracked:</strong>{" "}
+                page_view · view_item · add_to_cart · begin_checkout · purchase · search · contact_form_submit · whatsapp_click
+              </p>
+            </div>
+          </div>
+
+          {/* Google Search Console */}
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Google Search Console</h3>
+            <p className="text-[13px] text-[#757575] mb-4">
+              Paste the content value from the HTML meta tag Google gives you to verify ownership.
+            </p>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Verification Code</label>
+              <input
+                type="text"
+                value={searchConsoleVerification}
+                onChange={(e) => setSearchConsoleVerification(e.target.value)}
+                placeholder="google-site-verification: googleXXXXXXXXXXXX.html OR meta tag content value"
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+              <p className="mt-1 text-[12px] text-[#A8A095]">
+                In Search Console → Settings → Ownership verification → HTML tag → copy the content="..." value only.
+              </p>
+            </div>
+          </div>
+
+          {/* Google Merchant Center */}
+          <div className="bg-white border border-[#E8E4DE] rounded-xl p-6">
+            <h3 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-1">Google Merchant Center</h3>
+            <p className="text-[13px] text-[#757575] mb-4">
+              Paste the content value from the HTML meta tag provided in Merchant Center to verify your website.
+            </p>
+            <div>
+              <label className="block text-[13px] font-medium text-[#1A1A1A] mb-1">Verification Code</label>
+              <input
+                type="text"
+                value={merchantCenterVerification}
+                onChange={(e) => setMerchantCenterVerification(e.target.value)}
+                placeholder="Merchant Center HTML meta tag content value"
+                className="w-full px-3 py-2 border border-[#E8E4DE] rounded-lg text-[14px] focus:outline-none focus:border-[#5C4B3D]"
+              />
+              <p className="mt-1 text-[12px] text-[#A8A095]">
+                In Merchant Center → Business info → Website → HTML tag verification → copy the content="..." value only.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSaveAnalytics}
+              disabled={saving}
+              className="flex items-center gap-2 bg-[#5C4B3D] text-white px-6 py-2.5 rounded-lg text-[13px] font-medium hover:bg-[#4A3C31] transition-colors disabled:opacity-50"
+            >
+              <Save size={16} />
+              {saving ? "Saving..." : "Save Verification Codes"}
             </button>
           </div>
         </div>

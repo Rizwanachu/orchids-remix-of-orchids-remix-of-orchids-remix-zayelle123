@@ -2,20 +2,33 @@
 
 import { useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
+import { trackAddToCart } from "@/lib/analytics";
+
+interface AnalyticsData {
+  productId: string;
+  productName: string;
+  category?: string;
+  price?: number;
+  quantity?: number;
+}
 
 interface AddToCartButtonProps {
   onAdd: () => void;
   size?: "sm" | "md";
   className?: string;
+  analyticsData?: AnalyticsData;
 }
 
-export default function AddToCartButton({ onAdd, size = "sm", className }: AddToCartButtonProps) {
+export default function AddToCartButton({ onAdd, size = "sm", className, analyticsData }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false);
   const [animating, setAnimating] = useState(false);
 
   const handleClick = () => {
     if (added) return;
     onAdd();
+    if (analyticsData) {
+      trackAddToCart(analyticsData);
+    }
     setAnimating(true);
     setTimeout(() => {
       setAnimating(false);

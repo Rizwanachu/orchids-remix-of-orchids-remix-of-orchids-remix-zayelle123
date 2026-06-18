@@ -8,6 +8,9 @@ import { ProductsProvider } from "@/lib/products-context";
 import { OrdersProvider } from "@/lib/orders-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import ScrollToTop from "@/components/scroll-to-top";
+import { db } from "@/../server/db";
+import { siteSettings } from "@/../shared/schema";
+import { eq } from "drizzle-orm";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -57,11 +60,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+async function getVerificationCodes() {
+  try {
+    const rows = await db.select().from(siteSettings).where(
+      eq(siteSettings.key, "analytics_search_console_verification")
+    );
+    const mcRows = await db.select().from(siteSettings).where(
+      eq(siteSettings.key, "analytics_merchant_center_verification")
+    );
+    return {
+      searchConsole: rows[0]?.value ?? "",
+      merchantCenter: mcRows[0]?.value ?? "",
+    };
+  } catch {
+    return { searchConsole: "", merchantCenter: "" };
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { searchConsole, merchantCenter } = await getVerificationCodes();
   return (
     <html lang="en">
       <head>
@@ -69,6 +90,8 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        {searchConsole && <meta name="google-site-verification" content={searchConsole} />}
+        {merchantCenter && <meta name="google-merchant-center-site-verification" content={merchantCenter} />}
       </head>
       <body
         className={`${inter.variable} ${cormorant.variable} antialiased`}
@@ -83,6 +106,7 @@ export default function RootLayout({
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'GT-NBJ3X3R8');
+          gtag('config', 'G-TDCQB6VNVW');
         `}
       </Script>
       <Script id="meta-pixel" strategy="afterInteractive">

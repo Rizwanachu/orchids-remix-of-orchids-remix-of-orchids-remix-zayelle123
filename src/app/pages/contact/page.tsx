@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Header from "@/components/sections/header";
 import Footer from "@/components/sections/footer";
 import { Mail, Phone, Clock, MapPin, Send } from "lucide-react";
+import { trackContactFormSubmit } from "@/lib/analytics";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
@@ -35,6 +36,7 @@ export default function ContactPage() {
       }
       setSubmitStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
+      trackContactFormSubmit();
     } catch {
       setSubmitStatus("error");
     } finally {

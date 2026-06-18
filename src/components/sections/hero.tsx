@@ -114,6 +114,7 @@ const HeroSection = () => {
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => import("@/lib/analytics").then(({ trackWhatsAppClick }) => trackWhatsAppClick("hero"))}
                   className="inline-flex items-center justify-center gap-2 border border-[#524436] text-[#524436] px-8 sm:px-10 py-3.5 sm:py-4 font-medium text-[12px] sm:text-[13px] transition-all hover:bg-[#524436] hover:text-white uppercase tracking-widest"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
