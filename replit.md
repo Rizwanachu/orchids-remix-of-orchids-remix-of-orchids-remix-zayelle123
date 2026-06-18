@@ -91,6 +91,27 @@
 - Product detail page price badge row uses `flex-wrap` to prevent overflow of "X% OFF (SAVE ₹X)" badge on narrow screens.
 - Admin dashboard outer container uses `p-4 md:p-8` with a responsive header that stacks on mobile.
 
+## Admin Panel - Bundles
+- Bundles CRUD at `/letsgetsuccessin2026/bundles`.
+- `product_bundles` table (id, name, description, bundle_type, items JSON, price, compare_price, badge, image_url, is_active, display_order, created_at).
+- Admin form: product picker with search + quantity per item, image upload via Cloudinary, badge field, compare price, enable/disable toggle, display order.
+- Public API: `/api/bundles` (returns active bundles ordered by display_order). Admin API: `/api/admin/bundles` (GET/POST) and `/api/admin/bundles/[id]` (PATCH/DELETE).
+- Homepage "Most Loved Bundles" section fetches from `/api/bundles` with fallback to product images when empty.
+
+## Admin Panel - WhatsApp Leads CRM
+- WhatsApp Leads CRM at `/letsgetsuccessin2026/whatsapp-leads`.
+- `whatsapp_leads` table (id, phone, name, source_page, product_name, product_handle, message, status, notes, created_at).
+- Lead auto-captured when customer clicks WhatsApp CTA on any product page (silent POST to `/api/whatsapp-leads`).
+- Admin view: leads list with status pipeline (New → Contacted → Interested → Ordered → Closed → Lost), filter by status with counts, expandable rows for notes, one-click WhatsApp Chat button, inline status update dropdown.
+- Public capture API: `/api/whatsapp-leads` (POST). Admin API: `/api/admin/whatsapp-leads` (GET) and `/api/admin/whatsapp-leads/[id]` (PATCH/DELETE).
+
+## CRO Enhancements (Homepage & Product Pages)
+- Homepage: dual hero CTAs, WhatsApp strip, bundles section, limited edition banner, 4-item trust bar.
+- Section order enforced via CANONICAL_ORDER in `src/app/page.tsx`.
+- Product page: delivery estimate block, WhatsApp CTA (with lead capture), 2×2 trust grid, Customer Questions FAQ accordion (5 Q&As).
+- Cart page: free shipping progress bar, upsell grid (4 items), trust signals in sidebar.
+- Checkout page: delivery estimate + 4 trust signals in order summary.
+
 ## Deployment
 - Deployed on Vercel.
 - Required Vercel environment variables: `DATABASE_URL`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.

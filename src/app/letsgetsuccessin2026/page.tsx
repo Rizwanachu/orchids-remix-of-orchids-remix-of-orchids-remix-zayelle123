@@ -12,6 +12,8 @@ import {
   Package,
   Ticket,
   Loader2,
+  PackageOpen,
+  MessageCircle,
 } from "lucide-react";
 
 interface AnalyticsData {
@@ -63,15 +65,19 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
+  const [activeBundles, setActiveBundles] = useState<number>(0);
+  const [newLeads, setNewLeads] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [analyticsRes, ordersRes, customersRes] = await Promise.all([
+        const [analyticsRes, ordersRes, customersRes, bundlesRes, leadsRes] = await Promise.all([
           fetch("/api/admin/analytics"),
           fetch("/api/admin/orders?limit=5"),
           fetch("/api/admin/customers?limit=1"),
+          fetch("/api/admin/bundles"),
+          fetch("/api/admin/whatsapp-leads?status=new"),
         ]);
 
         if (analyticsRes.ok) {
@@ -91,6 +97,17 @@ export default function AdminDashboard() {
         if (customersRes.ok) {
           const data = await customersRes.json();
           setTotalCustomers(data.total || 0);
+        }
+
+        if (bundlesRes.ok) {
+          const data = await bundlesRes.json();
+          const active = (data.bundles || data || []).filter((b: { isActive?: number | boolean }) => b.isActive === 1 || b.isActive === true).length;
+          setActiveBundles(active);
+        }
+
+        if (leadsRes.ok) {
+          const data = await leadsRes.json();
+          setNewLeads((data.leads || data || []).length);
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -139,6 +156,22 @@ export default function AdminDashboard() {
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
+    {
+      label: "Active Bundles",
+      value: activeBundles.toString(),
+      icon: PackageOpen,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      href: "/letsgetsuccessin2026/bundles",
+    },
+    {
+      label: "New WA Leads",
+      value: newLeads.toString(),
+      icon: MessageCircle,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      href: "/letsgetsuccessin2026/whatsapp-leads",
+    },
   ];
 
   const quickActions = [
@@ -146,6 +179,8 @@ export default function AdminDashboard() {
     { label: "View Analytics", href: "/letsgetsuccessin2026/analytics", icon: BarChart3 },
     { label: "Manage Products", href: "/letsgetsuccessin2026/products", icon: Package },
     { label: "Manage Coupons", href: "/letsgetsuccessin2026/coupons", icon: Ticket },
+    { label: "Manage Bundles", href: "/letsgetsuccessin2026/bundles", icon: PackageOpen },
+    { label: "WhatsApp Leads CRM", href: "/letsgetsuccessin2026/whatsapp-leads", icon: MessageCircle },
   ];
 
   return (
@@ -159,25 +194,38 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {statsCards.map((card) => (
-          <div
-            key={card.label}
-            className="bg-white border border-[#E8E4DE] rounded-[12px] p-5 flex items-start gap-4"
-          >
-            <div className={`${card.bg} p-2.5 rounded-lg flex-shrink-0`}>
-              <card.icon size={20} className={card.color} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {statsCards.map((card) => {
+          const inner = (
+            <>
+              <div className={`${card.bg} p-2.5 rounded-lg flex-shrink-0`}>
+                <card.icon size={20} className={card.color} />
+              </div>
+              <div>
+                <p className="text-[12px] font-medium text-[#757575] uppercase tracking-wider">
+                  {card.label}
+                </p>
+                <p className="text-[22px] font-semibold text-[#1A1A1A] mt-0.5">
+                  {card.value}
+                </p>
+              </div>
+            </>
+          );
+          const baseClass = "bg-white border border-[#E8E4DE] rounded-[12px] p-5 flex items-start gap-4";
+          return "href" in card && card.href ? (
+            <Link
+              key={card.label}
+              href={card.href}
+              className={`${baseClass} hover:border-[#5C4B3D] hover:shadow-sm transition-all`}
+            >
+              {inner}
+            </Link>
+          ) : (
+            <div key={card.label} className={baseClass}>
+              {inner}
             </div>
-            <div>
-              <p className="text-[12px] font-medium text-[#757575] uppercase tracking-wider">
-                {card.label}
-              </p>
-              <p className="text-[22px] font-semibold text-[#1A1A1A] mt-0.5">
-                {card.value}
-              </p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-white border border-[#E8E4DE] rounded-[12px] overflow-hidden mb-8">
@@ -258,7 +306,7 @@ export default function AdminDashboard() {
         <h2 className="text-[16px] font-serif font-semibold text-[#1A1A1A] mb-4">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((action) => (
             <Link
               key={action.href}
