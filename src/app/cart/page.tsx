@@ -170,24 +170,30 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex items-center justify-center col-start-2 md:col-start-auto">
-                      <div className="flex items-center border border-[#E8E4DE] rounded-sm">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                          className="w-8 h-8 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] disabled:opacity-30 transition-colors"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="w-8 h-8 flex items-center justify-center text-[13px] font-medium border-x border-[#E8E4DE]">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
+                      {item.bundleType ? (
+                        <div className="flex items-center border border-[#5C4B3D]/30 bg-[#5C4B3D]/5 rounded-sm px-4 h-8 text-[13px] font-medium text-[#5C4B3D]">
+                          Qty: {item.quantity}
+                        </div>
+                      ) : (
+                        <div className="flex items-center border border-[#E8E4DE] rounded-sm">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            className="w-8 h-8 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] disabled:opacity-30 transition-colors"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="w-8 h-8 flex items-center justify-center text-[13px] font-medium border-x border-[#E8E4DE]">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="w-8 h-8 flex items-center justify-center text-[#757575] hover:text-[#1A1A1A] transition-colors"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="hidden md:flex flex-col items-end">

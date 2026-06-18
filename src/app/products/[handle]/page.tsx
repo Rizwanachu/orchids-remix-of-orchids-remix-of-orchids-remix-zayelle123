@@ -30,6 +30,7 @@ export default function ProductDetailPage() {
   const [pincodeResult, setPincodeResult] = useState<{ charge: number | "free"; message: string } | null>(null);
   const [selectedBundleIdx, setSelectedBundleIdx] = useState<number | null>(null);
   const [bundleColorSelections, setBundleColorSelections] = useState<Record<string, number>>({});
+  const [multiColorSelections, setMultiColorSelections] = useState<Record<string, number>>({});
   const [linkCopied, setLinkCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
@@ -53,6 +54,11 @@ export default function ProductDetailPage() {
   useEffect(() => {
     setBundleColorSelections({});
   }, [selectedBundleIdx]);
+
+  useEffect(() => {
+    setMultiColorSelections({});
+    if (quantity > 1) setSelectedColorIdx(null);
+  }, [quantity]);
 
   useEffect(() => {
     if (product) {
@@ -150,8 +156,12 @@ export default function ProductDetailPage() {
   const bundleNeedsColors = !!(selectedBundle && (product as any).colors && (product as any).colors.length > 0);
   const bundleColorsIncomplete = bundleNeedsColors && bundleColorTotal !== (selectedBundle?.quantity ?? 0);
 
+  const multiColorTotal = Object.values(multiColorSelections).reduce((s, n) => s + n, 0);
+  const multiNeedsColors = !selectedBundle && quantity > 1 && !!(product as any).colors && ((product as any).colors as any[]).length > 0;
+  const multiColorsIncomplete = multiNeedsColors && multiColorTotal !== quantity;
+
   const handleAddToCart = () => {
-    if (bundleColorsIncomplete) return;
+    if (bundleColorsIncomplete || multiColorsIncomplete) return;
     const colorSelectionsForCart = (selectedBundle && colors && colors.length > 0)
       ? Object.entries(bundleColorSelections)
           .filter(([, qty]) => qty > 0)
@@ -159,8 +169,15 @@ export default function ProductDetailPage() {
             const color = colors.find(c => c.name === name);
             return { name, hex: color?.hex || "", quantity: qty };
           })
+      : (multiNeedsColors && colors && colors.length > 0)
+      ? Object.entries(multiColorSelections)
+          .filter(([, qty]) => qty > 0)
+          .map(([name, qty]) => {
+            const color = colors.find(c => c.name === name);
+            return { name, hex: color?.hex || "", quantity: qty };
+          })
       : null;
-    const sc = !selectedBundle && selectedColorIdx !== null && colors?.[selectedColorIdx]
+    const sc = !selectedBundle && !multiNeedsColors && selectedColorIdx !== null && colors?.[selectedColorIdx]
       ? { name: colors[selectedColorIdx].name, hex: colors[selectedColorIdx].hex || "" }
       : null;
     const sizes = (product as any).sizes as Array<{ label: string }> | undefined;
@@ -200,12 +217,19 @@ export default function ProductDetailPage() {
 
   const handleBuyItNow = async () => {
     if (isRedirecting) return;
-    if (bundleColorsIncomplete) return;
+    if (bundleColorsIncomplete || multiColorsIncomplete) return;
     setIsRedirecting(true);
 
     try {
       const colorSelectionsForBuy = (selectedBundle && colors && colors.length > 0)
         ? Object.entries(bundleColorSelections)
+            .filter(([, qty]) => qty > 0)
+            .map(([name, qty]) => {
+              const color = colors.find(c => c.name === name);
+              return { name, hex: color?.hex || "", quantity: qty };
+            })
+        : (multiNeedsColors && colors && colors.length > 0)
+        ? Object.entries(multiColorSelections)
             .filter(([, qty]) => qty > 0)
             .map(([name, qty]) => {
               const color = colors.find(c => c.name === name);
@@ -217,7 +241,7 @@ export default function ProductDetailPage() {
         bundleType: selectedBundle
           ? `Bundle of ${selectedBundle.quantity} — Rs. ${Number(selectedBundle.price).toLocaleString("en-IN")}`
           : null,
-        selectedColor: !selectedBundle && selectedColorIdx !== null && colors?.[selectedColorIdx]
+        selectedColor: !selectedBundle && !multiNeedsColors && selectedColorIdx !== null && colors?.[selectedColorIdx]
           ? { name: colors[selectedColorIdx].name, hex: colors[selectedColorIdx].hex || "" }
           : null,
         selectedSize: !selectedBundle && selectedSizeIdx !== null && sizes?.[selectedSizeIdx]
@@ -507,7 +531,66 @@ export default function ProductDetailPage() {
                 );
               })()}
 
-              {(product as any).colors && (product as any).colors.length > 0 && (
+              {/* Multi-quantity color picker: shown when qty > 1 and no bundle selected */}
+              {multiNeedsColors && (() => {
+                const availableColors = (colors || []).filter(c => !c.outOfStock);
+                const remaining = quantity - multiColorTotal;
+                const updateColor = (name: string, delta: number) => {
+                  const current = multiColorSelections[name] || 0;
+                  const next = Math.max(0, current + delta);
+                  if (delta > 0 && remaining <= 0) return;
+                  setMultiColorSelections(prev => ({ ...prev, [name]: next }));
+                };
+                return (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <p className="text-[12px] text-[#757575] uppercase tracking-wider font-medium">Choose Colors</p>
+                      <span className={`text-[12px] font-semibold px-2 py-0.5 rounded ${remaining === 0 ? "bg-[#5C4B3D]/10 text-[#5C4B3D]" : "bg-[#F5F2ED] text-[#757575]"}`}>
+                        {multiColorTotal}/{quantity} selected
+                      </span>
+                    </div>
+                    {remaining > 0 ? (
+                      <p className="text-[12px] text-[#757575] mb-3">
+                        {remaining === quantity
+                          ? `Choose a color for each of your ${quantity} items`
+                          : `${remaining} more to select`}
+                      </p>
+                    ) : (
+                      <p className="text-[12px] text-[#5C4B3D] font-medium mb-3">All colors selected!</p>
+                    )}
+                    <div className="flex flex-col gap-2">
+                      {availableColors.map((color, i) => {
+                        const qty = multiColorSelections[color.name] || 0;
+                        return (
+                          <div key={i} className={`flex items-center justify-between px-4 py-3 rounded-md border transition-colors ${qty > 0 ? "border-[#5C4B3D] bg-[#5C4B3D]/5" : "border-[#E8E4DE]"}`}>
+                            <div className="flex items-center gap-3">
+                              <span className="w-5 h-5 rounded-full border border-black/10 flex-shrink-0" style={{ backgroundColor: color.hex }} />
+                              <span className="text-[13px] text-[#1A1A1A] font-medium">{color.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button type="button" onClick={() => updateColor(color.name, -1)} disabled={qty === 0}
+                                className="w-7 h-7 rounded-full border border-[#E8E4DE] flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <Minus size={12} />
+                              </button>
+                              <span className="w-5 text-center text-[14px] font-semibold text-[#1A1A1A]">{qty}</span>
+                              <button type="button" onClick={() => updateColor(color.name, 1)} disabled={remaining <= 0}
+                                className="w-7 h-7 rounded-full border border-[#E8E4DE] flex items-center justify-center text-[#757575] hover:border-[#5C4B3D] hover:text-[#5C4B3D] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {(colors || []).some(c => c.outOfStock) && (
+                      <p className="mt-2 text-[11px] text-[#757575]">Some colors are out of stock and unavailable.</p>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Single color selector: only shown when qty = 1 and no bundle */}
+              {!multiNeedsColors && (product as any).colors && (product as any).colors.length > 0 && (
                 <div className="mt-4">
                   <p className="text-[12px] text-[#757575] mb-2.5 uppercase tracking-wider font-medium">
                     {selectedColorIdx !== null
@@ -756,8 +839,14 @@ export default function ProductDetailPage() {
                 {/* Row 2: Add to Cart */}
                 <button
                   onClick={handleAddToCart}
-                  disabled={bundleColorsIncomplete}
-                  title={bundleColorsIncomplete ? `Select all ${selectedBundle?.quantity} colors for the bundle` : undefined}
+                  disabled={bundleColorsIncomplete || multiColorsIncomplete}
+                  title={
+                    bundleColorsIncomplete
+                      ? `Select all ${selectedBundle?.quantity} colors for the bundle`
+                      : multiColorsIncomplete
+                      ? `Select colors for all ${quantity} items`
+                      : undefined
+                  }
                   className={`w-full py-3 px-8 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     addedToCart
                       ? "bg-[#E8D9C5] text-[#1A1A1A] scale-95"
@@ -769,6 +858,8 @@ export default function ProductDetailPage() {
                     ? "Added to Cart!"
                     : bundleColorsIncomplete
                     ? `Select ${(selectedBundle?.quantity ?? 0) - bundleColorTotal} more color${(selectedBundle?.quantity ?? 0) - bundleColorTotal === 1 ? "" : "s"}`
+                    : multiColorsIncomplete
+                    ? `Select ${quantity - multiColorTotal} more color${quantity - multiColorTotal === 1 ? "" : "s"}`
                     : "Add to Cart"}
                 </button>
               </div>
@@ -777,8 +868,14 @@ export default function ProductDetailPage() {
               {!isOutOfStock && (
               <button
                 onClick={handleBuyItNow}
-                disabled={isRedirecting || bundleColorsIncomplete}
-                title={bundleColorsIncomplete ? `Select all ${selectedBundle?.quantity} colors for the bundle` : undefined}
+                disabled={isRedirecting || bundleColorsIncomplete || multiColorsIncomplete}
+                title={
+                  bundleColorsIncomplete
+                    ? `Select all ${selectedBundle?.quantity} colors for the bundle`
+                    : multiColorsIncomplete
+                    ? `Select colors for all ${quantity} items`
+                    : undefined
+                }
                 className="mt-3 w-full bg-[#5C4B3D] text-white py-3 rounded-sm font-medium text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#4A3C31] transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
               >
                 {isRedirecting ? (
