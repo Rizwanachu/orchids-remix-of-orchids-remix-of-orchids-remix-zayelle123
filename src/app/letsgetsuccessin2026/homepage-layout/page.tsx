@@ -10,16 +10,21 @@ interface Section {
   displayOrder: number;
 }
 
+const ALWAYS_ON = new Set(["hero", "whatsapp-strip", "bundles", "limited-edition"]);
+
 const DEFAULT_SECTIONS: Section[] = [
   { sectionName: "hero", label: "Hero Banner", isVisible: true, displayOrder: 0 },
-  { sectionName: "collections", label: "Collections", isVisible: true, displayOrder: 1 },
+  { sectionName: "whatsapp-strip", label: "WhatsApp Help Strip", isVisible: true, displayOrder: 1 },
   { sectionName: "new-arrivals", label: "New Arrivals", isVisible: true, displayOrder: 2 },
-  { sectionName: "promo-banners", label: "Promo Banners", isVisible: true, displayOrder: 3 },
-  { sectionName: "gift-hampers", label: "Gift Hampers", isVisible: true, displayOrder: 4 },
-  { sectionName: "zayelle-edit", label: "Zayelle Edit", isVisible: true, displayOrder: 5 },
-  { sectionName: "instagram-feed", label: "Instagram Feed", isVisible: true, displayOrder: 6 },
-  { sectionName: "testimonials", label: "Testimonials", isVisible: true, displayOrder: 7 },
-  { sectionName: "trust-bar", label: "Trust Bar", isVisible: true, displayOrder: 8 },
+  { sectionName: "testimonials", label: "Testimonials", isVisible: true, displayOrder: 3 },
+  { sectionName: "bundles", label: "Bundles (Most Loved)", isVisible: true, displayOrder: 4 },
+  { sectionName: "collections", label: "Collections Grid", isVisible: true, displayOrder: 5 },
+  { sectionName: "promo-banners", label: "Promo Banners", isVisible: true, displayOrder: 6 },
+  { sectionName: "gift-hampers", label: "Gift Hampers", isVisible: true, displayOrder: 7 },
+  { sectionName: "limited-edition", label: "Limited Edition Banner", isVisible: true, displayOrder: 8 },
+  { sectionName: "zayelle-edit", label: "Zayelle Edit", isVisible: true, displayOrder: 9 },
+  { sectionName: "instagram-feed", label: "Instagram Feed", isVisible: true, displayOrder: 10 },
+  { sectionName: "trust-bar", label: "Trust Bar", isVisible: true, displayOrder: 11 },
 ];
 
 export default function AdminHomepageLayoutPage() {
@@ -235,7 +240,14 @@ export default function AdminHomepageLayoutPage() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#1A1A1A]">{section.label}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-medium text-[#1A1A1A]">{section.label}</p>
+                  {ALWAYS_ON.has(section.sectionName) && (
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-[#5C4B3D]/10 text-[#5C4B3D] rounded-full">
+                      Always On
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-[#757575]">{section.sectionName}</p>
               </div>
 
@@ -248,19 +260,23 @@ export default function AdminHomepageLayoutPage() {
                 />
                 <button
                   onClick={() => toggleVisibility(index)}
+                  disabled={ALWAYS_ON.has(section.sectionName)}
                   className={`p-2 rounded-lg transition-colors ${
-                    section.isVisible
+                    ALWAYS_ON.has(section.sectionName)
+                      ? "text-[#5C4B3D] bg-[#F5F2ED] opacity-40 cursor-not-allowed"
+                      : section.isVisible
                       ? "text-[#5C4B3D] bg-[#F5F2ED] hover:bg-[#EAE5DD]"
                       : "text-[#757575] bg-gray-100 hover:bg-gray-200"
                   }`}
-                  title={section.isVisible ? "Visible - click to hide" : "Hidden - click to show"}
+                  title={ALWAYS_ON.has(section.sectionName) ? "Always visible — cannot hide" : section.isVisible ? "Visible - click to hide" : "Hidden - click to show"}
                 >
                   {section.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
                 <button
                   onClick={() => handleRemoveSection(index)}
-                  className="p-2 text-[#757575] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Remove section"
+                  disabled={ALWAYS_ON.has(section.sectionName)}
+                  className={`p-2 rounded-lg transition-colors ${ALWAYS_ON.has(section.sectionName) ? "opacity-20 cursor-not-allowed text-[#757575]" : "text-[#757575] hover:text-red-500 hover:bg-red-50"}`}
+                  title={ALWAYS_ON.has(section.sectionName) ? "Cannot remove always-on section" : "Remove section"}
                 >
                   <Trash2 size={16} />
                 </button>

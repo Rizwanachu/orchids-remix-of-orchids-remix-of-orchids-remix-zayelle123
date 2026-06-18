@@ -41,8 +41,14 @@ const FALLBACK_BUNDLES = [
 const BundlesSection = () => {
   const [dbBundles, setDbBundles] = useState<DbBundle[] | null>(null);
   const [fallbackProducts, setFallbackProducts] = useState<FallbackProduct[]>([]);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    fetch('/api/homepage-settings')
+      .then(r => r.json())
+      .then(data => setSettings(data))
+      .catch(() => {});
+
     fetch("/api/bundles")
       .then((r) => r.json())
       .then((data) => {
@@ -77,8 +83,15 @@ const BundlesSection = () => {
     <section className="py-[64px] md:py-[80px] bg-[#FDFCF8]">
       <div className="container px-5 sm:px-8">
         <header className="flex flex-col items-center mb-10 text-center">
-          <p className="text-[11px] uppercase tracking-[3px] text-[#8B735B] mb-3 font-medium">Save More Together</p>
-          <h2 className="text-[28px] md:text-[34px] font-serif italic text-[#1A1A1A] mb-2">Most Loved Bundles</h2>
+          <p className="text-[11px] uppercase tracking-[3px] text-[#8B735B] mb-3 font-medium">
+            {settings.bundlesEyebrow || "Save More Together"}
+          </p>
+          <h2 className="text-[28px] md:text-[34px] font-serif italic text-[#1A1A1A] mb-2">
+            {settings.bundlesTitle || "Most Loved Bundles"}
+          </h2>
+          {(settings.bundlesSubtitle) && (
+            <p className="text-[14px] text-[#757575] mt-1 max-w-[400px]">{settings.bundlesSubtitle}</p>
+          )}
           <div className="w-[50px] h-[1px] bg-[#5C4B3D] opacity-25 mt-3" />
         </header>
 
